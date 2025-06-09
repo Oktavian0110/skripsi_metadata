@@ -1,4 +1,8 @@
-repo,pesan,author,tanggal
-Oktavian0110/Alaskaki-Project,git1,Unknown,2023-05-24 14:00:42
-Oktavian0110/Alaskaki-Project,push,Unknown,2023-05-24 13:55:50
-Oktavian0110/Alaskaki-Project,first commit,Unknown,2023-05-24 08:49:37
+repo,commit_hash,pesan,author,email,tanggal,is_author_valid
+Oktavian0110/skripsi_metadata,4d84cc50e42404b12783078425b4a35d8981a7ea,Add initial implementation for PDF and Git metadata extraction  - Created config.py for configuratio,Oktavian0110,2041720208@student.polinema.ac.id,2025-05-26 16:43:11,True
+qalbiiazzahra/project-big-data-2023,7a2af7ee3f4aea7cc7908362a75683f8f9cf5c75,Add files via upload,qalbiiazzahra,130344848+qalbiiazzahra@users.noreply.github.com,2023-07-21 01:01:30,True
+Oktavian0110/Alaskaki-Project,f9240b7fb2ea8b5302005316360ead0d63e60b94,git1,Unknown,Unknown,2023-05-24 14:00:42,False
+Oktavian0110/Alaskaki-Project,b55970eddbd928450cdc16c9c38b21ff71afb4e4,push,Unknown,Unknown,2023-05-24 13:55:50,False
+Oktavian0110/Alaskaki-Project,19aee8741889e5a0725392beeb618f0e128696c0,first commit,Unknown,Unknown,2023-05-24 08:49:37,False
+Oktavian0110/Alaskaki-Project,b55970eddbd928450cdc16c9c38b21ff71afb4e4,push,Unknown,Unknown,2023-05-24 13:55:50,False
+Oktavian0110/Alaskaki-Project,19aee8741889e5a0725392beeb618f0e128696c0,first commit,Unknown,Unknown,2023-05-24 08:49:37,False
