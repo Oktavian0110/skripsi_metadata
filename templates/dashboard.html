@@ -1,0 +1,101 @@
+<!-- templates/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Ringkasan Analisis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-5 page-header">
+    <div>
+        <h2>Ringkasan Analisis</h2>
+        <p>Dashboard interaktif untuk analisis metadata.</p>
+    </div>
+    <form action="{{ url_for('reset_data') }}" method="post">
+        <button type="submit" class="btn btn-danger">Reset & Hapus Semua Data</button>
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Analisis Dokumen PDF dari Link</div>
+            <div class="card-body">
+                <!-- PERBAIKAN: Menggunakan endpoint 'analyze_pdf' -->
+                <form action="{{ url_for('analyze_pdf') }}" method="post" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="gdrive_link" placeholder="Tempelkan link Google Drive di sini">
+                        <button class="btn btn-primary" type="submit">Analisis</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Analisis Repositori Git</div>
+            <div class="card-body">
+                <!-- PERBAIKAN: Menggunakan endpoint 'analyze_git' -->
+                <form action="{{ url_for('analyze_git') }}" method="post" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="repo_name" placeholder="Contoh: user/repo-name">
+                        <button class="btn btn-primary" type="submit">Analisis</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if pdf_stats or git_stats %}
+<h4 class="mt-5">Hasil Analisis Terakhir</h4>
+{% endif %}
+
+<div class="row">
+    {% if pdf_stats %}
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Ringkasan PDF</div>
+            <div class="card-body">
+                <p><strong>File:</strong> {{ pdf_stats.analyzed_filename }}</p>
+                <p><strong>Author:</strong> {{ pdf_stats.author_counts.keys()|first }}</p>
+                <p><strong>Jumlah Halaman:</strong> {{ pdf_stats.avg_pages }}</p>
+                <hr>
+                <h6>Kata Kunci Utama</h6>
+                {% if pdf_stats.keywords %}
+                    {% for keyword in pdf_stats.keywords %}<span class="badge bg-light text-dark fw-normal me-1 mb-1">{{ keyword }}</span>{% endfor %}
+                {% else %}
+                    <p class="text-muted fst-italic">Tidak ada kata kunci yang ditemukan.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if git_stats %}
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Ringkasan Git</div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-4"><h5>{{ git_stats.total_commits }}</h5><p class="text-muted">Commit</p></div>
+                    <div class="col-4"><h5>{{ git_stats.total_issues }}</h5><p class="text-muted">Issue</p></div>
+                    <div class="col-4"><h5>{{ git_stats.total_pull_requests }}</h5><p class="text-muted">Pull Request</p></div>
+                </div>
+                <div style="position: relative; height:250px">
+                    <canvas id="commitsOverTimeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const timeData = {{ commits_over_time_data | tojson | safe }};
+    if (timeData && Object.keys(timeData).length > 0) {
+        const ctx = document.getElementById('commitsOverTimeChart').getContext('2d');
+        new Chart(ctx, { type: 'line', data: { labels: Object.keys(timeData), datasets: [{ label: 'Jumlah Commit per Hari', data: Object.values(timeData), backgroundColor: 'rgba(79, 70, 229, 0.1)', borderColor: 'rgba(79, 70, 229, 1)', borderWidth: 2, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', time: { unit: 'day' } }, y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
+    }
+</script>
+{% endblock %}

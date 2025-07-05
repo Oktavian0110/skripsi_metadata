@@ -1,0 +1,42 @@
+<!-- templates/data_pdf.html -->
+{% extends "base.html" %}
+
+{% block title %}Data Dokumen PDF{% endblock %}
+
+{% block content %}
+<h2>Data Dokumen PDF</h2>
+<p class="text-muted">Menampilkan semua riwayat analisis dokumen PDF yang tersimpan di database.</p>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Waktu Analisis</th>
+                    <th>Nama File</th>
+                    <th>Judul</th>
+                    <th>Author</th>
+                    <th>Jml Halaman</th>
+                    <th>Kata Kunci</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in pdf_docs %}
+                <tr>
+                    <td>{{ doc.analysis_timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ doc.file_name }}</td>
+                    <td>{{ doc.title }}</td>
+                    <td>{{ doc.author }}</td>
+                    <td>{{ doc.num_pages }}</td>
+                    <td><small>{{ doc.keywords }}</small></td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Belum ada data.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

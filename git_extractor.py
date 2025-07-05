@@ -1,47 +1,125 @@
+import pandas as pd
 from github import Github
-from config import GITHUB_TOKEN, REPO_LIST
-from datetime import datetime
-from analyzer import kategorikan_commit # <-- 1. IMPORT FUNGSI BARU
+from config import GITHUB_TOKEN
+import re
 
-def extract_git_metadata(custom_repo_list=None):
-    results = []
-    
-    repos_to_process = custom_repo_list if custom_repo_list is not None else REPO_LIST
+class GitExtractor:
+    """
+    A class to extract metadata from a GitHub repository, including
+    commits, issues, and pull requests.
+    """
+    def __init__(self, token=GITHUB_TOKEN):
+        """
+        Initializes the extractor with a GitHub token.
+        """
+        if not token or token == "MASUKKAN_TOKEN_GITHUB_ANDA_DI_SINI":
+            raise ValueError("GitHub token not found or not set. Please set it in config.py")
+        self.github = Github(token)
 
-    try:
-        g = Github(GITHUB_TOKEN)
-        for repo_name in repos_to_process:
-            repo = g.get_repo(repo_name)
-            commits = list(repo.get_commits()[:5]) 
+    def _categorize_commit_message(self, message):
+        """
+        Categorizes a commit message based on keywords.
+        """
+        message_lower = message.lower()
+        if re.search(r'\b(fix|bug|repair|patch)\b', message_lower):
+            return 'Fix'
+        elif re.search(r'\b(feat|feature|add|implement)\b', message_lower):
+            return 'Feature'
+        elif re.search(r'\b(docs|document|readme)\b', message_lower):
+            return 'Documentation'
+        elif re.search(r'\b(style|format|lint)\b', message_lower):
+            return 'Styling'
+        elif re.search(r'\b(refactor|restructure)\b', message_lower):
+            return 'Refactor'
+        elif re.search(r'\b(test|testing)\b', message_lower):
+            return 'Test'
+        elif re.search(r'\b(chore|build|ci|release)\b', message_lower):
+            return 'Chore'
+        else:
+            return 'Other'
+
+    def _extract_commits(self, repo):
+        """Extracts commit data from the repository."""
+        commits_data = []
+        try:
+            for commit in repo.get_commits():
+                commit_info = {
+                    'repo_name': repo.full_name,
+                    'commit_sha': commit.sha,
+                    'commit_message': commit.commit.message,
+                    'commit_author': commit.commit.author.name,
+                    'commit_author_email': commit.commit.author.email,
+                    'commit_date': commit.commit.author.date.replace(tzinfo=None),
+                    'category': self._categorize_commit_message(commit.commit.message)
+                }
+                commits_data.append(commit_info)
+        except Exception as e:
+            print(f"Error extracting commits: {e}")
+        return commits_data
+
+    def _extract_issues(self, repo):
+        """Extracts issue data from the repository."""
+        issues_data = []
+        try:
+            for issue in repo.get_issues(state='all'):
+                if issue.pull_request:
+                    continue
+                issue_info = {
+                    'repo_name': repo.full_name,
+                    'issue_number': issue.number,
+                    'issue_title': issue.title,
+                    'issue_creator': issue.user.login,
+                    'issue_state': issue.state,
+                    'issue_created_at': issue.created_at.replace(tzinfo=None) if issue.created_at else None,
+                    'issue_closed_at': issue.closed_at.replace(tzinfo=None) if issue.closed_at else None,
+                    'issue_labels': [label.name for label in issue.labels]
+                }
+                issues_data.append(issue_info)
+        except Exception as e:
+            print(f"Error extracting issues: {e}")
+        return issues_data
+
+    def _extract_pull_requests(self, repo):
+        """Extracts pull request data from the repository."""
+        prs_data = []
+        try:
+            for pr in repo.get_pulls(state='all'):
+                pr_info = {
+                    'repo_name': repo.full_name,
+                    'pr_number': pr.number,
+                    'pr_title': pr.title,
+                    'pr_creator': pr.user.login,
+                    'pr_state': pr.state,
+                    'pr_created_at': pr.created_at.replace(tzinfo=None) if pr.created_at else None,
+                    'pr_closed_at': pr.closed_at.replace(tzinfo=None) if pr.closed_at else None,
+                    'pr_merged': pr.merged,
+                    'pr_merged_at': pr.merged_at.replace(tzinfo=None) if pr.merged_at else None,
+                    'pr_commits': pr.commits,
+                    'pr_additions': pr.additions,
+                    'pr_deletions': pr.deletions
+                }
+                prs_data.append(pr_info)
+        except Exception as e:
+            print(f"Error extracting pull requests: {e}")
+        return prs_data
+
+    def extract_git_metadata(self, repo_name):
+        """
+        Extracts all relevant metadata from a given repository.
+        """
+        try:
+            repo = self.github.get_repo(repo_name)
             
-            for commit in commits:
-                author_name = None
-                author_email = None
-
-                if commit.author: author_name = commit.author.login
-                if not author_name and commit.committer: author_name = commit.committer.login
-                if not author_name and commit.commit.author: author_name = commit.commit.author.name
-                if commit.commit.author: author_email = commit.commit.author.email
-
-                if not author_name or not author_name.strip() or author_name.strip() == '=': author_name = "Unknown"
-                if not author_email or not author_email.strip() or author_email.strip() == '=': author_email = "Unknown"
-
-                # --- PERUBAHAN UTAMA DI SINI ---
-                # 2. Panggil fungsi analisis untuk mendapatkan kategori
-                pesan_commit = commit.commit.message
-                kategori = kategorikan_commit(pesan_commit)
-                
-                results.append({
-                    "repo": repo_name,
-                    "commit_hash": commit.sha,
-                    "pesan": pesan_commit[:100].replace("\n", " "),
-                    "author": author_name,
-                    "email": author_email,
-                    "tanggal": commit.commit.author.date.strftime("%Y-%m-%d %H:%M:%S"),
-                    "is_author_valid": author_name != "Unknown",
-                    "kategori": kategori # <-- 3. Tambahkan kategori ke hasil
-                })
-        return results
-    except Exception as e:
-        print(f"Error akses GitHub: {e}")
-        return []
+            commits_list = self._extract_commits(repo)
+            issues_list = self._extract_issues(repo)
+            prs_list = self._extract_pull_requests(repo)
+            
+            commits_df = pd.DataFrame(commits_list)
+            issues_df = pd.DataFrame(issues_list)
+            prs_df = pd.DataFrame(prs_list)
+            
+            return commits_df, issues_df, prs_df
+            
+        except Exception as e:
+            print(f"Could not access repository {repo_name}. Error: {e}")
+            return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
