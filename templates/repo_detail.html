@@ -1,0 +1,161 @@
+<!-- templates/repo_detail.html -->
+{% extends "base.html" %}
+
+{% block title %}Detail Repositori: {{ repo_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Repositori
+    </a>
+    <h2>Analisis Detail: {{ repo_name }}</h2>
+    <p class="text-muted">Menampilkan ringkasan dan visualisasi data untuk repositori yang dipilih.</p>
+</div>
+
+<!-- Ringkasan Statistik -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="card-title">{{ stats.total_commits }}</h4>
+                <p class="card-text text-muted">Total Commit</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="card-title">{{ stats.total_contributors }}</h4>
+                <p class="card-text text-muted">Total Kontributor</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="card-title">{{ stats.get('total_issues', 0) }}</h4>
+                <p class="card-text text-muted">Total Issue</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4 class="card-title">{{ stats.get('total_pull_requests', 0) }}</h4>
+                <p class="card-text text-muted">Total Pull Request</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Baris untuk Grafik -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Commit per Kontributor</div>
+            <div class="card-body" style="position: relative; height:350px;">
+                <canvas id="authorChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Distribusi Kategori Commit</div>
+            <div class="card-body" style="position: relative; height:350px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabel Daftar Commit -->
+<div class="card">
+    <div class="card-header">Daftar Commit</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Author</th>
+                        <th>Pesan</th>
+                        <th>Kategori</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for commit in commits %}
+                    <tr>
+                        <td><small>{{ commit.commit_date.strftime('%Y-%m-%d %H:%M') }}</small></td>
+                        <td>{{ commit.commit_author }}</td>
+                        <td>{{ commit.commit_message | truncate(100) }}</td>
+                        <td><span class="badge bg-light text-dark fw-normal">{{ commit.category }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Tidak ada commit untuk ditampilkan.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Data untuk grafik, di-pass dari Flask
+const authorData = {{ stats.commit_by_author | tojson | safe }};
+const categoryData = {{ stats.commit_category_counts | tojson | safe }};
+
+// Grafik 1: Commit per Kontributor (Bar Chart)
+const authorCanvas = document.getElementById('authorChart');
+if (authorCanvas && authorData) {
+    new Chart(authorCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(authorData),
+            datasets: [{
+                label: 'Jumlah Commit',
+                data: Object.values(authorData),
+                backgroundColor: 'rgba(79, 70, 229, 0.8)'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// Grafik 2: Distribusi Kategori (Pie Chart)
+const categoryCanvas = document.getElementById('categoryChart');
+if (categoryCanvas && categoryData) {
+    new Chart(categoryCanvas.getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(categoryData),
+            datasets: [{
+                data: Object.values(categoryData),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+                    'rgba(199, 199, 199, 0.8)'
+                ],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+}
+</script>
+{% endblock %}

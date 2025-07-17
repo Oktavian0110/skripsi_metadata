@@ -1,20 +1,19 @@
 # analyzer.py
 
 import pandas as pd
-from rake_nltk import Rake
+# from rake_nltk import Rake # <-- Dihapus
+import yake # <-- TAMBAHAN: Import library baru
 from nltk.corpus import stopwords
 from datetime import datetime
-import pytz  # Pastikan library ini sudah terinstal
+import pytz
+import re
 
 class Analyzer:
     """
-    A class to analyze metadata from PDF and Git DataFrames.
+    Menganalisis DataFrame metadata dari PDF dan Git.
     """
     def analyze_pdf_data(self, df, deadline=None):
-        """
-        Analyzes a DataFrame containing PDF metadata.
-        Optionally compares modification date against a deadline, considering timezones.
-        """
+        """Menganalisis DataFrame metadata PDF."""
         if df.empty:
             return {}
         
@@ -22,41 +21,35 @@ class Analyzer:
         
         stats = {
             'total_files': len(df),
-            'avg_pages': first_row['num_pages'],
-            'author_counts': {first_row['author']: 1},
+            'avg_pages': first_row.get('num_pages', 0),
+            'author_counts': {first_row.get('author', 'Unknown'): 1},
             'keywords': [],
-            'analyzed_filename': first_row['file_name'],
-            'deadline_status': None
+            'analyzed_filename': first_row.get('file_name', 'N/A'),
+            'deadline_status': None,
+            'word_count': first_row.get('word_count', 0),
+            'creation_date': pd.to_datetime(first_row.get('creation_date')) if pd.notna(first_row.get('creation_date')) else None
         }
 
         if 'full_text' in first_row and pd.notna(first_row['full_text']):
             stats['keywords'] = self.extract_keywords_from_text(first_row['full_text'])
         
-        if deadline and pd.notna(first_row['modification_date']):
+        if deadline and pd.notna(first_row.get('modification_date')):
             try:
-                # --- PERBAIKAN LOGIKA TIMEZONE UNTUK PDF (FINAL) ---
                 local_tz = pytz.timezone('Asia/Jakarta')
-
-                # 1. Konversi deadline dari form (sudah dalam waktu lokal)
                 deadline_dt = local_tz.localize(datetime.fromisoformat(deadline))
+                mod_date_dt = pd.to_datetime(first_row['modification_date']).tz_convert(local_tz)
 
-                # 2. Ambil tanggal modifikasi PDF (yang naive) dan anggap sebagai waktu lokal
-                mod_date_dt = local_tz.localize(pd.to_datetime(first_row['modification_date']))
-
-                # 3. Bandingkan keduanya secara langsung dalam zona waktu yang sama
                 if mod_date_dt <= deadline_dt:
                     stats['deadline_status'] = 'Tepat Waktu'
                 else:
                     stats['deadline_status'] = 'Terlambat'
             except (ValueError, TypeError) as e:
-                print(f"Error processing PDF deadline: {e}")
+                print(f"Error memproses deadline PDF: {e}")
 
         return stats
 
     def analyze_git_data(self, df, deadline=None):
-        """
-        Analyzes a DataFrame containing Git commit metadata, considering timezones.
-        """
+        """Menganalisis DataFrame metadata Git."""
         if df.empty:
             return {
                 'total_commits': 0, 'total_contributors': 0,
@@ -81,7 +74,6 @@ class Analyzer:
 
         if deadline:
             try:
-                # Logika untuk Git sudah benar karena Git menggunakan UTC
                 local_tz = pytz.timezone('Asia/Jakarta')
                 deadline_dt_naive = datetime.fromisoformat(deadline)
                 aware_deadline_dt = local_tz.localize(deadline_dt_naive)
@@ -92,16 +84,28 @@ class Analyzer:
                 stats['on_time_commits'] = len(df[df['commit_date'] <= utc_deadline])
                 stats['late_commits'] = len(df[df['commit_date'] > utc_deadline])
             except (ValueError, TypeError) as e:
-                print(f"Error processing Git deadline: {e}")
+                print(f"Error memproses deadline Git: {e}")
         
         return stats
         
-    def extract_keywords_from_text(self, text, num_keywords=10):
-        if not text or not isinstance(text, str): return []
-        try:
-            rake = Rake(stopwords=list(stopwords.words('indonesian')), language='indonesian')
-            rake.extract_keywords_from_text(text)
-            return rake.get_ranked_phrases()[:num_keywords]
-        except Exception as e:
-            print(f"Error extracting keywords: {e}")
+    # --- PERBAIKAN TOTAL: Menggunakan library YAKE untuk ekstraksi ---
+    def extract_keywords_from_text(self, text, num_keywords=15):
+        """Mengekstrak kata kunci dari sebuah teks menggunakan YAKE."""
+        if not text or not isinstance(text, str): 
             return []
+        
+        try:
+            # Inisialisasi YAKE untuk bahasa Indonesia ('id')
+            # n = ukuran n-gram maksimum, dedupLim = batas untuk deduplikasi, top = jumlah kata kunci
+            kw_extractor = yake.KeywordExtractor(lan="id", n=3, dedupLim=0.9, top=num_keywords, features=None)
+            
+            # YAKE akan melakukan pembersihan teks internal, jadi kita bisa langsung memasukkan teks
+            keywords = kw_extractor.extract_keywords(text)
+            
+            # YAKE mengembalikan list of tuples (keyword, score). Kita hanya butuh keyword-nya.
+            return [kw for kw, score in keywords]
+            
+        except Exception as e:
+            print(f"Error saat ekstraksi kata kunci dengan YAKE: {e}")
+            return []
+

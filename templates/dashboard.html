@@ -9,18 +9,19 @@
         <h2>Ringkasan Analisis</h2>
         <p>Dashboard interaktif untuk analisis metadata.</p>
     </div>
-    <form action="{{ url_for('reset_data') }}" method="post">
-        <button type="submit" class="btn btn-danger">Reset & Hapus Semua Data</button>
-    </form>
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#resetDataModal">
+        Reset & Hapus Semua Data
+    </button>
 </div>
 
 <div class="row">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">Analisis Dokumen PDF dari Link</div>
-            <div class="card-body">
-                <!-- PERUBAHAN: Formulir PDF sekarang memiliki input deadline -->
-                <form action="{{ url_for('analyze_pdf') }}" method="post" class="mb-3">
+    <!-- Form Analisis PDF -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">Analisis Dokumen PDF</div>
+            <div class="card-body d-flex flex-column">
+                <h6 class="card-title">Opsi 1: Analisis dari Satu Link Google Drive</h6>
+                <form action="{{ url_for('analyze_pdf') }}" method="post" class="mb-4">
                     <div class="mb-3">
                         <label for="gdrive-link-input" class="form-label">Link Google Drive</label>
                         <input type="text" class="form-control" name="gdrive_link" id="gdrive-link-input" placeholder="Tempelkan link Google Drive di sini" required>
@@ -30,27 +31,39 @@
                         <input type="datetime-local" class="form-control" name="deadline" id="pdf-deadline-input">
                     </div>
                     <div class="d-grid">
-                        <button class="btn btn-primary" type="submit">Analisis</button>
+                        <button class="btn btn-primary" type="submit">Analisis Link</button>
+                    </div>
+                </form>
+                <hr>
+                <h6 class="card-title">Opsi 2: Analisis dari File</h6>
+                <form action="{{ url_for('upload_and_analyze_pdf') }}" method="post" enctype="multipart/form-data" class="mt-auto">
+                    <div class="mb-3">
+                        <label for="file-upload-input" class="form-label">Unggah file (.pdf, .xlsx, atau .csv)</label>
+                        <input type="file" class="form-control" name="file" id="file-upload-input" required accept=".pdf, .xlsx, .csv">
+                    </div>
+                    <div class="d-grid">
+                        <button class="btn btn-secondary" type="submit">Upload & Analisis File</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="card">
+    <!-- Form Analisis Git -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
             <div class="card-header">Analisis Repositori Git</div>
             <div class="card-body">
                 <form action="{{ url_for('analyze_git') }}" method="post" class="mb-4">
                     <div class="mb-3">
-                        <label for="repo-name-input" class="form-label">Nama Repositori (user/repo)</label>
-                        <input type="text" class="form-control" name="repo_name" id="repo-name-input" placeholder="Contoh: user/repo-name" required>
+                        <label for="repo-name-input" class="form-label">Nama Repositori (format: user/repo)</label>
+                        <input type="text" class="form-control" name="repo_name" id="repo-name-input" placeholder="Contoh: oktavian0110/skripsi_metadata" required>
                     </div>
                     <div class="mb-3">
                         <label for="git-deadline-input" class="form-label">Tenggat Waktu (Opsional)</label>
                         <input type="datetime-local" class="form-control" name="deadline" id="git-deadline-input">
                     </div>
                     <div class="d-grid">
-                        <button class="btn btn-primary" type="submit">Analisis</button>
+                        <button class="btn btn-primary" type="submit">Analisis Repositori</button>
                     </div>
                 </form>
             </div>
@@ -63,14 +76,19 @@
 {% endif %}
 
 <div class="row">
+    <!-- Ringkasan PDF -->
     {% if pdf_stats %}
-    <div class="col-lg-6">
+    <div class="col-lg-6 mb-4">
         <div class="card">
             <div class="card-header">Ringkasan PDF</div>
             <div class="card-body">
                 <p><strong>File:</strong> {{ pdf_stats.analyzed_filename }}</p>
                 <p><strong>Author:</strong> {{ pdf_stats.author_counts.keys()|first }}</p>
                 <p><strong>Jumlah Halaman:</strong> {{ pdf_stats.avg_pages }}</p>
+                <p><strong>Jumlah Kata:</strong> {{ pdf_stats.word_count }}</p>
+                {% if pdf_stats.creation_date %}
+                <p><strong>Tanggal Dibuat:</strong> {{ pdf_stats.creation_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                {% endif %}
                 <hr>
                 <h6>Kata Kunci Utama</h6>
                 {% if pdf_stats.keywords %}
@@ -83,15 +101,16 @@
     </div>
     {% endif %}
 
+    <!-- Ringkasan Git -->
     {% if git_stats %}
-    <div class="col-lg-6">
+    <div class="col-lg-6 mb-4">
         <div class="card">
             <div class="card-header">Ringkasan Git</div>
             <div class="card-body">
                 <div class="row text-center mb-3">
                     <div class="col-4"><h5>{{ git_stats.total_commits }}</h5><p class="text-muted">Commit</p></div>
-                    <div class="col-4"><h5>{{ git_stats.total_issues }}</h5><p class="text-muted">Issue</p></div>
-                    <div class="col-4"><h5>{{ git_stats.total_pull_requests }}</h5><p class="text-muted">Pull Request</p></div>
+                    <div class="col-4"><h5>{{ git_stats.get('total_issues', 0) }}</h5><p class="text-muted">Issue</p></div>
+                    <div class="col-4"><h5>{{ git_stats.get('total_pull_requests', 0) }}</h5><p class="text-muted">Pull Request</p></div>
                 </div>
                 <div style="position: relative; height:250px">
                     <canvas id="commitsOverTimeChart"></canvas>
@@ -101,14 +120,120 @@
     </div>
     {% endif %}
 </div>
+
+<!-- --- TAMBAHAN: Baris baru untuk grafik kategori commit --- -->
+<div class="row">
+    {% if git_stats.commit_category_counts %}
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Distribusi Kategori Commit</div>
+            <div class="card-body">
+                <div style="position: relative; height:300px">
+                    <canvas id="commitCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Anda bisa menambahkan grafik lain di sini, di col-lg-6 berikutnya -->
+</div>
+
+
+<!-- Modal untuk Konfirmasi Reset Data -->
+<div class="modal fade" id="resetDataModal" tabindex="-1" aria-labelledby="resetDataModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="resetDataModalLabel">Konfirmasi Hapus Data</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Anda yakin ingin menghapus <strong>semua data analisis</strong> dari database?</p>
+        <p class="text-danger">Tindakan ini tidak dapat diurungkan.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <form action="{{ url_for('reset_data') }}" method="post">
+            <button type="submit" class="btn btn-danger">Ya, Hapus Semua Data</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const timeData = {{ commits_over_time_data | tojson | safe }};
-    if (timeData && Object.keys(timeData).length > 0) {
-        const ctx = document.getElementById('commitsOverTimeChart').getContext('2d');
-        new Chart(ctx, { type: 'line', data: { labels: Object.keys(timeData), datasets: [{ label: 'Jumlah Commit per Hari', data: Object.values(timeData), backgroundColor: 'rgba(79, 70, 229, 0.1)', borderColor: 'rgba(79, 70, 229, 1)', borderWidth: 2, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', time: { unit: 'day' } }, y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });
+    // Grafik 1: Perkembangan Commit (Line Chart)
+    const chartCanvas = document.getElementById('commitsOverTimeChart');
+    if (chartCanvas) {
+        const timeData = {{ commits_over_time_data | tojson | safe }};
+        if (timeData && Object.keys(timeData).length > 0) {
+            const ctx = chartCanvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(timeData),
+                    datasets: [{
+                        label: 'Jumlah Commit per Hari',
+                        data: Object.values(timeData),
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'time', time: { unit: 'day' } },
+                        y: { beginAtZero: true }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    }
+
+    // --- TAMBAHAN: Grafik 2: Distribusi Kategori (Pie Chart) ---
+    const categoryCanvas = document.getElementById('commitCategoryChart');
+    if (categoryCanvas) {
+        const categoryData = {{ commit_category_chart_data | tojson | safe }};
+        if (categoryData && Object.keys(categoryData).length > 0) {
+            const ctx = categoryCanvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        label: 'Jumlah Commit',
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                            'rgba(199, 199, 199, 0.8)'
+                        ],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+        }
     }
 </script>
 {% endblock %}

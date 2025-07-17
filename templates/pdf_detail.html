@@ -1,0 +1,66 @@
+<!-- templates/pdf_detail.html -->
+{% extends "base.html" %}
+
+{% block title %}Detail Dokumen: {{ doc.file_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <a href="{{ url_for('data_master', tab='pdf') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Dokumen
+    </a>
+    <h2>Analisis Detail Dokumen</h2>
+    <p class="text-muted">{{ doc.file_name }}</p>
+</div>
+
+<div class="row">
+    <!-- Kolom Kiri: Metadata Utama -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">Informasi Metadata</div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Nama File</dt>
+                    <dd class="col-sm-9">{{ doc.file_name }}</dd>
+
+                    <dt class="col-sm-3">Judul</dt>
+                    <dd class="col-sm-9">{{ doc.title or 'Tidak ada' }}</dd>
+
+                    <dt class="col-sm-3">Author</dt>
+                    <dd class="col-sm-9">{{ doc.author or 'Tidak ada' }}</dd>
+
+                    <dt class="col-sm-3">Jumlah Halaman</dt>
+                    <dd class="col-sm-9">{{ doc.num_pages }}</dd>
+
+                    <dt class="col-sm-3">Jumlah Kata</dt>
+                    <dd class="col-sm-9">{{ doc.word_count }}</dd>
+
+                    <dt class="col-sm-3">Tanggal Dibuat</dt>
+                    <dd class="col-sm-9">{{ doc.creation_date.strftime('%Y-%m-%d %H:%M:%S') if doc.creation_date else 'Tidak diketahui' }}</dd>
+
+                    <dt class="col-sm-3">Tanggal Dimodifikasi</dt>
+                    <dd class="col-sm-9">{{ doc.modification_date.strftime('%Y-%m-%d %H:%M:%S') if doc.modification_date else 'Tidak diketahui' }}</dd>
+
+                    <dt class="col-sm-3">Dianalisis Pada</dt>
+                    <dd class="col-sm-9">{{ doc.analysis_timestamp.strftime('%Y-%m-%d %H:%M:%S') if doc.analysis_timestamp else 'Tidak diketahui' }}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <!-- Kolom Kanan: Kata Kunci -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">Kata Kunci yang Ditemukan</div>
+            <div class="card-body">
+                {% if doc.keywords_list %}
+                    {% for keyword in doc.keywords_list %}
+                        <span class="badge bg-primary fw-normal me-1 mb-2 p-2">{{ keyword }}</span>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted fst-italic">Tidak ada kata kunci yang berhasil diekstrak dari dokumen ini.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

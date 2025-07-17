@@ -11,15 +11,13 @@
 
 <div class="card">
     <div class="card-header">
-        <!-- Navigasi Tab -->
         <ul class="nav nav-tabs card-header-tabs">
             <li class="nav-item">
                 <a class="nav-link {% if active_tab == 'pdf' %}active{% endif %}" href="{{ url_for('data_master', tab='pdf') }}">Dokumen PDF</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'commits' %}active{% endif %}" href="{{ url_for('data_master', tab='commits') }}">Git Commits</a>
+                <a class="nav-link {% if active_tab == 'git' %}active{% endif %}" href="{{ url_for('data_master', tab='git') }}">Repositori Git</a>
             </li>
-            <!-- Tambahkan tab lain di sini jika perlu -->
         </ul>
     </div>
     <div class="card-body">
@@ -35,9 +33,25 @@
                 <tbody>
                     {% for row in data %}
                     <tr>
-                        {% for cell in row.values() %}
-                            <td><small>{{ cell | string | truncate(100) }}</small></td>
-                        {% endfor %}
+                        <!-- Logika untuk membuat link -->
+                        {% if active_tab == 'git' %}
+                            <td><a href="{{ url_for('repo_detail', repo_name=row.repo_name) }}">{{ row.repo_name }}</a></td>
+                            <td>{{ row.total_commits }}</td>
+                            <td>{{ row.contributors }}</td>
+                            <td>{{ row.last_commit.strftime('%Y-%m-%d %H:%M') if row.last_commit else 'N/A' }}</td>
+                        {% elif active_tab == 'pdf' %}
+                            <td>{{ row.id }}</td>
+                            <!-- PERBAIKAN: Nama file menjadi link -->
+                            <td><a href="{{ url_for('pdf_detail', doc_id=row.id) }}">{{ row.file_name }}</a></td>
+                            <td><small>{{ row.title | truncate(50) }}</small></td>
+                            <td>{{ row.author }}</td>
+                            <td>{{ row.num_pages }}</td>
+                            <td>{{ row.analysis_timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                        {% else %}
+                            {% for cell in row.values() %}
+                                <td><small>{{ cell | string | truncate(100) }}</small></td>
+                            {% endfor %}
+                        {% endif %}
                     </tr>
                     {% else %}
                     <tr>
