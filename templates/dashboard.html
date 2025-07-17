@@ -19,10 +19,17 @@
         <div class="card">
             <div class="card-header">Analisis Dokumen PDF dari Link</div>
             <div class="card-body">
-                <!-- PERBAIKAN: Menggunakan endpoint 'analyze_pdf' -->
+                <!-- PERUBAHAN: Formulir PDF sekarang memiliki input deadline -->
                 <form action="{{ url_for('analyze_pdf') }}" method="post" class="mb-3">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="gdrive_link" placeholder="Tempelkan link Google Drive di sini">
+                    <div class="mb-3">
+                        <label for="gdrive-link-input" class="form-label">Link Google Drive</label>
+                        <input type="text" class="form-control" name="gdrive_link" id="gdrive-link-input" placeholder="Tempelkan link Google Drive di sini" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pdf-deadline-input" class="form-label">Tenggat Waktu (Opsional)</label>
+                        <input type="datetime-local" class="form-control" name="deadline" id="pdf-deadline-input">
+                    </div>
+                    <div class="d-grid">
                         <button class="btn btn-primary" type="submit">Analisis</button>
                     </div>
                 </form>
@@ -33,10 +40,16 @@
         <div class="card">
             <div class="card-header">Analisis Repositori Git</div>
             <div class="card-body">
-                <!-- PERBAIKAN: Menggunakan endpoint 'analyze_git' -->
                 <form action="{{ url_for('analyze_git') }}" method="post" class="mb-4">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="repo_name" placeholder="Contoh: user/repo-name">
+                    <div class="mb-3">
+                        <label for="repo-name-input" class="form-label">Nama Repositori (user/repo)</label>
+                        <input type="text" class="form-control" name="repo_name" id="repo-name-input" placeholder="Contoh: user/repo-name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="git-deadline-input" class="form-label">Tenggat Waktu (Opsional)</label>
+                        <input type="datetime-local" class="form-control" name="deadline" id="git-deadline-input">
+                    </div>
+                    <div class="d-grid">
                         <button class="btn btn-primary" type="submit">Analisis</button>
                     </div>
                 </form>

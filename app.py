@@ -4,7 +4,7 @@ import os
 import mysql.connector
 from flask import Flask, request, render_template, redirect, url_for, flash
 import pandas as pd
-import math # Diperlukan untuk paginasi
+import math
 
 from pdf_extractor import PdfExtractor
 from git_extractor import GitExtractor
@@ -20,6 +20,7 @@ git_extractor = GitExtractor()
 analyzer = Analyzer()
 
 # --- Fungsi Database ---
+# ... (Fungsi-fungsi database tidak berubah) ...
 def get_db_connection():
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -79,6 +80,7 @@ def save_git_data_to_db(commits_df, issues_df, prs_df):
 # --- Rute Aplikasi ---
 @app.route('/')
 def dashboard():
+    # ... (Logika dashboard tidak berubah) ...
     pdf_stats, git_stats = {}, {}
     conn = get_db_connection()
     if conn:
@@ -112,28 +114,22 @@ def dashboard():
     
     return render_template('dashboard.html', pdf_stats=pdf_stats, git_stats=git_stats, commit_category_chart_data=commit_category_chart_data, commits_over_time_data=commits_over_time_data)
 
-# --- RUTE BARU UNTUK DATA MASTER (DIPERBAIKI) ---
 @app.route('/data-master')
 def data_master():
-    # Inisialisasi konteks dengan nilai default yang aman
+    # ... (Logika data_master tidak berubah) ...
     context = {
-        'headers': [],
-        'data': [],
-        'total_pages': 1,
+        'headers': [], 'data': [], 'total_pages': 1,
         'current_page': request.args.get('page', 1, type=int),
         'active_tab': request.args.get('tab', 'pdf')
     }
-
     conn = get_db_connection()
     if not conn:
         flash("Koneksi ke database gagal.", "danger")
         return render_template('data_master.html', **context)
-
     try:
         per_page = 10
         offset = (context['current_page'] - 1) * per_page
         cursor = conn.cursor(dictionary=True)
-
         if context['active_tab'] == 'pdf':
             count_query = "SELECT COUNT(*) as count FROM pdf_documents"
             context['headers'] = ["ID", "Nama File", "Judul", "Author", "Jml Halaman", "Kata Kunci", "Waktu Analisis"]
@@ -144,60 +140,79 @@ def data_master():
             data_query = "SELECT id, repo_name, commit_author, commit_message, category, commit_date FROM git_commits ORDER BY commit_date DESC LIMIT %s OFFSET %s"
         else:
             return redirect(url_for('data_master', tab='pdf'))
-
         cursor.execute(count_query)
         total_rows_result = cursor.fetchone()
         total_rows = total_rows_result['count'] if total_rows_result else 0
         context['total_pages'] = int(math.ceil(total_rows / per_page)) if total_rows > 0 else 1
-
         cursor.execute(data_query, (per_page, offset))
         context['data'] = cursor.fetchall()
-        
     except Exception as e:
         print(f"Error in data_master: {e}")
         flash("Terjadi kesalahan saat memuat data master.", "danger")
-        # Nilai default dalam 'context' sudah aman, jadi tidak perlu diubah
     finally:
         if conn.is_connected():
             cursor.close()
             conn.close()
-
     return render_template('data_master.html', **context)
 
-# --- Rute untuk Proses Data (Formulir) ---
+# --- Rute untuk Proses Data ---
 @app.route('/analyze-pdf', methods=['POST'])
 def analyze_pdf():
     link = request.form.get('gdrive_link')
+    deadline = request.form.get('deadline') # Ambil nilai deadline
+
     if not link:
         flash('Link Google Drive tidak boleh kosong.', 'warning')
+        return redirect(url_for('dashboard'))
+
+    status, pdf_metadata_list = pdf_extractor.extract_metadata_from_gdrive_links([link])
+    
+    if status == 'success':
+        df = pd.DataFrame(pdf_metadata_list)
+        # Lakukan analisis deadline
+        pdf_stats = analyzer.analyze_pdf_data(df, deadline)
+        
+        # Simpan ke DB
+        if save_pdf_to_db(df):
+            flash('Dokumen berhasil dianalisis dan disimpan.', 'success')
+        
+        # Tampilkan hasil deadline jika ada
+        if pdf_stats.get('deadline_status'):
+            flash(f"Status Pengumpulan: {pdf_stats['deadline_status']}", "info")
+            
+    elif status == 'private':
+        flash("Gagal: File bersifat privat. Ubah setelan berbagi.", "danger")
     else:
-        status, pdf_metadata_list = pdf_extractor.extract_metadata_from_gdrive_links([link])
-        if status == 'success':
-            df = pd.DataFrame(pdf_metadata_list)
-            if save_pdf_to_db(df):
-                flash('Dokumen berhasil dianalisis dan disimpan.', 'success')
-        elif status == 'private':
-            flash("Gagal: File bersifat privat. Ubah setelan berbagi.", "danger")
-        else:
-            flash("Gagal mengekstrak metadata dari link.", "danger")
-    return redirect(url_for('data_master', tab='pdf'))
+        flash("Gagal mengekstrak metadata dari link.", "danger")
+
+    return redirect(url_for('dashboard'))
 
 @app.route('/analyze-git', methods=['POST'])
 def analyze_git():
     repo_name = request.form.get('repo_name')
+    deadline = request.form.get('deadline')
+
     if not repo_name:
         flash('Nama repositori tidak boleh kosong.', 'warning')
+        return redirect(url_for('dashboard'))
+
+    commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
+    
+    if commits_df.empty and issues_df.empty and prs_df.empty:
+        flash(f'Gagal mengambil data dari repositori "{repo_name}".', 'danger')
     else:
-        commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
-        if commits_df.empty and issues_df.empty and prs_df.empty:
-            flash(f'Gagal mengambil data dari repositori "{repo_name}".', 'danger')
-        else:
-            if save_git_data_to_db(commits_df, issues_df, prs_df):
-                flash(f'Analisis untuk repositori "{repo_name}" berhasil disimpan.', 'success')
-    return redirect(url_for('data_master', tab='commits'))
+        if save_git_data_to_db(commits_df, issues_df, prs_df):
+            flash(f'Data untuk repositori "{repo_name}" berhasil disimpan.', 'success')
+
+        if deadline and not commits_df.empty:
+            deadline_stats = analyzer.analyze_git_data(commits_df, deadline)
+            flash(f"Hasil Analisis Deadline: Tepat Waktu: {deadline_stats['on_time_commits']} commit, Terlambat: {deadline_stats['late_commits']} commit.", "info")
+
+    return redirect(url_for('dashboard'))
 
 @app.route('/reset-data', methods=['POST'])
 def reset_data():
+    # ... (Logika reset_data tidak berubah) ...
     conn = get_db_connection()
     if conn:
         cursor = conn.cursor()
