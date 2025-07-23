@@ -1,10 +1,8 @@
-<!-- templates/dashboard.html -->
 {% extends "base.html" %}
 
 {% block title %}Ringkasan Analisis{% endblock %}
 
 {% block content %}
-<!-- --- TAMBAHAN: Elemen Loading Spinner --- -->
 <div id="loading-overlay" class="d-none">
     <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -24,7 +22,6 @@
 </div>
 
 <div class="row">
-    <!-- Form Analisis PDF -->
     <div class="col-lg-6 mb-4">
         <div class="card h-100">
             <div class="card-header">Analisis Dokumen PDF</div>
@@ -49,6 +46,7 @@
                     <div class="mb-3">
                         <label for="file-upload-input" class="form-label">Unggah file (.pdf, .xlsx, atau .csv)</label>
                         <input type="file" class="form-control" name="file" id="file-upload-input" required accept=".pdf, .xlsx, .csv">
+                        <div class="form-text">Unggah file PDF untuk dianalisis langsung, atau file .xlsx/.csv yang berisi kolom "link" untuk analisis massal.</div>
                     </div>
                     <div class="d-grid">
                         <button class="btn btn-secondary" type="submit">Upload & Analisis File</button>
@@ -57,15 +55,15 @@
             </div>
         </div>
     </div>
-    <!-- Form Analisis Git -->
     <div class="col-lg-6 mb-4">
         <div class="card h-100">
             <div class="card-header">Analisis Repositori Git</div>
             <div class="card-body">
                 <form id="git-form" action="{{ url_for('analyze_git') }}" method="post" class="mb-4">
                     <div class="mb-3">
-                        <label for="repo-name-input" class="form-label">Nama Repositori (format: user/repo)</label>
+                        <label for="repo-name-input" class="form-label">Nama Repositori</label>
                         <input type="text" class="form-control" name="repo_name" id="repo-name-input" placeholder="Contoh: oktavian0110/skripsi_metadata" required>
+                        <div class="form-text">Anda bisa memasukkan nama repo (user/repo) atau URL lengkap dari GitHub.</div>
                     </div>
                     <div class="mb-3">
                         <label for="git-deadline-input" class="form-label">Tenggat Waktu (Opsional)</label>
@@ -128,7 +126,6 @@
     {% endif %}
 </div>
 
-<!-- Modal untuk Konfirmasi Reset Data -->
 <div class="modal fade" id="resetDataModal" tabindex="-1" aria-labelledby="resetDataModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -163,7 +160,7 @@
         }
     }
 
-    // --- TAMBAHAN: Logika untuk menampilkan loading spinner ---
+    // Logika untuk menampilkan loading spinner
     document.addEventListener('DOMContentLoaded', function() {
         const loadingOverlay = document.getElementById('loading-overlay');
         
@@ -179,6 +176,9 @@
                     // Cek validitas form sebelum menampilkan spinner
                     if (form.checkValidity()) {
                         loadingOverlay.classList.remove('d-none');
+                        // --- TAMBAHAN: Kosongkan input setelah submit ---
+                        // Ini akan terjadi sangat cepat sebelum halaman di-reload, memberikan kesan responsif
+                        form.reset();
                     }
                 });
             }
@@ -186,7 +186,7 @@
     });
 </script>
 <style>
-    /* --- TAMBAHAN: CSS untuk loading spinner --- */
+    /* CSS untuk loading spinner */
     #loading-overlay {
         position: fixed;
         top: 0;

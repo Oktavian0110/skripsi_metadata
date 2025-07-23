@@ -1,7 +1,8 @@
 # analyzer.py
 
 import pandas as pd
-import yake
+# from rake_nltk import Rake # <-- Dihapus
+import yake # <-- TAMBAHAN: Import library baru
 from nltk.corpus import stopwords
 from datetime import datetime
 import pytz
@@ -35,11 +36,10 @@ class Analyzer:
         if deadline and pd.notna(first_row.get('modification_date')):
             try:
                 local_tz = pytz.timezone('Asia/Jakarta')
-                deadline_dt_naive = datetime.fromisoformat(deadline)
-                deadline_local = local_tz.localize(deadline_dt_naive)
+                deadline_dt = local_tz.localize(datetime.fromisoformat(deadline))
                 mod_date_aware = pd.to_datetime(first_row['modification_date'])
                 
-                if mod_date_aware.astimezone(pytz.utc) <= deadline_local.astimezone(pytz.utc):
+                if mod_date_aware.astimezone(pytz.utc) <= deadline_dt.astimezone(pytz.utc):
                     stats['deadline_status'] = 'Tepat Waktu'
                 else:
                     stats['deadline_status'] = 'Terlambat'
@@ -56,19 +56,15 @@ class Analyzer:
                 'first_commit_date': 'N/A', 'last_commit_date': 'N/A',
                 'commit_category_counts': {}, 'commits_over_time': {},
                 'commit_by_author': {}, 'on_time_commits': 0, 'late_commits': 0,
-                'commit_activity_by_day': {} # <-- TAMBAHAN
+                'commit_activity_by_day': {}
             }
         
         df['commit_date'] = pd.to_datetime(df['commit_date'])
         
-        # --- TAMBAHAN: Analisis Keaktifan Commit per Hari ---
-        # Mendapatkan nama hari dari tanggal commit (0=Senin, 6=Minggu)
         df['day_of_week'] = df['commit_date'].dt.dayofweek
         day_counts = df['day_of_week'].value_counts().sort_index()
-        # Mapping dari angka ke nama hari
         days_map = {0: 'Senin', 1: 'Selasa', 2: 'Rabu', 3: 'Kamis', 4: 'Jumat', 5: 'Sabtu', 6: 'Minggu'}
         commit_activity = {days_map[day]: count for day, count in day_counts.items()}
-        # Memastikan semua hari ada di dalam dictionary
         final_activity_data = {day: commit_activity.get(day, 0) for day in days_map.values()}
         
         stats = {
@@ -79,7 +75,7 @@ class Analyzer:
             'commit_category_counts': df['category'].value_counts().to_dict(),
             'commit_by_author': df['commit_author'].value_counts().to_dict(),
             'commits_over_time': {time.strftime('%Y-%m-%d'): count for time, count in df.set_index('commit_date').resample('D').size().items()},
-            'commit_activity_by_day': final_activity_data, # <-- TAMBAHAN
+            'commit_activity_by_day': final_activity_data,
             'on_time_commits': 0,
             'late_commits': 0
         }
@@ -98,16 +94,24 @@ class Analyzer:
         
         return stats
         
+    # --- PERBAIKAN TOTAL: Menggunakan library YAKE untuk ekstraksi ---
     def extract_keywords_from_text(self, text, num_keywords=15):
         """Mengekstrak kata kunci dari sebuah teks menggunakan YAKE."""
         if not text or not isinstance(text, str): 
             return []
         
         try:
+            # Inisialisasi YAKE untuk bahasa Indonesia ('id')
+            # n = ukuran n-gram maksimum, dedupLim = batas untuk deduplikasi, top = jumlah kata kunci
             kw_extractor = yake.KeywordExtractor(lan="id", n=3, dedupLim=0.9, top=num_keywords, features=None)
+            
+            # YAKE akan melakukan pembersihan teks internal, jadi kita bisa langsung memasukkan teks
             keywords = kw_extractor.extract_keywords(text)
+            
+            # YAKE mengembalikan list of tuples (keyword, score). Kita hanya butuh keyword-nya.
             return [kw for kw, score in keywords]
             
         except Exception as e:
             print(f"Error saat ekstraksi kata kunci dengan YAKE: {e}")
             return []
+
