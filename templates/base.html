@@ -27,7 +27,7 @@
             <i data-feather="box" class="me-2"></i>
             <span>Analisis Data</span>
         </div>
-        <!-- PERUBAHAN: Navigasi disederhanakan -->
+        <!-- --- PERBAIKAN: Tambahkan link ke halaman Visualisasi --- -->
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link {% if request.path == url_for('dashboard') %}active{% endif %}" href="{{ url_for('dashboard') }}">
@@ -39,6 +39,12 @@
                 <a class="nav-link {% if request.path == url_for('data_master') %}active{% endif %}" href="{{ url_for('data_master') }}">
                     <i data-feather="database"></i>
                     <span>Data Master</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == url_for('visualisasi') %}active{% endif %}" href="{{ url_for('visualisasi') }}">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Visualisasi</span>
                 </a>
             </li>
         </ul>

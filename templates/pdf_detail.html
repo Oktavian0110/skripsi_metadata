@@ -13,9 +13,9 @@
 </div>
 
 <div class="row">
-    <!-- Kolom Kiri: Metadata Utama -->
+    <!-- Kolom Kiri: Metadata & Kemiripan -->
     <div class="col-lg-8 mb-4">
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header">Informasi Metadata</div>
             <div class="card-body">
                 <dl class="row">
@@ -43,6 +43,25 @@
                     <dt class="col-sm-3">Dianalisis Pada</dt>
                     <dd class="col-sm-9">{{ doc.analysis_timestamp.strftime('%Y-%m-%d %H:%M:%S') if doc.analysis_timestamp else 'Tidak diketahui' }}</dd>
                 </dl>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Dokumen dengan Kemiripan Tertinggi</div>
+            <div class="card-body">
+                {% if similar_docs %}
+                    <ul class="list-group list-group-flush">
+                    {% for similar in similar_docs %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <!-- PERBAIKAN: Gunakan nama kolom yang benar -->
+                            <a href="{{ url_for('pdf_detail', doc_id=similar.id) }}">{{ similar.file_name }}</a>
+                            <span class="badge bg-warning rounded-pill">{{ "%.1f"|format(similar.similarity_score * 100) }}% mirip</span>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted fst-italic">Tidak ditemukan dokumen lain dengan tingkat kemiripan yang signifikan.</p>
+                {% endif %}
             </div>
         </div>
     </div>

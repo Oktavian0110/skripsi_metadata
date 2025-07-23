@@ -1,0 +1,126 @@
+<!-- templates/visualisasi.html -->
+{% extends "base.html" %}
+
+{% block title %}Visualisasi Data Global{% endblock %}
+
+{% block content %}
+<div class="page-header mb-5">
+    <h2>Visualisasi Data Global</h2>
+    <p class="text-muted">Menampilkan ringkasan visual dari semua data yang telah dianalisis.</p>
+</div>
+
+<div class="row">
+    <!-- Grafik Kontributor Git -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Top 10 Kontributor Git Teraktif</div>
+            <div class="card-body" style="position: relative; height: 350px;">
+                <canvas id="gitContributorsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafik Kategori Commit -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Distribusi Kategori Commit (Global)</div>
+            <div class="card-body" style="position: relative; height: 350px;">
+                <canvas id="gitCategoriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Grafik Author PDF -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">Top 10 Author PDF Terproduktif</div>
+            <div class="card-body" style="position: relative; height: 350px;">
+                <canvas id="pdfAuthorsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <!-- Anda bisa menambahkan grafik lain di sini -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Data untuk grafik, di-pass dari Flask
+const gitContributorsData = {{ git_contributors_data | tojson | safe }};
+const gitCategoriesData = {{ git_categories_data | tojson | safe }};
+const pdfAuthorsData = {{ pdf_authors_data | tojson | safe }};
+
+// Grafik 1: Kontributor Git (Bar Chart)
+const gitContributorsCanvas = document.getElementById('gitContributorsChart');
+if (gitContributorsCanvas && gitContributorsData) {
+    new Chart(gitContributorsCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(gitContributorsData),
+            datasets: [{
+                label: 'Total Commit',
+                data: Object.values(gitContributorsData),
+                backgroundColor: 'rgba(79, 70, 229, 0.8)'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+// Grafik 2: Kategori Commit (Doughnut Chart)
+const gitCategoriesCanvas = document.getElementById('gitCategoriesChart');
+if (gitCategoriesCanvas && gitCategoriesData) {
+    new Chart(gitCategoriesCanvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(gitCategoriesData),
+            datasets: [{
+                data: Object.values(gitCategoriesData),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+                    'rgba(199, 199, 199, 0.8)'
+                ],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+}
+
+// Grafik 3: Author PDF (Bar Chart)
+const pdfAuthorsCanvas = document.getElementById('pdfAuthorsChart');
+if (pdfAuthorsCanvas && pdfAuthorsData) {
+    new Chart(pdfAuthorsCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(pdfAuthorsData),
+            datasets: [{
+                label: 'Total Dokumen',
+                data: Object.values(pdfAuthorsData),
+                backgroundColor: 'rgba(255, 159, 64, 0.8)'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -68,6 +68,26 @@
     </div>
 </div>
 
+<!-- Baris untuk Grafik Tren dan Keaktifan -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">Perkembangan Jumlah Commit</div>
+            <div class="card-body" style="position: relative; height:300px;">
+                <canvas id="commitsOverTimeChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">Keaktifan per Hari</div>
+            <div class="card-body" style="position: relative; height:300px;">
+                <canvas id="commitActivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Tabel Daftar Commit -->
 <div class="card">
     <div class="card-header">Daftar Commit</div>
@@ -108,6 +128,8 @@
 // Data untuk grafik, di-pass dari Flask
 const authorData = {{ stats.commit_by_author | tojson | safe }};
 const categoryData = {{ stats.commit_category_counts | tojson | safe }};
+const timeData = {{ stats.commits_over_time | tojson | safe }};
+const activityData = {{ stats.commit_activity_by_day | tojson | safe }};
 
 // Grafik 1: Commit per Kontributor (Bar Chart)
 const authorCanvas = document.getElementById('authorChart');
@@ -126,7 +148,24 @@ if (authorCanvas && authorData) {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            plugins: { 
+                legend: { display: false },
+                // --- PERBAIKAN: Tooltip Interaktif ---
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.x !== null) {
+                                label += context.parsed.x + ' commit';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
         }
     });
 }
@@ -153,7 +192,97 @@ if (categoryCanvas && categoryData) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'top' } }
+            plugins: { 
+                legend: { position: 'top' },
+                // --- PERBAIKAN: Tooltip Interaktif dengan Persentase ---
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = sum > 0 ? (value / sum * 100).toFixed(1) + '%' : '0%';
+                            return `${label}: ${value} commit (${percentage})`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Grafik 3: Perkembangan Commit (Line Chart)
+const timeCanvas = document.getElementById('commitsOverTimeChart');
+if (timeCanvas && timeData) {
+    new Chart(timeCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: Object.keys(timeData),
+            datasets: [{
+                label: 'Jumlah Commit per Hari',
+                data: Object.values(timeData),
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { type: 'time', time: { unit: 'day' } },
+                y: { beginAtZero: true }
+            },
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Jumlah Commit: ${context.parsed.y}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Grafik 4: Keaktifan per Hari (Bar Chart)
+const activityCanvas = document.getElementById('commitActivityChart');
+if (activityCanvas && activityData) {
+    new Chart(activityCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(activityData),
+            datasets: [{
+                label: 'Jumlah Commit',
+                data: Object.values(activityData),
+                backgroundColor: 'rgba(255, 159, 64, 0.8)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Jumlah Commit: ${context.parsed.y}`;
+                        }
+                    }
+                }
+            }
         }
     });
 }

@@ -7,6 +7,11 @@ import pandas as pd
 import math
 from werkzeug.utils import secure_filename
 import nltk
+import re
+
+# --- TAMBAHAN: Import library untuk perbandingan teks ---
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 from pdf_extractor import PdfExtractor
 from git_extractor import GitExtractor
@@ -50,7 +55,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Inisialisasi global (tetap digunakan untuk rute lain yang tidak bermasalah)
+# Inisialisasi global
 pdf_extractor = PdfExtractor()
 git_extractor = GitExtractor()
 analyzer = Analyzer()
@@ -66,22 +71,26 @@ def get_db_connection():
 
 def save_pdf_to_db(df):
     conn = get_db_connection()
-    if not conn: return False
+    if not conn: return None, None
+    last_id = None
     try:
         cursor = conn.cursor()
-        sql = "INSERT INTO pdf_documents (file_name, title, author, num_pages, creation_date, modification_date, keywords, word_count) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO pdf_documents (file_name, title, author, num_pages, creation_date, modification_date, keywords, word_count, full_text) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         for _, row in df.iterrows():
             keywords_list = row.get('keywords', [])
             keywords_str = ", ".join(keywords_list) if isinstance(keywords_list, list) else ""
             mod_date = row['modification_date'] if pd.notna(row['modification_date']) else None
             create_date = row['creation_date'] if pd.notna(row['creation_date']) else None
             word_count = int(row['word_count']) if pd.notna(row['word_count']) else 0
-            cursor.execute(sql, (row['file_name'], row['title'], row['author'], int(row['num_pages']), create_date, mod_date, keywords_str, word_count))
+            full_text = row.get('full_text', '')
+            
+            cursor.execute(sql, (row['file_name'], row['title'], row['author'], int(row['num_pages']), create_date, mod_date, keywords_str, word_count, full_text))
+            last_id = cursor.lastrowid
         conn.commit()
-        return True
+        return True, last_id
     except Exception as e:
         print(f"Error saving PDF data: {e}")
-        return False
+        return False, None
     finally:
         if conn and conn.is_connected():
             cursor.close()
@@ -115,24 +124,56 @@ def save_git_data_to_db(commits_df, issues_df, prs_df):
             cursor.close()
             conn.close()
 
-# --- Fungsi Helper dengan Perbaikan ---
+# --- Fungsi Helper Baru untuk Deteksi Kemiripan ---
+def check_similarity(new_doc_id, new_doc_text):
+    conn = get_db_connection()
+    if not conn: return
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, file_name, full_text FROM pdf_documents WHERE id != %s", (new_doc_id,))
+        existing_docs = cursor.fetchall()
+
+        if not existing_docs:
+            return
+
+        corpus = [new_doc_text] + [doc['full_text'] for doc in existing_docs]
+        
+        vectorizer = TfidfVectorizer()
+        tfidf_matrix = vectorizer.fit_transform(corpus)
+        similarity_matrix = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix)
+        
+        similarity_scores = similarity_matrix[0][1:]
+        for i, score in enumerate(similarity_scores):
+            if score > 0.7:
+                existing_doc_id = existing_docs[i]['id']
+                cursor.execute(
+                    "INSERT INTO pdf_similarity (doc1_id, doc2_id, similarity_score) VALUES (%s, %s, %s)",
+                    (new_doc_id, existing_doc_id, float(score))
+                )
+        conn.commit()
+
+    except Exception as e:
+        print(f"Error saat memeriksa kemiripan: {e}")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
 def analyze_and_save_pdfs(pdf_metadata_list, deadline=None):
-    """Menganalisis list metadata PDF, menambahkan kata kunci, dan menyimpannya."""
     if not pdf_metadata_list:
         return False
-
-    # PERBAIKAN: Buat instance Analyzer baru di sini untuk memastikan tidak ada state yang tersisa
+    
     local_analyzer = Analyzer()
-    
     df = pd.DataFrame(pdf_metadata_list)
-    
-    # Ekstrak kata kunci untuk setiap baris menggunakan instance lokal
     df['keywords'] = df['full_text'].apply(lambda text: local_analyzer.extract_keywords_from_text(text))
     
-    # Hapus kolom full_text sebelum menyimpan untuk efisiensi database
-    df_to_save = df.drop(columns=['full_text'])
+    is_saved, last_id = save_pdf_to_db(df)
     
-    if save_pdf_to_db(df_to_save):
+    if is_saved and last_id:
+        new_doc_text = df.iloc[0]['full_text']
+        check_similarity(last_id, new_doc_text)
+
         if deadline:
             stats = local_analyzer.analyze_pdf_data(df.iloc[[0]], deadline)
             if stats.get('deadline_status'):
@@ -161,7 +202,6 @@ def dashboard():
                     'creation_date': latest_pdf.get('creation_date'),
                     'keywords': latest_pdf.get('keywords', '').split(',') if latest_pdf.get('keywords') else []
                 }
-            
             cursor.execute("SELECT repo_name FROM git_commits ORDER BY analysis_timestamp DESC LIMIT 1")
             latest_git_repo = cursor.fetchone()
             if latest_git_repo:
@@ -193,31 +233,62 @@ def dashboard():
 
 @app.route('/data-master')
 def data_master():
-    context = { 'headers': [], 'data': [], 'total_pages': 1, 'current_page': request.args.get('page', 1, type=int), 'active_tab': request.args.get('tab', 'pdf') }
+    search_query = request.args.get('q', '').strip()
+    context = { 
+        'headers': [], 'data': [], 'total_pages': 1, 
+        'current_page': request.args.get('page', 1, type=int), 
+        'active_tab': request.args.get('tab', 'pdf'),
+        'search_query': search_query
+    }
     conn = get_db_connection()
     if not conn:
         flash("Koneksi ke database gagal.", "danger")
         return render_template('data_master.html', **context)
+    
     try:
         per_page = 10
         offset = (context['current_page'] - 1) * per_page
         cursor = conn.cursor(dictionary=True)
+        
+        params = []
+        where_clauses = []
+
         if context['active_tab'] == 'pdf':
-            count_query = "SELECT COUNT(*) as count FROM pdf_documents"
-            context['headers'] = ["ID", "Nama File", "Judul", "Author", "Jml Halaman", "Waktu Analisis"]
-            data_query = "SELECT id, file_name, title, author, num_pages, analysis_timestamp FROM pdf_documents ORDER BY analysis_timestamp DESC LIMIT %s OFFSET %s"
+            context['headers'] = ["ID", "Nama File", "Judul", "Author", "Jml Halaman", "Waktu Analisis", "Aksi"]
+            base_query = "FROM pdf_documents"
+            if search_query:
+                like_query = f"%{search_query}%"
+                where_clauses.append("(file_name LIKE %s OR title LIKE %s OR author LIKE %s)")
+                params.extend([like_query, like_query, like_query])
+            
+            where_sql = " WHERE " + " AND ".join(where_clauses) if where_clauses else ""
+            count_query = f"SELECT COUNT(*) as count {base_query}{where_sql}"
+            data_query = f"SELECT id, file_name, title, author, num_pages, analysis_timestamp {base_query}{where_sql} ORDER BY analysis_timestamp DESC LIMIT %s OFFSET %s"
+            params.extend([per_page, offset])
+
         elif context['active_tab'] == 'git':
-            count_query = "SELECT COUNT(DISTINCT repo_name) as count FROM git_commits"
-            context['headers'] = ["Nama Repositori", "Total Commit", "Kontributor", "Commit Terakhir"]
-            data_query = "SELECT repo_name, COUNT(commit_sha) as total_commits, COUNT(DISTINCT commit_author) as contributors, MAX(commit_date) as last_commit FROM git_commits GROUP BY repo_name ORDER BY last_commit DESC LIMIT %s OFFSET %s"
+            context['headers'] = ["Nama Repositori", "Total Commit", "Kontributor", "Commit Terakhir", "Aksi"]
+            base_query = "FROM git_commits"
+            group_by_sql = " GROUP BY repo_name"
+            having_sql = ""
+            if search_query:
+                like_query = f"%{search_query}%"
+                having_sql = " HAVING repo_name LIKE %s"
+                params.append(like_query)
+            
+            count_query = f"SELECT COUNT(*) as count FROM (SELECT repo_name {base_query}{group_by_sql}{having_sql}) as subquery"
+            data_query = f"SELECT repo_name, COUNT(commit_sha) as total_commits, COUNT(DISTINCT commit_author) as contributors, MAX(commit_date) as last_commit {base_query}{group_by_sql}{having_sql} ORDER BY last_commit DESC LIMIT %s OFFSET %s"
+            params.extend([per_page, offset])
         else:
             return redirect(url_for('data_master', tab='pdf'))
-        cursor.execute(count_query)
-        total_rows_result = cursor.fetchone()
-        total_rows = total_rows_result['count'] if total_rows_result else 0
+        
+        cursor.execute(count_query, params[:-2] if search_query else [])
+        total_rows = cursor.fetchone()['count']
         context['total_pages'] = int(math.ceil(total_rows / per_page)) if total_rows > 0 else 1
-        cursor.execute(data_query, (per_page, offset))
+        
+        cursor.execute(data_query, params)
         context['data'] = cursor.fetchall()
+
     except Exception as e:
         print(f"Error in data_master: {e}")
         flash("Terjadi kesalahan saat memuat data master.", "danger")
@@ -226,6 +297,42 @@ def data_master():
             cursor.close()
             conn.close()
     return render_template('data_master.html', **context)
+
+@app.route('/visualisasi')
+def visualisasi():
+    conn = get_db_connection()
+    if not conn:
+        return redirect(url_for('dashboard'))
+
+    try:
+        cursor = conn.cursor(dictionary=True)
+        
+        cursor.execute("SELECT commit_author, COUNT(*) as total_commits FROM git_commits GROUP BY commit_author ORDER BY total_commits DESC LIMIT 10")
+        git_contributors = cursor.fetchall()
+        
+        cursor.execute("SELECT category, COUNT(*) as total_commits FROM git_commits GROUP BY category")
+        git_categories = cursor.fetchall()
+
+        cursor.execute("SELECT author, COUNT(*) as total_docs FROM pdf_documents GROUP BY author ORDER BY total_docs DESC LIMIT 10")
+        pdf_authors = cursor.fetchall()
+        
+        git_contributors_data = {item['commit_author']: item['total_commits'] for item in git_contributors}
+        git_categories_data = {item['category']: item['total_commits'] for item in git_categories}
+        pdf_authors_data = {item['author']: item['total_docs'] for item in pdf_authors}
+
+    except Exception as e:
+        flash(f"Error saat mengambil data visualisasi: {e}", "danger")
+        return redirect(url_for('dashboard'))
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+
+    return render_template('visualisasi.html', 
+                           git_contributors_data=git_contributors_data,
+                           git_categories_data=git_categories_data,
+                           pdf_authors_data=pdf_authors_data)
+
 
 @app.route('/repo/<path:repo_name>')
 def repo_detail(repo_name):
@@ -257,6 +364,9 @@ def repo_detail(repo_name):
 def pdf_detail(doc_id):
     conn = get_db_connection()
     if not conn: return redirect(url_for('data_master', tab='pdf'))
+    
+    doc = None
+    similar_docs = []
     try:
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM pdf_documents WHERE id = %s", (doc_id,))
@@ -264,10 +374,31 @@ def pdf_detail(doc_id):
         if not doc:
             flash(f"Tidak ditemukan dokumen dengan ID {doc_id}", "warning")
             return redirect(url_for('data_master', tab='pdf'))
+        
         if doc.get('keywords'):
             doc['keywords_list'] = [k.strip() for k in doc['keywords'].split(',') if k.strip()]
         else:
             doc['keywords_list'] = []
+
+        # --- PERBAIKAN: Query diubah untuk memeriksa kedua arah ---
+        query_similarity = """
+            SELECT 
+                s.similarity_score,
+                other_doc.id,
+                other_doc.file_name
+            FROM 
+                pdf_similarity s
+            JOIN 
+                pdf_documents AS other_doc 
+                ON (s.doc1_id = other_doc.id OR s.doc2_id = other_doc.id)
+            WHERE 
+                (s.doc1_id = %s OR s.doc2_id = %s) AND other_doc.id != %s
+            ORDER BY 
+                s.similarity_score DESC
+        """
+        cursor.execute(query_similarity, (doc_id, doc_id, doc_id))
+        similar_docs = cursor.fetchall()
+
     except Exception as e:
         flash(f"Error saat mengambil detail dokumen: {e}", "danger")
         return redirect(url_for('data_master', tab='pdf'))
@@ -275,7 +406,8 @@ def pdf_detail(doc_id):
         if conn.is_connected():
             cursor.close()
             conn.close()
-    return render_template('pdf_detail.html', doc=doc)
+    return render_template('pdf_detail.html', doc=doc, similar_docs=similar_docs)
+
 
 @app.route('/analyze-pdf', methods=['POST'])
 def analyze_pdf():
@@ -319,10 +451,8 @@ def upload_and_analyze_pdf():
                 else:
                     flash(f'Gagal memproses file PDF "{filename}".', 'danger')
             elif file_extension in ['xlsx', 'csv']:
-                if file_extension == 'csv':
-                    df_links = pd.read_csv(filepath)
-                else:
-                    df_links = pd.read_excel(filepath)
+                if file_extension == 'csv': df_links = pd.read_csv(filepath)
+                else: df_links = pd.read_excel(filepath)
                 if 'link' not in df_links.columns:
                     flash("File harus memiliki kolom bernama 'link'.", "danger")
                     return redirect(url_for('dashboard'))
@@ -354,11 +484,16 @@ def upload_and_analyze_pdf():
 
 @app.route('/analyze-git', methods=['POST'])
 def analyze_git():
-    repo_name = request.form.get('repo_name')
+    repo_input = request.form.get('repo_name', '').strip()
     deadline = request.form.get('deadline')
-    if not repo_name:
+    if not repo_input:
         flash('Nama repositori tidak boleh kosong.', 'warning')
         return redirect(url_for('dashboard'))
+    match = re.search(r'github\.com/([\w-]+/[\w.-]+)', repo_input)
+    if match:
+        repo_name = match.group(1)
+    else:
+        repo_name = repo_input
     try:
         commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
         if commits_df.empty and issues_df.empty and prs_df.empty:
@@ -373,6 +508,42 @@ def analyze_git():
         flash(f"Terjadi error saat analisis Git: {e}", "danger")
     return redirect(url_for('dashboard'))
 
+@app.route('/delete/pdf/<int:doc_id>', methods=['POST'])
+def delete_pdf(doc_id):
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM pdf_documents WHERE id = %s", (doc_id,))
+            conn.commit()
+            flash(f"Dokumen dengan ID {doc_id} berhasil dihapus.", "success")
+        except Exception as e:
+            flash(f"Gagal menghapus dokumen: {e}", "danger")
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+    return redirect(url_for('data_master', tab='pdf'))
+
+@app.route('/delete/git/<path:repo_name>', methods=['POST'])
+def delete_git_repo(repo_name):
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM git_commits WHERE repo_name = %s", (repo_name,))
+            cursor.execute("DELETE FROM git_issues WHERE repo_name = %s", (repo_name,))
+            cursor.execute("DELETE FROM git_pull_requests WHERE repo_name = %s", (repo_name,))
+            conn.commit()
+            flash(f"Semua data untuk repositori {repo_name} berhasil dihapus.", "success")
+        except Exception as e:
+            flash(f"Gagal menghapus data repositori: {e}", "danger")
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+    return redirect(url_for('data_master', tab='git'))
+
 @app.route('/reset-data', methods=['POST'])
 def reset_data():
     conn = get_db_connection()
@@ -384,6 +555,7 @@ def reset_data():
             cursor.execute("TRUNCATE TABLE git_commits;")
             cursor.execute("TRUNCATE TABLE git_issues;")
             cursor.execute("TRUNCATE TABLE git_pull_requests;")
+            cursor.execute("TRUNCATE TABLE pdf_similarity;")
             cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
             conn.commit()
             flash("Semua data di database telah berhasil dihapus.", "success")
