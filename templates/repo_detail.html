@@ -1,4 +1,3 @@
-<!-- templates/repo_detail.html -->
 {% extends "base.html" %}
 
 {% block title %}Detail Repositori: {{ repo_name }}{% endblock %}
@@ -14,7 +13,6 @@
             <p class="text-muted">Menampilkan ringkasan dan visualisasi data untuk repositori yang dipilih.</p>
         </div>
         <div>
-            <!-- TOMBOL BARU UNTUK HAPUS CACHE -->
             <form action="{{ url_for('clear_cache', repo_name=repo_name) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menganalisis ulang repositori ini? Ini akan mengambil data terbaru dari API.');">
                 <button type="submit" class="btn btn-sm btn-warning">
                     <i data-feather="refresh-cw" class="me-1"></i> Analisis Ulang (Hapus Cache)
@@ -23,8 +21,6 @@
         </div>
     </div>
 </div>
-
-<!-- (Sisa dari file ini tetap sama seperti sebelumnya) -->
 
 <!-- Ringkasan Statistik -->
 <div class="row mb-4">
@@ -155,7 +151,8 @@
                 <tbody>
                     {% for commit in commits %}
                     <tr>
-                        <td><small>{{ commit.commit_date.strftime('%Y-%m-%d %H:%M') if commit.commit_date else 'N/A' }}</small></td>
+                        <!-- PERBAIKAN ZONA WAKTU DITERAPKAN DI SINI -->
+                        <td><small>{{ (commit.commit_date | localtime).strftime('%Y-%m-%d %H:%M') if commit.commit_date else 'N/A' }}</small></td>
                         <td><a href="{{ url_for('student_profile', author_name=commit.commit_author) }}">{{ commit.commit_author }}</a></td>
                         <td>{{ commit.commit_message | truncate(100) }}</td>
                         <td><span class="badge bg-light text-dark fw-normal">{{ commit.category }}</span></td>
@@ -174,7 +171,6 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- (Tidak ada perubahan di bagian scripts) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>

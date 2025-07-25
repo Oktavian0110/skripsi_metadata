@@ -63,7 +63,8 @@
                         <tr>
                             <td>{{ repo.repo_name }}</td>
                             <td>{{ repo.total_commits }}</td>
-                            <td>{{ repo.last_commit.strftime('%Y-%m-%d %H:%M') if repo.last_commit else 'N/A' }}</td>
+                            <!-- PERBAIKAN ZONA WAKTU DITERAPKAN DI SINI -->
+                            <td>{{ (repo.last_commit | localtime).strftime('%Y-%m-%d %H:%M') if repo.last_commit else 'N/A' }}</td>
                             <td>
                                 <a href="{{ url_for('repo_detail', repo_name=repo.repo_name) }}" class="btn btn-info btn-sm">Lihat Detail</a>
                             </td>

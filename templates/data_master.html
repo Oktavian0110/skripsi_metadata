@@ -1,198 +1,106 @@
-<!-- templates/data_master.html -->
 {% extends "base.html" %}
 
 {% block title %}Data Master{% endblock %}
 
 {% block content %}
-<div id="loading-overlay" class="d-none">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-2">Memproses...</p>
-</div>
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Data Master</h1>
+    <p class="mb-4">Menampilkan semua data analisis yang tersimpan di database.</p>
 
-<div class="page-header mb-5">
-    <h2>Data Master</h2>
-    <p class="text-muted">Menampilkan semua data analisis yang tersimpan di database.</p>
-</div>
-
-<div class="card">
-    <div class="card-header">
-        <ul class="nav nav-tabs card-header-tabs">
-            <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'pdf' %}active{% endif %}" href="{{ url_for('data_master', tab='pdf') }}">Dokumen PDF</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if active_tab == 'git' %}active{% endif %}" href="{{ url_for('data_master', tab='git') }}">Repositori Git</a>
-            </li>
-        </ul>
-    </div>
-    <div class="card-body">
-        <!-- --- PERBAIKAN: Form Pencarian diubah untuk pencarian otomatis --- -->
-        <div class="mb-3">
-            <form id="search-form" method="GET" action="{{ url_for('data_master') }}">
-                <input type="hidden" name="tab" value="{{ active_tab }}">
-                <div class="input-group">
-                    <span class="input-group-text"><i data-feather="search"></i></span>
-                    <input type="text" class="form-control" id="search-input" placeholder="Ketik untuk mencari data..." name="q" value="{{ search_query or '' }}">
-                    <!-- Tombol "Cari" dihapus -->
-                </div>
-            </form>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        {% for header in headers %}
-                            <th>{{ header }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in data %}
-                    <tr>
-                        {% if active_tab == 'git' %}
-                            <td><a href="{{ url_for('repo_detail', repo_name=row.repo_name) }}">{{ row.repo_name }}</a></td>
-                            <td>{{ row.total_commits }}</td>
-                            <td>{{ row.contributors }}</td>
-                            <td>{{ row.last_commit.strftime('%Y-%m-%d %H:%M') if row.last_commit else 'N/A' }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-item-name="{{ row.repo_name }}" data-delete-url="{{ url_for('delete_git_repo', repo_name=row.repo_name) }}">
-                                    <i data-feather="trash-2" class="feather-sm"></i>
-                                </button>
-                            </td>
-                        {% elif active_tab == 'pdf' %}
-                            <td>{{ row.id }}</td>
-                            <td><a href="{{ url_for('pdf_detail', doc_id=row.id) }}">{{ row.file_name }}</a></td>
-                            <td><small>{{ row.title | truncate(50) }}</small></td>
-                            <td>{{ row.author }}</td>
-                            <td>{{ row.num_pages }}</td>
-                            <td>{{ row.analysis_timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-item-name="{{ row.file_name }}" data-delete-url="{{ url_for('delete_pdf', doc_id=row.id) }}">
-                                    <i data-feather="trash-2" class="feather-sm"></i>
-                                </button>
-                            </td>
-                        {% endif %}
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="{{ headers|length }}" class="text-center text-muted">Tidak ada data yang cocok dengan pencarian Anda.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="card-footer">
-        <!-- Paginasi -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-end mb-0">
-                <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
-                    <a class="page-link" href="{{ url_for('data_master', tab=active_tab, page=current_page-1, q=search_query) }}">Previous</a>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if active_tab == 'pdf' %}active{% endif %}" href="{{ url_for('data_master', tab='pdf') }}">Dokumen PDF</a>
                 </li>
-                {% for page_num in range(1, total_pages + 1) %}
+                <li class="nav-item">
+                    <a class="nav-link {% if active_tab == 'git' %}active{% endif %}" href="{{ url_for('data_master', tab='git') }}">Repositori Git</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    {% if active_tab == 'git' %}
+                    <form id="compareForm" action="{{ url_for('compare_repos') }}" method="GET">
+                        <button type="submit" class="btn btn-primary">Bandingkan Repositori Terpilih</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <form action="{{ url_for('data_master', tab=active_tab) }}" method="GET" class="d-flex">
+                        <input type="hidden" name="tab" value="{{ active_tab }}">
+                        <input type="search" class="form-control" name="q" placeholder="Ketik untuk mencari data..." value="{{ search_query or '' }}">
+                        <button class="btn btn-secondary ms-2" type="submit">Cari</button>
+                    </form>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            {% if active_tab == 'git' %}<th><!-- Checkbox --></th>{% endif %}
+                            {% for header in headers %}
+                                <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            {% if active_tab == 'pdf' %}
+                                <td>{{ row.id }}</td>
+                                <td>{{ row.file_name }}</td>
+                                <td>{{ row.title or 'N/A' }}</td>
+                                <td><a href="{{ url_for('student_profile', author_name=row.author) }}">{{ row.author }}</a></td>
+                                <td>{{ row.num_pages }}</td>
+                                <td>{{ (row.analysis_timestamp | localtime).strftime('%Y-%m-%d %H:%M') if row.analysis_timestamp else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('pdf_detail', doc_id=row.id) }}" class="btn btn-info btn-sm">Detail</a>
+                                    <form action="{{ url_for('delete_pdf', doc_id=row.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus dokumen ini?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                    </form>
+                                </td>
+                            {% elif active_tab == 'git' %}
+                                <td><input type="checkbox" name="repo" value="{{ row.repo_name }}" form="compareForm"></td>
+                                <td>{{ row.repo_name }}</td>
+                                <td>{{ row.total_commits }}</td>
+                                <td>{{ row.contributors }}</td>
+                                <!-- PERBAIKAN ZONA WAKTU DITERAPKAN DI SINI -->
+                                <td>{{ (row.last_commit | localtime).strftime('%Y-%m-%d %H:%M') if row.last_commit else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('repo_detail', repo_name=row.repo_name) }}" class="btn btn-info btn-sm">Detail</a>
+                                    <form action="{{ url_for('delete_git_repo', repo_name=row.repo_name) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus semua data untuk repositori ini?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="{{ headers|length + 1 }}" class="text-center">Tidak ada data yang ditemukan.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+             <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('data_master', tab=active_tab, page=current_page-1, q=search_query) }}">Previous</a>
+                    </li>
+                    {% for page_num in range(1, total_pages + 1) %}
                     <li class="page-item {% if page_num == current_page %}active{% endif %}">
                         <a class="page-link" href="{{ url_for('data_master', tab=active_tab, page=page_num, q=search_query) }}">{{ page_num }}</a>
                     </li>
-                {% endfor %}
-                <li class="page-item {% if current_page >= total_pages %}disabled{% endif %}">
-                    <a class="page-link" href="{{ url_for('data_master', tab=active_tab, page=current_page+1, q=search_query) }}">Next</a>
-                </li>
-            </ul>
-        </nav>
+                    {% endfor %}
+                    <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('data_master', tab=active_tab, page=current_page+1, q=search_query) }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
-
-<!-- Modal Konfirmasi Hapus -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Konfirmasi Hapus</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Anda yakin ingin menghapus data untuk: <strong id="itemName"></strong>?</p>
-        <p class="text-danger">Tindakan ini tidak dapat diurungkan.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <form id="deleteForm" method="post" action="">
-            <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-// Script untuk menangani modal konfirmasi hapus
-const deleteModal = document.getElementById('deleteModal');
-if (deleteModal) {
-    deleteModal.addEventListener('show.bs.modal', function (event) {
-      const button = event.relatedTarget;
-      const itemName = button.getAttribute('data-item-name');
-      const deleteUrl = button.getAttribute('data-delete-url');
-      
-      const modalBodyStrong = deleteModal.querySelector('#itemName');
-      const deleteForm = deleteModal.querySelector('#deleteForm');
-      
-      modalBodyStrong.textContent = itemName;
-      deleteForm.action = deleteUrl;
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const deleteForm = document.getElementById('deleteForm');
-
-    if (deleteForm) {
-        deleteForm.addEventListener('submit', function() {
-            loadingOverlay.classList.remove('d-none');
-        });
-    }
-
-    // --- TAMBAHAN: Logika untuk pencarian otomatis ---
-    const searchForm = document.getElementById('search-form');
-    const searchInput = document.getElementById('search-input');
-    let debounceTimer;
-
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(function() {
-                searchForm.submit();
-            }, 500); // Tunggu 500ms setelah user berhenti mengetik
-        });
-    }
-});
-</script>
-<style>
-/* CSS kecil untuk ikon di dalam tombol */
-.feather-sm {
-    width: 1rem;
-    height: 1rem;
-}
-/* CSS untuk loading spinner */
-#loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(255, 255, 255, 0.8);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-#loading-overlay.d-none {
-    display: none !important;
-}
-</style>
 {% endblock %}

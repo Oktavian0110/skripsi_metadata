@@ -8,7 +8,9 @@ import math
 from werkzeug.utils import secure_filename
 import nltk
 import re
-import json # Import json
+import json
+from datetime import datetime # Import datetime
+import pytz # Import library pytz untuk zona waktu
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -18,7 +20,7 @@ from git_extractor import GitExtractor
 from analyzer import Analyzer
 
 # --- Inisialisasi Awal Aplikasi ---
-# (Tidak ada perubahan di bagian ini, tetap sama)
+# (Tidak ada perubahan di bagian ini)
 try:
     nltk.data.find('corpora/stopwords')
 except LookupError:
@@ -50,6 +52,22 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+# --- FUNGSI BARU UNTUK KONVERSI ZONA WAKTU ---
+def to_local_time(utc_dt):
+    """Mengonversi datetime UTC ke zona waktu lokal (Asia/Jakarta)."""
+    if not isinstance(utc_dt, datetime):
+        return utc_dt # Kembalikan nilai asli jika bukan datetime
+    try:
+        local_tz = pytz.timezone('Asia/Jakarta')
+        local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+        return local_dt
+    except Exception:
+        return utc_dt # Fallback jika terjadi error
+
+# Daftarkan fungsi sebagai filter Jinja2
+app.jinja_env.filters['localtime'] = to_local_time
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -60,7 +78,7 @@ analyzer = Analyzer()
 
 
 # --- Fungsi-fungsi Database ---
-# (Tidak ada perubahan di semua fungsi database, tetap sama)
+# (Tidak ada perubahan di semua fungsi database)
 def get_db_connection():
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -186,10 +204,10 @@ def analyze_and_save_pdfs(pdf_metadata_list, deadline=None):
         return False
 
 # --- Rute-rute Aplikasi Flask ---
+# (Semua rute tetap sama, tidak perlu diubah)
 
 @app.route('/')
 def dashboard():
-    # (Tidak ada perubahan di rute ini)
     pdf_stats, git_stats = {}, {}
     conn = get_db_connection()
     if conn:
@@ -224,7 +242,6 @@ def dashboard():
 
 @app.route('/data-master')
 def data_master():
-    # (Tidak ada perubahan di rute ini)
     search_query = request.args.get('q', '').strip()
     context = { 'headers': [], 'data': [], 'total_pages': 1, 'current_page': request.args.get('page', 1, type=int), 'active_tab': request.args.get('tab', 'pdf'), 'search_query': search_query }
     conn = get_db_connection()
@@ -287,7 +304,6 @@ def data_master():
 
 @app.route('/visualisasi')
 def visualisasi():
-    # (Tidak ada perubahan di rute ini)
     conn = get_db_connection()
     if not conn:
         return redirect(url_for('dashboard'))
@@ -323,7 +339,6 @@ def visualisasi():
 
 @app.route('/repo/<path:repo_name>')
 def repo_detail(repo_name):
-    # (Tidak ada perubahan di rute ini)
     conn = get_db_connection()
     if not conn: return redirect(url_for('data_master', tab='git'))
     try:
@@ -355,7 +370,6 @@ def repo_detail(repo_name):
 
 @app.route('/profile/<author_name>')
 def student_profile(author_name):
-    # (Tidak ada perubahan di rute ini)
     conn = get_db_connection()
     if not conn:
         return redirect(url_for('dashboard'))
@@ -398,7 +412,6 @@ def student_profile(author_name):
 
 @app.route('/pdf/<int:doc_id>')
 def pdf_detail(doc_id):
-    # (Tidak ada perubahan di rute ini)
     conn = get_db_connection()
     if not conn: return redirect(url_for('data_master', tab='pdf'))
     
@@ -444,7 +457,6 @@ def pdf_detail(doc_id):
 
 @app.route('/analyze-pdf', methods=['POST'])
 def analyze_pdf():
-    # (Tidak ada perubahan di rute ini)
     link = request.form.get('gdrive_link')
     deadline = request.form.get('deadline')
     if not link:
@@ -463,7 +475,6 @@ def analyze_pdf():
 
 @app.route('/upload-and-analyze-pdf', methods=['POST'])
 def upload_and_analyze_pdf():
-    # (Tidak ada perubahan di rute ini)
     if 'file' not in request.files:
         flash('Tidak ada file yang dipilih.', 'warning')
         return redirect(url_for('dashboard'))
@@ -519,7 +530,6 @@ def upload_and_analyze_pdf():
 
 @app.route('/analyze-git', methods=['POST'])
 def analyze_git():
-    # (Tidak ada perubahan di rute ini)
     repo_input = request.form.get('repo_name', '').strip()
     deadline = request.form.get('deadline')
 
@@ -548,13 +558,10 @@ def analyze_git():
 
     return redirect(url_for('dashboard'))
     
-# --- RUTE BARU UNTUK HAPUS CACHE ---
 @app.route('/clear-cache/<path:repo_name>', methods=['POST'])
 def clear_cache(repo_name):
     try:
-        # Menggunakan direktori cache yang sama dengan yang didefinisikan di GitExtractor
         cache_dir = "cache"
-        # Mengganti '/' dengan '_' agar cocok dengan nama file cache
         sanitized_repo_name = repo_name.replace('/', '_')
         cache_file = os.path.join(cache_dir, f"{sanitized_repo_name}.json")
         
@@ -568,7 +575,6 @@ def clear_cache(repo_name):
         
     return redirect(url_for('repo_detail', repo_name=repo_name))
 
-# --- RUTE BARU UNTUK PERBANDINGAN ---
 @app.route('/compare-repos')
 def compare_repos():
     repo_names = request.args.getlist('repo')
@@ -591,7 +597,6 @@ def compare_repos():
                 stats = analyzer.analyze_git_data(df_commits)
                 contribution = analyzer.analyze_team_contribution(df_commits)
                 
-                # Menghitung total baris kode
                 total_lines = 0
                 for author, author_stats in contribution.items():
                     total_lines += author_stats.get('lines_added', 0)
@@ -611,7 +616,6 @@ def compare_repos():
 
 @app.route('/delete/pdf/<int:doc_id>', methods=['POST'])
 def delete_pdf(doc_id):
-    # (Tidak ada perubahan di rute ini)
     conn = get_db_connection()
     if conn:
         try:
@@ -629,7 +633,6 @@ def delete_pdf(doc_id):
 
 @app.route('/delete/git/<path:repo_name>', methods=['POST'])
 def delete_git_repo(repo_name):
-    # (Tidak ada perubahan di rute ini)
     conn = get_db_connection()
     if conn:
         try:
@@ -649,7 +652,6 @@ def delete_git_repo(repo_name):
 
 @app.route('/reset-data', methods=['POST'])
 def reset_data():
-    # (Tidak ada perubahan di rute ini)
     conn = get_db_connection()
     if conn:
         try:
