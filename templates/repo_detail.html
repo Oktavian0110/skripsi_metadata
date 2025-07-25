@@ -5,12 +5,26 @@
 
 {% block content %}
 <div class="page-header mb-4">
-    <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3">
-        <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Repositori
-    </a>
-    <h2>Analisis Detail: {{ repo_name }}</h2>
-    <p class="text-muted">Menampilkan ringkasan dan visualisasi data untuk repositori yang dipilih.</p>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3">
+                <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Repositori
+            </a>
+            <h2>Analisis Detail: {{ repo_name }}</h2>
+            <p class="text-muted">Menampilkan ringkasan dan visualisasi data untuk repositori yang dipilih.</p>
+        </div>
+        <div>
+            <!-- TOMBOL BARU UNTUK HAPUS CACHE -->
+            <form action="{{ url_for('clear_cache', repo_name=repo_name) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menganalisis ulang repositori ini? Ini akan mengambil data terbaru dari API.');">
+                <button type="submit" class="btn btn-sm btn-warning">
+                    <i data-feather="refresh-cw" class="me-1"></i> Analisis Ulang (Hapus Cache)
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
+
+<!-- (Sisa dari file ini tetap sama seperti sebelumnya) -->
 
 <!-- Ringkasan Statistik -->
 <div class="row mb-4">
@@ -25,7 +39,7 @@
     <div class="col-md-3">
         <div class="card text-center">
             <div class="card-body">
-                <h4 class="card-title">{{ stats.total_contributors }}</h4>
+                <h4 class="card-title">{{ stats.unique_contributors }}</h4>
                 <p class="card-text text-muted">Total Kontributor</p>
             </div>
         </div>
@@ -68,9 +82,9 @@
     </div>
 </div>
 
-<!-- Baris untuk Grafik Tren dan Keaktifan -->
+<!-- Baris untuk Grafik Tren -->
 <div class="row">
-    <div class="col-lg-8 mb-4">
+    <div class="col-lg-12 mb-4">
         <div class="card">
             <div class="card-header">Perkembangan Jumlah Commit</div>
             <div class="card-body" style="position: relative; height:300px;">
@@ -78,15 +92,51 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">Keaktifan per Hari</div>
-            <div class="card-body" style="position: relative; height:300px;">
-                <canvas id="commitActivityChart"></canvas>
-            </div>
+</div>
+
+<!-- Analisis Kontribusi Tim -->
+<div class="card mt-4 mb-4">
+    <div class="card-header">
+        <h3>Analisis Kontribusi Tim</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Kontributor</th>
+                        <th>Total Commits</th>
+                        <th>Baris Ditambah (+)</th>
+                        <th>Baris Dihapus (-)</th>
+                        <th>Jenis File yang Dikerjakan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for author, author_stats in team_contribution.items() %}
+                    <tr>
+                        <td><a href="{{ url_for('student_profile', author_name=author) }}">{{ author }}</a></td>
+                        <td>{{ author_stats.total_commits }}</td>
+                        <td class="text-success">+{{ author_stats.lines_added }}</td>
+                        <td class="text-danger">-{{ author_stats.lines_deleted }}</td>
+                        <td>
+                            {% for ext, count in author_stats.file_types.items() %}
+                                <span class="badge bg-secondary">{{ ext }} ({{ count }})</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Data kontribusi tidak tersedia.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
 
 <!-- Tabel Daftar Commit -->
 <div class="card">
@@ -105,8 +155,8 @@
                 <tbody>
                     {% for commit in commits %}
                     <tr>
-                        <td><small>{{ commit.commit_date.strftime('%Y-%m-%d %H:%M') }}</small></td>
-                        <td>{{ commit.commit_author }}</td>
+                        <td><small>{{ commit.commit_date.strftime('%Y-%m-%d %H:%M') if commit.commit_date else 'N/A' }}</small></td>
+                        <td><a href="{{ url_for('student_profile', author_name=commit.commit_author) }}">{{ commit.commit_author }}</a></td>
                         <td>{{ commit.commit_message | truncate(100) }}</td>
                         <td><span class="badge bg-light text-dark fw-normal">{{ commit.category }}</span></td>
                     </tr>
@@ -124,14 +174,14 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- (Tidak ada perubahan di bagian scripts) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
-// Data untuk grafik, di-pass dari Flask
-const authorData = {{ stats.commit_by_author | tojson | safe }};
+const authorData = {{ stats.author_commit_counts | tojson | safe }};
 const categoryData = {{ stats.commit_category_counts | tojson | safe }};
 const timeData = {{ stats.commits_over_time | tojson | safe }};
-const activityData = {{ stats.commit_activity_by_day | tojson | safe }};
 
-// Grafik 1: Commit per Kontributor (Bar Chart)
 const authorCanvas = document.getElementById('authorChart');
 if (authorCanvas && authorData) {
     new Chart(authorCanvas.getContext('2d'), {
@@ -150,7 +200,6 @@ if (authorCanvas && authorData) {
             maintainAspectRatio: false,
             plugins: { 
                 legend: { display: false },
-                // --- PERBAIKAN: Tooltip Interaktif ---
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -170,7 +219,6 @@ if (authorCanvas && authorData) {
     });
 }
 
-// Grafik 2: Distribusi Kategori (Pie Chart)
 const categoryCanvas = document.getElementById('categoryChart');
 if (categoryCanvas && categoryData) {
     new Chart(categoryCanvas.getContext('2d'), {
@@ -194,7 +242,6 @@ if (categoryCanvas && categoryData) {
             maintainAspectRatio: false,
             plugins: { 
                 legend: { position: 'top' },
-                // --- PERBAIKAN: Tooltip Interaktif dengan Persentase ---
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -211,7 +258,6 @@ if (categoryCanvas && categoryData) {
     });
 }
 
-// Grafik 3: Perkembangan Commit (Line Chart)
 const timeCanvas = document.getElementById('commitsOverTimeChart');
 if (timeCanvas && timeData) {
     new Chart(timeCanvas.getContext('2d'), {
@@ -232,48 +278,29 @@ if (timeCanvas && timeData) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { type: 'time', time: { unit: 'day' } },
-                y: { beginAtZero: true }
-            },
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Jumlah Commit: ${context.parsed.y}`;
-                        }
+                x: { 
+                    type: 'time', 
+                    time: { 
+                        unit: 'day',
+                        tooltipFormat: 'dd MMM yyyy'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Tanggal'
                     }
-                }
-            }
-        }
-    });
-}
-
-// Grafik 4: Keaktifan per Hari (Bar Chart)
-const activityCanvas = document.getElementById('commitActivityChart');
-if (activityCanvas && activityData) {
-    new Chart(activityCanvas.getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: Object.keys(activityData),
-            datasets: [{
-                label: 'Jumlah Commit',
-                data: Object.values(activityData),
-                backgroundColor: 'rgba(255, 159, 64, 0.8)'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
+                },
+                y: { 
                     beginAtZero: true,
                     ticks: {
                         precision: 0
+                    },
+                    title: {
+                        display: true,
+                        text: 'Jumlah Commit'
                     }
                 }
             },
-            plugins: {
+            plugins: { 
                 legend: { display: false },
                 tooltip: {
                     callbacks: {

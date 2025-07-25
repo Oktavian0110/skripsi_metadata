@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Perbandingan Repositori{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3">
+        <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Repositori
+    </a>
+    <h2>Perbandingan Repositori</h2>
+    <p class="text-muted">Menampilkan perbandingan statistik kunci antar repositori yang dipilih.</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" style="table-layout: fixed;">
+                <thead>
+                    <tr class="table-light">
+                        <th style="width: 20%;">Metrik</th>
+                        {% for name in repo_names %}
+                        <th class="text-center">{{ name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-bold">Total Commit</td>
+                        {% for name in repo_names %}
+                        <td class="text-center">{{ comparison_data[name].total_commits }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Jumlah Kontributor</td>
+                        {% for name in repo_names %}
+                        <td class="text-center">{{ comparison_data[name].unique_contributors }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Total Baris Kode Ditambah</td>
+                        {% for name in repo_names %}
+                        <td class="text-center text-success">+{{ comparison_data[name].total_lines_added }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Commit Pertama</td>
+                        {% for name in repo_names %}
+                        <td class="text-center"><small>{{ comparison_data[name].first_commit_date }}</small></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Commit Terakhir</td>
+                        {% for name in repo_names %}
+                        <td class="text-center"><small>{{ comparison_data[name].last_commit_date }}</small></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Kontributor & Jumlah Commit</td>
+                        {% for name in repo_names %}
+                        <td>
+                            <ul class="list-unstyled mb-0">
+                                {% for author, count in comparison_data[name].author_commit_counts.items() %}
+                                <li>
+                                    <a href="{{ url_for('student_profile', author_name=author) }}">{{ author }}</a>: 
+                                    <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Kategori Commit</td>
+                        {% for name in repo_names %}
+                        <td>
+                            {% for category, count in comparison_data[name].commit_category_counts.items() %}
+                                <span class="badge bg-light text-dark fw-normal">{{ category }}: {{ count }}</span><br>
+                            {% endfor %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

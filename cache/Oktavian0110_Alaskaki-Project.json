@@ -1,0 +1,683 @@
+{
+    "timestamp": "2025-07-25T08:11:00.569060+00:00",
+    "commits": [
+        {
+            "repo_name": "Oktavian0110/Alaskaki-Project",
+            "commit_sha": "f9240b7fb2ea8b5302005316360ead0d63e60b94",
+            "commit_message": "git1",
+            "commit_author": "=",
+            "commit_author_email": "=",
+            "commit_date": "2023-05-24 14:00:42+00:00",
+            "category": "Other",
+            "files_changed": []
+        },
+        {
+            "repo_name": "Oktavian0110/Alaskaki-Project",
+            "commit_sha": "b55970eddbd928450cdc16c9c38b21ff71afb4e4",
+            "commit_message": "push",
+            "commit_author": "=",
+            "commit_author_email": "=",
+            "commit_date": "2023-05-24 13:55:50+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "index.html",
+                    "additions": 2,
+                    "deletions": 2,
+                    "changes": 4,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/Alaskaki-Project",
+            "commit_sha": "19aee8741889e5a0725392beeb618f0e128696c0",
+            "commit_message": "first commit",
+            "commit_author": "=",
+            "commit_author_email": "=",
+            "commit_date": "2023-05-24 08:49:37+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "assets/css/style.css",
+                    "additions": 1350,
+                    "deletions": 0,
+                    "changes": 1350,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/about-bg.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/alaskaki.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/intro-carousel/img1.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/intro-carousel/img2.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/intro-carousel/img3.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/intro-carousel/img4.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/intro-carousel/img5.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/running1.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/running2.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/running3.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/slipon1.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/slipon2.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/slipon3.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/vulcanized1.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/vulcanized2.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/portfolio/vulcanized3.jpg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/preloader.gif",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/quote-sign-left.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/img/quote-sign-right.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/js/main.js",
+                    "additions": 246,
+                    "deletions": 0,
+                    "changes": 246,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/animate.css/animate.compat.css",
+                    "additions": 9,
+                    "deletions": 0,
+                    "changes": 9,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/animate.css/animate.css",
+                    "additions": 4074,
+                    "deletions": 0,
+                    "changes": 4074,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/animate.css/animate.min.css",
+                    "additions": 9,
+                    "deletions": 0,
+                    "changes": 9,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/aos/aos.css",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/aos/aos.js",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-grid.css",
+                    "additions": 3904,
+                    "deletions": 0,
+                    "changes": 3904,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-grid.css.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-grid.min.css",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-grid.min.css.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-reboot.css",
+                    "additions": 325,
+                    "deletions": 0,
+                    "changes": 325,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-reboot.css.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-reboot.min.css",
+                    "additions": 8,
+                    "deletions": 0,
+                    "changes": 8,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap-reboot.min.css.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap.css",
+                    "additions": 10278,
+                    "deletions": 0,
+                    "changes": 10278,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap.css.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap.min.css",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/css/bootstrap.min.css.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.bundle.js",
+                    "additions": 7033,
+                    "deletions": 0,
+                    "changes": 7033,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.bundle.js.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.bundle.min.js",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.bundle.min.js.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.js",
+                    "additions": 4420,
+                    "deletions": 0,
+                    "changes": 4420,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.js.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.min.js",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/bootstrap/js/bootstrap.min.js.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/counterup/counterup.min.js",
+                    "additions": 11,
+                    "deletions": 0,
+                    "changes": 11,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/css/font-awesome.css",
+                    "additions": 2337,
+                    "deletions": 0,
+                    "changes": 2337,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/css/font-awesome.css.map",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/css/font-awesome.min.css",
+                    "additions": 4,
+                    "deletions": 0,
+                    "changes": 4,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/fonts/FontAwesome.otf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/fonts/fontawesome-webfont.eot",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/fonts/fontawesome-webfont.svg",
+                    "additions": 2671,
+                    "deletions": 0,
+                    "changes": 2671,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/fonts/fontawesome-webfont.ttf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/fonts/fontawesome-webfont.woff",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/font-awesome/fonts/fontawesome-webfont.woff2",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/icofont/fonts/icofont.woff",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/icofont/fonts/icofont.woff2",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/icofont/icofont.min.css",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/ionicons/css/ionicons.css",
+                    "additions": 1480,
+                    "deletions": 0,
+                    "changes": 1480,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/ionicons/css/ionicons.min.css",
+                    "additions": 11,
+                    "deletions": 0,
+                    "changes": 11,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/ionicons/fonts/ionicons.eot",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/ionicons/fonts/ionicons.svg",
+                    "additions": 2230,
+                    "deletions": 0,
+                    "changes": 2230,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/ionicons/fonts/ionicons.ttf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/ionicons/fonts/ionicons.woff",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/isotope-layout/isotope.pkgd.js",
+                    "additions": 3563,
+                    "deletions": 0,
+                    "changes": 3563,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/isotope-layout/isotope.pkgd.min.js",
+                    "additions": 12,
+                    "deletions": 0,
+                    "changes": 12,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/jquery.easing/jquery.easing.min.js",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/jquery/jquery.min.js",
+                    "additions": 2,
+                    "deletions": 0,
+                    "changes": 2,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/jquery/jquery.min.map",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/LICENSE",
+                    "additions": 23,
+                    "deletions": 0,
+                    "changes": 23,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/README.md",
+                    "additions": 122,
+                    "deletions": 0,
+                    "changes": 122,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/ajax-loader.gif",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/owl.carousel.css",
+                    "additions": 186,
+                    "deletions": 0,
+                    "changes": 186,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/owl.carousel.min.css",
+                    "additions": 6,
+                    "deletions": 0,
+                    "changes": 6,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/owl.theme.default.css",
+                    "additions": 50,
+                    "deletions": 0,
+                    "changes": 50,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/owl.theme.default.min.css",
+                    "additions": 6,
+                    "deletions": 0,
+                    "changes": 6,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/owl.theme.green.css",
+                    "additions": 50,
+                    "deletions": 0,
+                    "changes": 50,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/owl.theme.green.min.css",
+                    "additions": 6,
+                    "deletions": 0,
+                    "changes": 6,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/assets/owl.video.play.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/owl.carousel.js",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/owl.carousel/owl.carousel.min.js",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/php-email-form/changelog.txt",
+                    "additions": 13,
+                    "deletions": 0,
+                    "changes": 13,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/php-email-form/validate.js",
+                    "additions": 165,
+                    "deletions": 0,
+                    "changes": 165,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/venobox/venobox.css",
+                    "additions": 250,
+                    "deletions": 0,
+                    "changes": 250,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/venobox/venobox.js",
+                    "additions": 811,
+                    "deletions": 0,
+                    "changes": 811,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/venobox/venobox.min.css",
+                    "additions": 1,
+                    "deletions": 0,
+                    "changes": 1,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/venobox/venobox.min.js",
+                    "additions": 12,
+                    "deletions": 0,
+                    "changes": 12,
+                    "status": "added"
+                },
+                {
+                    "filename": "assets/vendor/waypoints/jquery.waypoints.min.js",
+                    "additions": 7,
+                    "deletions": 0,
+                    "changes": 7,
+                    "status": "added"
+                },
+                {
+                    "filename": "forms/contact.php",
+                    "additions": 41,
+                    "deletions": 0,
+                    "changes": 41,
+                    "status": "added"
+                },
+                {
+                    "filename": "index.html",
+                    "additions": 571,
+                    "deletions": 0,
+                    "changes": 571,
+                    "status": "added"
+                }
+            ]
+        }
+    ],
+    "issues": [],
+    "pull_requests": []
+}

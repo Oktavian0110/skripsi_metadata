@@ -1,0 +1,32 @@
+{
+    "timestamp": "2025-07-25T08:10:50.235168+00:00",
+    "commits": [
+        {
+            "repo_name": "qalbiiazzahra/project-big-data-2023",
+            "commit_sha": "7a2af7ee3f4aea7cc7908362a75683f8f9cf5c75",
+            "commit_message": "Add files via upload",
+            "commit_author": "Qalbii Azzahra Putra",
+            "commit_author_email": "130344848+qalbiiazzahra@users.noreply.github.com",
+            "commit_date": "2023-07-21 01:01:30+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "Data_Preprocessing.ipynb",
+                    "additions": 140,
+                    "deletions": 0,
+                    "changes": 140,
+                    "status": "added"
+                },
+                {
+                    "filename": "TugasAkhirBigData (1).ipynb",
+                    "additions": 1289,
+                    "deletions": 0,
+                    "changes": 1289,
+                    "status": "added"
+                }
+            ]
+        }
+    ],
+    "issues": [],
+    "pull_requests": []
+}

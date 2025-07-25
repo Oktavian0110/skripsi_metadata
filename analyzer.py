@@ -1,117 +1,159 @@
-# analyzer.py
-
 import pandas as pd
-# from rake_nltk import Rake # <-- Dihapus
-import yake # <-- TAMBAHAN: Import library baru
-from nltk.corpus import stopwords
-from datetime import datetime
-import pytz
-import re
+from collections import Counter
+import json
+import re # Pastikan re diimpor
+from nltk.corpus import stopwords # <-- IMPORT BARU
 
 class Analyzer:
     """
-    Menganalisis DataFrame metadata dari PDF dan Git.
+    Menganalisis data dari DataFrame yang sudah diekstrak.
     """
-    def analyze_pdf_data(self, df, deadline=None):
-        """Menganalisis DataFrame metadata PDF."""
-        if df.empty:
+
+    def analyze_git_data(self, commits_df, deadline=None):
+        """Menganalisis data commit dasar."""
+        if commits_df.empty:
             return {}
         
-        first_row = df.iloc[0]
+        # Pastikan kolom tanggal adalah datetime
+        commits_df['commit_date'] = pd.to_datetime(commits_df['commit_date'])
+
+        # Analisis dasar
+        total_commits = len(commits_df)
+        # PERBAIKAN: Gunakan .get() untuk menghindari error jika kolom tidak ada
+        unique_contributors = commits_df['commit_author'].nunique()
+        author_commit_counts = commits_df['commit_author'].value_counts().to_dict()
+        category_counts = commits_df['category'].value_counts().to_dict()
         
+        # Analisis tren waktu
+        commits_over_time = commits_df.set_index('commit_date').resample('D').size().to_dict()
+        commits_over_time = {k.strftime('%Y-%m-%d'): v for k, v in commits_over_time.items()}
+
         stats = {
-            'total_files': len(df),
-            'avg_pages': first_row.get('num_pages', 0),
-            'author_counts': {first_row.get('author', 'Unknown'): 1},
-            'keywords': [],
-            'analyzed_filename': first_row.get('file_name', 'N/A'),
-            'deadline_status': None,
-            'word_count': first_row.get('word_count', 0),
-            'creation_date': pd.to_datetime(first_row.get('creation_date')) if pd.notna(first_row.get('creation_date')) else None
+            'total_commits': total_commits,
+            'unique_contributors': unique_contributors,
+            'author_commit_counts': author_commit_counts,
+            'commit_category_counts': category_counts,
+            'commits_over_time': commits_over_time,
+            'first_commit_date': commits_df['commit_date'].min().strftime('%Y-%m-%d'),
+            'last_commit_date': commits_df['commit_date'].max().strftime('%Y-%m-%d'),
         }
 
-        if 'full_text' in first_row and pd.notna(first_row['full_text']):
-            stats['keywords'] = self.extract_keywords_from_text(first_row['full_text'])
-        
-        if deadline and pd.notna(first_row.get('modification_date')):
-            try:
-                local_tz = pytz.timezone('Asia/Jakarta')
-                deadline_dt = local_tz.localize(datetime.fromisoformat(deadline))
-                mod_date_aware = pd.to_datetime(first_row['modification_date'])
-                
-                if mod_date_aware.astimezone(pytz.utc) <= deadline_dt.astimezone(pytz.utc):
-                    stats['deadline_status'] = 'Tepat Waktu'
-                else:
-                    stats['deadline_status'] = 'Terlambat'
-            except (ValueError, TypeError) as e:
-                print(f"Error memproses deadline PDF: {e}")
+        # Analisis deadline jika ada
+        if deadline:
+            deadline_dt = pd.to_datetime(deadline)
+            stats['on_time_commits'] = (commits_df['commit_date'] <= deadline_dt).sum()
+            stats['late_commits'] = (commits_df['commit_date'] > deadline_dt).sum()
 
         return stats
 
-    def analyze_git_data(self, df, deadline=None):
-        """Menganalisis DataFrame metadata Git."""
-        if df.empty:
-            return {
-                'total_commits': 0, 'total_contributors': 0,
-                'first_commit_date': 'N/A', 'last_commit_date': 'N/A',
-                'commit_category_counts': {}, 'commits_over_time': {},
-                'commit_by_author': {}, 'on_time_commits': 0, 'late_commits': 0,
-                'commit_activity_by_day': {}
+    def analyze_team_contribution(self, commits_df):
+        """
+        FITUR BARU: Menganalisis kontribusi tim secara mendalam.
+        Menghitung baris kode, file yang diubah, dan jenis file per kontributor.
+        """
+        # PERBAIKAN BUG: Cek jika kolom 'files_changed' ada dan tidak kosong
+        if 'files_changed' not in commits_df.columns or commits_df['files_changed'].isnull().all():
+            return {}
+
+        author_stats = {}
+
+        # Menginisialisasi statistik untuk setiap author
+        for author in commits_df['commit_author'].unique():
+            author_stats[author] = {
+                'total_commits': 0,
+                'lines_added': 0,
+                'lines_deleted': 0,
+                'files_modified': Counter(),
+                'file_types': Counter()
             }
+
+        for _, commit in commits_df.iterrows():
+            author = commit['commit_author']
+            author_stats[author]['total_commits'] += 1
+            
+            # PERBAIKAN BUG: Handle jika 'files_changed' adalah None atau string kosong
+            files_changed = commit['files_changed']
+            if not files_changed: # Cek jika None, NaN, atau string kosong
+                continue
+
+            if isinstance(files_changed, str):
+                try:
+                    # Ganti petik tunggal yang tidak valid untuk JSON
+                    files_changed = json.loads(files_changed.replace("'", '"'))
+                except json.JSONDecodeError:
+                    files_changed = [] # Jika string tidak valid, anggap kosong
+            
+            # Pastikan files_changed adalah list sebelum di-loop
+            if not isinstance(files_changed, list):
+                continue
+
+            for file in files_changed:
+                # Pastikan file adalah dictionary
+                if not isinstance(file, dict):
+                    continue
+                author_stats[author]['lines_added'] += file.get('additions', 0)
+                author_stats[author]['lines_deleted'] += file.get('deletions', 0)
+                
+                filename = file.get('filename')
+                if filename:
+                    file_ext = f".{filename.split('.')[-1]}" if '.' in filename else "No Extension"
+                    author_stats[author]['file_types'][file_ext] += 1
         
-        df['commit_date'] = pd.to_datetime(df['commit_date'])
-        
-        df['day_of_week'] = df['commit_date'].dt.dayofweek
-        day_counts = df['day_of_week'].value_counts().sort_index()
-        days_map = {0: 'Senin', 1: 'Selasa', 2: 'Rabu', 3: 'Kamis', 4: 'Jumat', 5: 'Sabtu', 6: 'Minggu'}
-        commit_activity = {days_map[day]: count for day, count in day_counts.items()}
-        final_activity_data = {day: commit_activity.get(day, 0) for day in days_map.values()}
+        # Mengubah Counter menjadi dict untuk kemudahan di template
+        for author, stats in author_stats.items():
+            stats['file_types'] = dict(stats['file_types'])
+
+        return author_stats
+
+    def analyze_pdf_data(self, pdf_df, deadline=None):
+        """Menganalisis data metadata PDF."""
+        if pdf_df.empty:
+            return {}
         
         stats = {
-            'total_commits': len(df),
-            'total_contributors': df['commit_author'].nunique(),
-            'first_commit_date': df['commit_date'].min().strftime('%Y-%m-%d %H:%M'),
-            'last_commit_date': df['commit_date'].max().strftime('%Y-%m-%d %H:%M'),
-            'commit_category_counts': df['category'].value_counts().to_dict(),
-            'commit_by_author': df['commit_author'].value_counts().to_dict(),
-            'commits_over_time': {time.strftime('%Y-%m-%d'): count for time, count in df.set_index('commit_date').resample('D').size().items()},
-            'commit_activity_by_day': final_activity_data,
-            'on_time_commits': 0,
-            'late_commits': 0
+            'total_documents': len(pdf_df),
+            'avg_pages': pdf_df['num_pages'].mean(),
+            'avg_word_count': pdf_df['word_count'].mean(),
+            'author_counts': pdf_df['author'].value_counts().to_dict(),
         }
 
         if deadline:
-            try:
-                local_tz = pytz.timezone('Asia/Jakarta')
-                deadline_dt_naive = datetime.fromisoformat(deadline)
-                deadline_local = local_tz.localize(deadline_dt_naive)
-                utc_deadline = deadline_local.astimezone(pytz.utc)
-                df['commit_date'] = df['commit_date'].dt.tz_convert(pytz.utc)
-                stats['on_time_commits'] = len(df[df['commit_date'] <= utc_deadline])
-                stats['late_commits'] = len(df[df['commit_date'] > utc_deadline])
-            except (ValueError, TypeError) as e:
-                print(f"Error memproses deadline Git: {e}")
-        
-        return stats
-        
-    # --- PERBAIKAN TOTAL: Menggunakan library YAKE untuk ekstraksi ---
-    def extract_keywords_from_text(self, text, num_keywords=15):
-        """Mengekstrak kata kunci dari sebuah teks menggunakan YAKE."""
-        if not text or not isinstance(text, str): 
-            return []
-        
-        try:
-            # Inisialisasi YAKE untuk bahasa Indonesia ('id')
-            # n = ukuran n-gram maksimum, dedupLim = batas untuk deduplikasi, top = jumlah kata kunci
-            kw_extractor = yake.KeywordExtractor(lan="id", n=3, dedupLim=0.9, top=num_keywords, features=None)
-            
-            # YAKE akan melakukan pembersihan teks internal, jadi kita bisa langsung memasukkan teks
-            keywords = kw_extractor.extract_keywords(text)
-            
-            # YAKE mengembalikan list of tuples (keyword, score). Kita hanya butuh keyword-nya.
-            return [kw for kw, score in keywords]
-            
-        except Exception as e:
-            print(f"Error saat ekstraksi kata kunci dengan YAKE: {e}")
-            return []
+            deadline_dt = pd.to_datetime(deadline).tz_localize('UTC')
+            pdf_df['modification_date'] = pd.to_datetime(pdf_df['modification_date'])
+            on_time_docs = (pdf_df['modification_date'] <= deadline_dt).sum()
+            stats['deadline_status'] = "Tepat Waktu" if on_time_docs > 0 else "Terlambat"
 
+        return stats
+
+    def extract_keywords_from_text(self, text, num_keywords=8):
+        """
+        PERBAIKAN: Mengekstrak kata kunci menggunakan daftar stopwords NLTK yang lebih baik.
+        Jumlah kata kunci default diubah menjadi 8.
+        """
+        if not isinstance(text, str):
+            return []
+        
+        # Mengambil daftar stopwords bahasa Inggris dari NLTK
+        try:
+            stop_words = set(stopwords.words('english'))
+        except LookupError:
+            # Fallback jika data stopwords belum di-download (seharusnya sudah di app.py)
+            print("NLTK stopwords for English not found. Downloading...")
+            import nltk
+            nltk.download('stopwords')
+            stop_words = set(stopwords.words('english'))
+
+        # Menambahkan beberapa stopwords bahasa Indonesia untuk jaga-jaga
+        stop_words.update(['dan', 'di', 'yang', 'untuk', 'ini', 'itu', 'dengan', 'dalam', 'adalah'])
+
+        words = re.findall(r'\b\w{3,}\b', text.lower()) # Ambil kata dengan panjang min 3
+        
+        # Menyaring kata-kata umum (stopwords)
+        words = [word for word in words if word not in stop_words and not word.isdigit()]
+        
+        if not words:
+            return []
+            
+        # Menghitung 8 kata yang paling sering muncul
+        most_common = Counter(words).most_common(num_keywords)
+        return [word for word, count in most_common]

@@ -157,7 +157,7 @@
     // Grafik 1: Perkembangan Commit (Line Chart)
     const chartCanvas = document.getElementById('commitsOverTimeChart');
     if (chartCanvas) {
-        const timeData = {{ commits_over_time_data | tojson | safe }};
+        const timeData = {{ (commits_over_time_data or {}) | tojson | safe }};
         if (timeData && Object.keys(timeData).length > 0) {
             const ctx = chartCanvas.getContext('2d');
             new Chart(ctx, { type: 'line', data: { labels: Object.keys(timeData), datasets: [{ label: 'Jumlah Commit per Hari', data: Object.values(timeData), backgroundColor: 'rgba(79, 70, 229, 0.1)', borderColor: 'rgba(79, 70, 229, 1)', borderWidth: 2, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', time: { unit: 'day' } }, y: { beginAtZero: true } }, plugins: { legend: { display: false } } } });

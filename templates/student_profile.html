@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Profil Mahasiswa - {{ profile.author_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Profil Mahasiswa: <strong>{{ profile.author_name }}</strong></h1>
+
+    <!-- Ringkasan Statistik -->
+    <div class="row">
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Pengumpulan Dokumen (PDF)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ profile.total_pdf_submissions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-file-pdf fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Kontribusi Commit (Git)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ profile.total_git_commits }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-code-branch fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daftar Repositori Git -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Kontribusi Repositori Git</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nama Repositori</th>
+                            <th>Total Commit oleh Mahasiswa Ini</th>
+                            <th>Commit Terakhir</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for repo in profile.git_repositories %}
+                        <tr>
+                            <td>{{ repo.repo_name }}</td>
+                            <td>{{ repo.total_commits }}</td>
+                            <td>{{ repo.last_commit.strftime('%Y-%m-%d %H:%M') if repo.last_commit else 'N/A' }}</td>
+                            <td>
+                                <a href="{{ url_for('repo_detail', repo_name=repo.repo_name) }}" class="btn btn-info btn-sm">Lihat Detail</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">Tidak ada kontribusi di repositori Git yang tercatat.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daftar Dokumen PDF -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Pengumpulan Dokumen PDF</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Nama File</th>
+                            <th>Judul Dokumen</th>
+                            <th>Jumlah Halaman</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in profile.pdf_documents %}
+                        <tr>
+                            <td>{{ doc.file_name }}</td>
+                            <td>{{ doc.title or 'Tidak ada judul' }}</td>
+                            <td>{{ doc.num_pages }}</td>
+                            <td>
+                                <a href="{{ url_for('pdf_detail', doc_id=doc.id) }}" class="btn btn-info btn-sm">Lihat Detail</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center">Tidak ada dokumen PDF yang tercatat.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
