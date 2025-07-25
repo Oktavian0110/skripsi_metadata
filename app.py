@@ -132,7 +132,6 @@ def check_similarity(new_doc_id, new_doc_text):
         existing_docs = [doc for doc in cursor.fetchall() if doc.get('full_text')]
 
         if not existing_docs or not new_doc_text:
-            print("--- DEBUG: Tidak ada dokumen lama atau teks baru kosong, skipping similarity check. ---")
             return
 
         corpus = [new_doc_text] + [doc['full_text'] for doc in existing_docs]
@@ -142,15 +141,9 @@ def check_similarity(new_doc_id, new_doc_text):
         similarity_matrix = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix)
         
         similarity_scores = similarity_matrix[0][1:]
-        
-        # --- DEBUGGING: Cetak semua skor kemiripan ---
-        print(f"\n--- DEBUG: Membandingkan Dokumen ID {new_doc_id} ---")
         for i, score in enumerate(similarity_scores):
-            print(f"  - Dengan Dokumen ID {existing_docs[i]['id']} ('{existing_docs[i]['file_name']}'): Skor = {score:.4f}")
-        print("--------------------------------------------------\n")
-
-        for i, score in enumerate(similarity_scores):
-            if score > 0.95:
+            # --- PERBAIKAN: Turunkan ambang batas agar lebih toleran ---
+            if score > 0.90:
                 existing_doc_id = existing_docs[i]['id']
                 cursor.execute(
                     "INSERT INTO pdf_similarity (doc1_id, doc2_id, similarity_score) VALUES (%s, %s, %s)",
@@ -191,7 +184,6 @@ def analyze_and_save_pdfs(pdf_metadata_list, deadline=None):
 
 @app.route('/')
 def dashboard():
-    # ... (Fungsi ini tidak berubah) ...
     pdf_stats, git_stats = {}, {}
     conn = get_db_connection()
     if conn:
@@ -226,7 +218,6 @@ def dashboard():
 
 @app.route('/data-master')
 def data_master():
-    # ... (Fungsi ini tidak berubah) ...
     search_query = request.args.get('q', '').strip()
     context = { 'headers': [], 'data': [], 'total_pages': 1, 'current_page': request.args.get('page', 1, type=int), 'active_tab': request.args.get('tab', 'pdf'), 'search_query': search_query }
     conn = get_db_connection()
@@ -289,7 +280,6 @@ def data_master():
 
 @app.route('/visualisasi')
 def visualisasi():
-    # ... (Fungsi ini tidak berubah) ...
     conn = get_db_connection()
     if not conn:
         return redirect(url_for('dashboard'))
@@ -325,7 +315,6 @@ def visualisasi():
 
 @app.route('/repo/<path:repo_name>')
 def repo_detail(repo_name):
-    # ... (Fungsi ini tidak berubah) ...
     conn = get_db_connection()
     if not conn: return redirect(url_for('data_master', tab='git'))
     try:
@@ -352,7 +341,6 @@ def repo_detail(repo_name):
 
 @app.route('/pdf/<int:doc_id>')
 def pdf_detail(doc_id):
-    # ... (Fungsi ini tidak berubah) ...
     conn = get_db_connection()
     if not conn: return redirect(url_for('data_master', tab='pdf'))
     
@@ -371,6 +359,7 @@ def pdf_detail(doc_id):
         else:
             doc['keywords_list'] = []
 
+        # --- PERBAIKAN: Query diubah untuk memeriksa kedua arah ---
         query_similarity = """
             (SELECT s.similarity_score, d.id, d.file_name 
              FROM pdf_similarity s
@@ -398,7 +387,6 @@ def pdf_detail(doc_id):
 
 @app.route('/analyze-pdf', methods=['POST'])
 def analyze_pdf():
-    # ... (Fungsi ini tidak berubah) ...
     link = request.form.get('gdrive_link')
     deadline = request.form.get('deadline')
     if not link:
@@ -417,7 +405,6 @@ def analyze_pdf():
 
 @app.route('/upload-and-analyze-pdf', methods=['POST'])
 def upload_and_analyze_pdf():
-    # ... (Fungsi ini tidak berubah) ...
     if 'file' not in request.files:
         flash('Tidak ada file yang dipilih.', 'warning')
         return redirect(url_for('dashboard'))
@@ -473,17 +460,19 @@ def upload_and_analyze_pdf():
 
 @app.route('/analyze-git', methods=['POST'])
 def analyze_git():
-    # ... (Fungsi ini tidak berubah) ...
     repo_input = request.form.get('repo_name', '').strip()
     deadline = request.form.get('deadline')
+
     if not repo_input:
         flash('Nama repositori tidak boleh kosong.', 'warning')
         return redirect(url_for('dashboard'))
+
     match = re.search(r'github\.com/([\w-]+/[\w.-]+)', repo_input)
     if match:
         repo_name = match.group(1)
     else:
         repo_name = repo_input
+
     try:
         commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
         if commits_df.empty and issues_df.empty and prs_df.empty:
@@ -496,11 +485,11 @@ def analyze_git():
                 flash(f"Hasil Analisis Deadline: Tepat Waktu: {deadline_stats['on_time_commits']} commit, Terlambat: {deadline_stats['late_commits']} commit.", "info")
     except Exception as e:
         flash(f"Terjadi error saat analisis Git: {e}", "danger")
+
     return redirect(url_for('dashboard'))
 
 @app.route('/delete/pdf/<int:doc_id>', methods=['POST'])
 def delete_pdf(doc_id):
-    # ... (Fungsi ini tidak berubah) ...
     conn = get_db_connection()
     if conn:
         try:
@@ -518,7 +507,6 @@ def delete_pdf(doc_id):
 
 @app.route('/delete/git/<path:repo_name>', methods=['POST'])
 def delete_git_repo(repo_name):
-    # ... (Fungsi ini tidak berubah) ...
     conn = get_db_connection()
     if conn:
         try:
@@ -538,7 +526,6 @@ def delete_git_repo(repo_name):
 
 @app.route('/reset-data', methods=['POST'])
 def reset_data():
-    # ... (Fungsi ini tidak berubah) ...
     conn = get_db_connection()
     if conn:
         try:

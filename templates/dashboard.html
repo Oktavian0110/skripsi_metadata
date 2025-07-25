@@ -1,3 +1,4 @@
+<!-- templates/dashboard.html -->
 {% extends "base.html" %}
 
 {% block title %}Ringkasan Analisis{% endblock %}
@@ -22,6 +23,7 @@
 </div>
 
 <div class="row">
+    <!-- Form Analisis PDF -->
     <div class="col-lg-6 mb-4">
         <div class="card h-100">
             <div class="card-header">Analisis Dokumen PDF</div>
@@ -55,6 +57,7 @@
             </div>
         </div>
     </div>
+    <!-- Form Analisis Git -->
     <div class="col-lg-6 mb-4">
         <div class="card h-100">
             <div class="card-header">Analisis Repositori Git</div>
@@ -126,6 +129,7 @@
     {% endif %}
 </div>
 
+<!-- Modal untuk Konfirmasi Reset Data -->
 <div class="modal fade" id="resetDataModal" tabindex="-1" aria-labelledby="resetDataModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -176,9 +180,8 @@
                     // Cek validitas form sebelum menampilkan spinner
                     if (form.checkValidity()) {
                         loadingOverlay.classList.remove('d-none');
-                        // --- TAMBAHAN: Kosongkan input setelah submit ---
-                        // Ini akan terjadi sangat cepat sebelum halaman di-reload, memberikan kesan responsif
-                        form.reset();
+                        // --- PERBAIKAN: Hapus baris form.reset() ---
+                        // form.reset(); // <-- Baris ini menyebabkan bug dan telah dihapus.
                     }
                 });
             }
