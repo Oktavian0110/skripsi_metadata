@@ -9,8 +9,8 @@ from werkzeug.utils import secure_filename
 import nltk
 import re
 import json
-from datetime import datetime # Import datetime
-import pytz # Import library pytz untuk zona waktu
+from datetime import datetime 
+import pytz 
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -52,19 +52,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# --- FUNGSI BARU UNTUK KONVERSI ZONA WAKTU ---
 def to_local_time(utc_dt):
-    """Mengonversi datetime UTC ke zona waktu lokal (Asia/Jakarta)."""
     if not isinstance(utc_dt, datetime):
-        return utc_dt # Kembalikan nilai asli jika bukan datetime
+        return utc_dt 
     try:
         local_tz = pytz.timezone('Asia/Jakarta')
         local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
         return local_dt
     except Exception:
-        return utc_dt # Fallback jika terjadi error
+        return utc_dt
 
-# Daftarkan fungsi sebagai filter Jinja2
 app.jinja_env.filters['localtime'] = to_local_time
 
 
@@ -204,7 +201,7 @@ def analyze_and_save_pdfs(pdf_metadata_list, deadline=None):
         return False
 
 # --- Rute-rute Aplikasi Flask ---
-# (Semua rute tetap sama, tidak perlu diubah)
+# (Semua rute lain tetap sama)
 
 @app.route('/')
 def dashboard():
@@ -558,22 +555,54 @@ def analyze_git():
 
     return redirect(url_for('dashboard'))
     
+# --- PERBAIKAN BUG DI RUTE INI ---
 @app.route('/clear-cache/<path:repo_name>', methods=['POST'])
 def clear_cache(repo_name):
+    conn = get_db_connection()
+    if not conn:
+        return redirect(url_for('repo_detail', repo_name=repo_name))
+
     try:
+        # Langkah 1 & 2: Hapus data lama dari DB dan juga file cache
+        print(f"Menghapus data lama untuk {repo_name} dari database...")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM git_commits WHERE repo_name = %s", (repo_name,))
+        cursor.execute("DELETE FROM git_issues WHERE repo_name = %s", (repo_name,))
+        cursor.execute("DELETE FROM git_pull_requests WHERE repo_name = %s", (repo_name,))
+        conn.commit()
+        print("Data lama berhasil dihapus dari DB.")
+
         cache_dir = "cache"
         sanitized_repo_name = repo_name.replace('/', '_')
         cache_file = os.path.join(cache_dir, f"{sanitized_repo_name}.json")
-        
         if os.path.exists(cache_file):
             os.remove(cache_file)
-            flash(f"Cache untuk repositori {repo_name} berhasil dihapus. Data akan diambil ulang dari API.", "info")
+            print(f"File cache {cache_file} berhasil dihapus.")
+
+        # Langkah 3: Ambil data baru dari API
+        print(f"Mengambil data baru untuk {repo_name} dari API...")
+        commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
+
+        # Langkah 4: Simpan data baru ke DB
+        if not (commits_df.empty and issues_df.empty and prs_df.empty):
+            print("Menyimpan data baru ke database...")
+            if save_git_data_to_db(commits_df, issues_df, prs_df):
+                flash(f"Data untuk repositori {repo_name} berhasil diperbarui.", "success")
+            else:
+                flash(f"Gagal menyimpan data baru untuk {repo_name} ke database.", "danger")
         else:
-            flash(f"Tidak ada cache yang ditemukan untuk repositori {repo_name}.", "warning")
+            flash(f"Gagal mengambil data baru untuk {repo_name}. Repositori mungkin kosong atau tidak dapat diakses.", "warning")
+
     except Exception as e:
-        flash(f"Gagal menghapus cache: {e}", "danger")
+        flash(f"Terjadi kesalahan saat memperbarui data: {e}", "danger")
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
         
+    # Langkah 5: Redirect kembali ke halaman detail
     return redirect(url_for('repo_detail', repo_name=repo_name))
+
 
 @app.route('/compare-repos')
 def compare_repos():

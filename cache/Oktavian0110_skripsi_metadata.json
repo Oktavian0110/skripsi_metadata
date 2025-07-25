@@ -1,0 +1,863 @@
+{
+    "timestamp": "2025-07-25T08:43:40.474208+00:00",
+    "commits": [
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "523ec2459dbe05d12a7fc2cf022f2b48ffa652d9",
+            "commit_message": "feat: Add timezone conversion for timestamps and improve data master page layout",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-25 08:29:20+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "app.py",
+                    "additions": 22,
+                    "deletions": 20,
+                    "changes": 42,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/data_master.html",
+                    "additions": 92,
+                    "deletions": 184,
+                    "changes": 276,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/repo_detail.html",
+                    "additions": 2,
+                    "deletions": 6,
+                    "changes": 8,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/student_profile.html",
+                    "additions": 2,
+                    "deletions": 1,
+                    "changes": 3,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "95c6990971a309ac024b4535547eef3415630a6c",
+            "commit_message": "Update project year, enhance dashboard data handling, improve repository detail layout, add repository comparison and student profile pages, and include cache data for new projects.",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-25 08:18:27+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 133,
+                    "deletions": 91,
+                    "changes": 224,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 131,
+                    "deletions": 7,
+                    "changes": 138,
+                    "status": "modified"
+                },
+                {
+                    "filename": "cache/Oktavian0110_Alaskaki-Project.json",
+                    "additions": 683,
+                    "deletions": 0,
+                    "changes": 683,
+                    "status": "added"
+                },
+                {
+                    "filename": "cache/qalbiiazzahra_project-big-data-2023.json",
+                    "additions": 32,
+                    "deletions": 0,
+                    "changes": 32,
+                    "status": "added"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 104,
+                    "deletions": 36,
+                    "changes": 140,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/base.html",
+                    "additions": 1,
+                    "deletions": 1,
+                    "changes": 2,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/compare_repos.html",
+                    "additions": 88,
+                    "deletions": 0,
+                    "changes": 88,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 1,
+                    "deletions": 1,
+                    "changes": 2,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/repo_detail.html",
+                    "additions": 86,
+                    "deletions": 59,
+                    "changes": 145,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/student_profile.html",
+                    "additions": 120,
+                    "deletions": 0,
+                    "changes": 120,
+                    "status": "added"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "2dc6fb332f7f04d614df8153a996f27a75ce3da0",
+            "commit_message": "update: Update .env with new GitHub token",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-25 07:24:46+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "app.py",
+                    "additions": 7,
+                    "deletions": 20,
+                    "changes": 27,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 6,
+                    "deletions": 3,
+                    "changes": 9,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "e645c52052843350af16476789640a527d891af6",
+            "commit_message": "update",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-23 10:43:37+00:00",
+            "category": "Other",
+            "files_changed": []
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "c93a1c0780b4ec511aa40ac024c3a86be2b43d52",
+            "commit_message": "feat: Integrate YAKE for keyword extraction and enhance loading spinner functionality",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-23 10:38:05+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 14,
+                    "deletions": 10,
+                    "changes": 24,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 42,
+                    "deletions": 49,
+                    "changes": 91,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 8,
+                    "deletions": 8,
+                    "changes": 16,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "0dceb9a02e74ea32448a9894e7a34a71dbc7c328",
+            "commit_message": "feat: Add text similarity detection and visualization features\n\n- Implemented text similarity checking using TF-IDF and cosine similarity in the PDF analysis workflow.\n- Enhanced PDF metadata storage to include full text for similarity comparisons.\n- Created a new route and template for visualizing global data, including top contributors and document authors.\n- Added loading spinner for better user experience during data processing.\n- Improved search functionality in the data master view with automatic submission.\n- Introduced delete confirmation modals for both PDF documents and Git repositories.\n- Updated various templates to reflect new features and improve layout consistency.",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-23 10:08:16+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 21,
+                    "deletions": 19,
+                    "changes": 40,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 207,
+                    "deletions": 35,
+                    "changes": 242,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/base.html",
+                    "additions": 7,
+                    "deletions": 1,
+                    "changes": 8,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 52,
+                    "deletions": 84,
+                    "changes": 136,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/data_master.html",
+                    "additions": 124,
+                    "deletions": 10,
+                    "changes": 134,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/pdf_detail.html",
+                    "additions": 21,
+                    "deletions": 2,
+                    "changes": 23,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/repo_detail.html",
+                    "additions": 131,
+                    "deletions": 2,
+                    "changes": 133,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/visualisasi.html",
+                    "additions": 126,
+                    "deletions": 0,
+                    "changes": 126,
+                    "status": "added"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "318f818cbafcd35bce4363d53112b08a7db52db9",
+            "commit_message": "update",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-17 10:47:47+00:00",
+            "category": "Other",
+            "files_changed": []
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "03174c05512a2f87699b812c2761830c4a48cc14",
+            "commit_message": "Add detailed document and repository analysis templates\n\n- Created `pdf_detail.html` to display detailed information about PDF documents, including metadata and keywords.\n- Implemented `repo_detail.html` for repository analysis, showcasing statistics, commit history, and visualizations using charts.\n- Added JavaScript for rendering charts based on commit data and categories.",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-17 10:47:12+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 35,
+                    "deletions": 31,
+                    "changes": 66,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 234,
+                    "deletions": 67,
+                    "changes": 301,
+                    "status": "modified"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 32,
+                    "deletions": 18,
+                    "changes": 50,
+                    "status": "modified"
+                },
+                {
+                    "filename": "pdf_extractor.py",
+                    "additions": 37,
+                    "deletions": 18,
+                    "changes": 55,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 148,
+                    "deletions": 23,
+                    "changes": 171,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/data_master.html",
+                    "additions": 20,
+                    "deletions": 6,
+                    "changes": 26,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/pdf_detail.html",
+                    "additions": 66,
+                    "deletions": 0,
+                    "changes": 66,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/repo_detail.html",
+                    "additions": 161,
+                    "deletions": 0,
+                    "changes": 161,
+                    "status": "added"
+                },
+                {
+                    "filename": "uploads/REVISI_PROPOSAL_PENELITIAN_SKRIPSI.pdf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "removed"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "a69a973f473504222e229c4837a4d2f70b5a4385",
+            "commit_message": "Add Python + project .gitignore (protect secrets)",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-17 08:33:27+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": ".gitignore",
+                    "additions": 81,
+                    "deletions": 0,
+                    "changes": 81,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "b46a6658b1b42bf57ea1411e90ec769cbd029718",
+            "commit_message": "Clean commit without sensitive files",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-17 08:27:39+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": ".gitignore",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "analyzer.py",
+                    "additions": 59,
+                    "deletions": 43,
+                    "changes": 102,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 47,
+                    "deletions": 32,
+                    "changes": 79,
+                    "status": "modified"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 23,
+                    "deletions": 44,
+                    "changes": 67,
+                    "status": "modified"
+                },
+                {
+                    "filename": "pdf_extractor.py",
+                    "additions": 4,
+                    "deletions": 18,
+                    "changes": 22,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 19,
+                    "deletions": 6,
+                    "changes": 25,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "d4f8f236b45dc2cffd8f747926c850ddeaf611f6",
+            "commit_message": "feat: Enhance Git and PDF metadata extraction with new database configuration and improved UI\n\n- Updated GitHub token in config.py and added MySQL database configuration.\n- Refactored git_extractor.py to encapsulate functionality within a GitExtractor class, improving commit, issue, and pull request extraction.\n- Introduced categorization of commit messages based on keywords.\n- Enhanced pdf_extractor.py to support Google Drive links and improved metadata extraction from PDFs.\n- Added new CSS styles for a responsive and modern UI layout.\n- Created base HTML template and structured dashboard with sections for PDF and Git analysis.\n- Implemented data display templates for Git repositories and PDF documents with pagination support.\n- Added JavaScript for dynamic chart rendering based on analysis results.",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-05 08:29:53+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 85,
+                    "deletions": 24,
+                    "changes": 109,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 202,
+                    "deletions": 81,
+                    "changes": 283,
+                    "status": "modified"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 119,
+                    "deletions": 41,
+                    "changes": 160,
+                    "status": "modified"
+                },
+                {
+                    "filename": "pdf_extractor.py",
+                    "additions": 95,
+                    "deletions": 45,
+                    "changes": 140,
+                    "status": "modified"
+                },
+                {
+                    "filename": "static/css/style.css",
+                    "additions": 128,
+                    "deletions": 0,
+                    "changes": 128,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/base.html",
+                    "additions": 79,
+                    "deletions": 0,
+                    "changes": 79,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 101,
+                    "deletions": 0,
+                    "changes": 101,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/data_git.html",
+                    "additions": 140,
+                    "deletions": 0,
+                    "changes": 140,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/data_master.html",
+                    "additions": 70,
+                    "deletions": 0,
+                    "changes": 70,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/data_pdf.html",
+                    "additions": 42,
+                    "deletions": 0,
+                    "changes": 42,
+                    "status": "added"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "ec9110833e93424bd5327e6a320a07f89452f225",
+            "commit_message": "Refactor code structure for improved readability and maintainability",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-06-13 12:24:26+00:00",
+            "category": "Refactor",
+            "files_changed": [
+                {
+                    "filename": "app.py",
+                    "additions": 63,
+                    "deletions": 10,
+                    "changes": 73,
+                    "status": "modified"
+                },
+                {
+                    "filename": "output/git_metadata.csv",
+                    "additions": 9,
+                    "deletions": 0,
+                    "changes": 9,
+                    "status": "modified"
+                },
+                {
+                    "filename": "output/pdf_metadata.csv",
+                    "additions": 2,
+                    "deletions": 0,
+                    "changes": 2,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/index.html",
+                    "additions": 87,
+                    "deletions": 58,
+                    "changes": 145,
+                    "status": "modified"
+                },
+                {
+                    "filename": "uploads/REVISI_PROPOSAL_PENELITIAN_SKRIPSI.pdf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "ad82426045a36e48cc9e96b80175ac86143ca672",
+            "commit_message": "Enhance Git Metadata Extraction and Analysis Features\n\n- Added a new function `kategorikan_commit` to categorize commit messages based on keywords.\n- Updated `extract_git_metadata` to include commit categories in the results.\n- Improved GUI to display commit categories alongside other metadata.\n- Modified CSV output to include a new 'kategori' column for commit categorization.\n- Implemented a new chart in the dashboard to visualize commit category distribution.",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-06-12 08:35:32+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 30,
+                    "deletions": 0,
+                    "changes": 30,
+                    "status": "added"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 43,
+                    "deletions": 0,
+                    "changes": 43,
+                    "status": "added"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 14,
+                    "deletions": 25,
+                    "changes": 39,
+                    "status": "modified"
+                },
+                {
+                    "filename": "gui.py",
+                    "additions": 52,
+                    "deletions": 46,
+                    "changes": 98,
+                    "status": "modified"
+                },
+                {
+                    "filename": "output/git_metadata.csv",
+                    "additions": 8,
+                    "deletions": 8,
+                    "changes": 16,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/index.html",
+                    "additions": 126,
+                    "deletions": 0,
+                    "changes": 126,
+                    "status": "added"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "f42f0c9fc850fdf994d791e5ee535b393bbee902",
+            "commit_message": "Implement PDF and Git Metadata Analysis GUI\n\n- Created a new GUI application using Tkinter for analyzing PDF and Git metadata.\n- Added functionality to extract and display PDF metadata, including file name, title, author, and modification date.\n- Implemented Git metadata extraction, displaying commit hash, message, author, and date.\n- Included options to clear data and delete selected rows from the displayed tables.\n- Added visualizations for commit counts per author and document distribution by author using Matplotlib.\n- Ensured data is saved to CSV files for both PDF and Git metadata.\n- Improved error handling and user feedback throughout the application.",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-06-09 15:16:34+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "build/gui/Analysis-00.toc",
+                    "additions": 397,
+                    "deletions": 0,
+                    "changes": 397,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/EXE-00.toc",
+                    "additions": 99,
+                    "deletions": 0,
+                    "changes": 99,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/PKG-00.toc",
+                    "additions": 77,
+                    "deletions": 0,
+                    "changes": 77,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/PYZ-00.pyz",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/PYZ-00.toc",
+                    "additions": 337,
+                    "deletions": 0,
+                    "changes": 337,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/base_library.zip",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/gui.pkg",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/localpycs/pyimod01_archive.pyc",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/localpycs/pyimod02_importers.pyc",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/localpycs/pyimod03_ctypes.pyc",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/localpycs/pyimod04_pywin32.pyc",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/localpycs/struct.pyc",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/warn-gui.txt",
+                    "additions": 25,
+                    "deletions": 0,
+                    "changes": 25,
+                    "status": "added"
+                },
+                {
+                    "filename": "build/gui/xref-gui.html",
+                    "additions": 7445,
+                    "deletions": 0,
+                    "changes": 7445,
+                    "status": "added"
+                },
+                {
+                    "filename": "data/DRAFT PT BERKAH BAJOE UNTUK STRATEGI PEMSARAN.pdf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "data/contoh_tugas.pdf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "modified"
+                },
+                {
+                    "filename": "dist/gui.exe",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 43,
+                    "deletions": 13,
+                    "changes": 56,
+                    "status": "modified"
+                },
+                {
+                    "filename": "gui.py",
+                    "additions": 243,
+                    "deletions": 0,
+                    "changes": 243,
+                    "status": "added"
+                },
+                {
+                    "filename": "gui.spec",
+                    "additions": 38,
+                    "deletions": 0,
+                    "changes": 38,
+                    "status": "added"
+                },
+                {
+                    "filename": "main.py",
+                    "additions": 37,
+                    "deletions": 12,
+                    "changes": 49,
+                    "status": "modified"
+                },
+                {
+                    "filename": "output/git_metadata.csv",
+                    "additions": 8,
+                    "deletions": 4,
+                    "changes": 12,
+                    "status": "modified"
+                },
+                {
+                    "filename": "output/git_metadata_20250527_161558.csv",
+                    "additions": 4,
+                    "deletions": 0,
+                    "changes": 4,
+                    "status": "added"
+                },
+                {
+                    "filename": "output/git_metadata_20250527_162240.csv",
+                    "additions": 4,
+                    "deletions": 0,
+                    "changes": 4,
+                    "status": "added"
+                },
+                {
+                    "filename": "output/pdf_metadata.csv",
+                    "additions": 3,
+                    "deletions": 2,
+                    "changes": 5,
+                    "status": "modified"
+                },
+                {
+                    "filename": "output/pdf_metadata_20250527_161558.csv",
+                    "additions": 2,
+                    "deletions": 0,
+                    "changes": 2,
+                    "status": "added"
+                },
+                {
+                    "filename": "output/pdf_metadata_20250527_162240.csv",
+                    "additions": 3,
+                    "deletions": 0,
+                    "changes": 3,
+                    "status": "added"
+                },
+                {
+                    "filename": "pdf_extractor.py",
+                    "additions": 29,
+                    "deletions": 11,
+                    "changes": 40,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "54392f06a9ee8d02f7975b71d12d9f5d9f7294aa",
+            "commit_message": "Add initial implementation for PDF and Git metadata extraction\n\n- Created config.py for configuration settings.\n- Implemented git_extractor.py to fetch recent commits from specified GitHub repositories.\n- Developed pdf_extractor.py to extract metadata from PDF files.\n- Updated main.py to orchestrate PDF and Git metadata extraction and save results to CSV files.\n- Added example PDF and CSV files for testing.",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-05-26 16:43:11+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "data/contoh_tugas.pdf",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "data/list_repo.txt",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 28,
+                    "deletions": 0,
+                    "changes": 28,
+                    "status": "added"
+                },
+                {
+                    "filename": "main.py",
+                    "additions": 23,
+                    "deletions": 0,
+                    "changes": 23,
+                    "status": "added"
+                },
+                {
+                    "filename": "output/git_metadata.csv",
+                    "additions": 4,
+                    "deletions": 0,
+                    "changes": 4,
+                    "status": "added"
+                },
+                {
+                    "filename": "output/pdf_metadata.csv",
+                    "additions": 2,
+                    "deletions": 0,
+                    "changes": 2,
+                    "status": "added"
+                },
+                {
+                    "filename": "pdf_extractor.py",
+                    "additions": 31,
+                    "deletions": 0,
+                    "changes": 31,
+                    "status": "added"
+                }
+            ]
+        }
+    ],
+    "issues": [],
+    "pull_requests": []
+}
