@@ -1,19 +1,16 @@
 import pandas as pd
-from github import Github, Auth, RateLimitExceededException
+from github import Github, Auth, RateLimitExceededException, UnknownObjectException
 import re
 from datetime import datetime, timezone, timedelta
 import os
 import time
 import json
+import base64
 
 class GitExtractor:
     """
-    Mengekstrak metadata dari repositori GitHub dengan fitur lanjutan:
-    - Caching untuk performa
-    - Penanganan Rate Limit API
-    - Detail perubahan file per commit
+    Mengekstrak metadata dari repositori GitHub dengan fitur lanjutan.
     """
-    # Memindahkan kategori ke struktur data untuk kemudahan pengelolaan
     COMMIT_CATEGORIES = {
         'Fix': r'\b(fix|bug|repair|patch)\b',
         'Feature': r'\b(feat|feature|add|implement)\b',
@@ -25,26 +22,44 @@ class GitExtractor:
     }
     
     CACHE_DIR = "cache"
-    CACHE_DURATION_SECONDS = 3600 # Cache berlaku selama 1 jam (3600 detik)
+    CACHE_DURATION_SECONDS = 3600
 
     def __init__(self):
-        """
-        Inisialisasi dengan token dari environment variable.
-        """
-        # Membuat direktori cache jika belum ada
         os.makedirs(self.CACHE_DIR, exist_ok=True)
-        
         token = os.getenv('GITHUB_API_TOKEN')
         if not token:
             raise ValueError(
                 "Token GitHub tidak ditemukan. Harap atur sebagai environment variable 'GITHUB_API_TOKEN'."
             )
-        
         auth = Auth.Token(token)
         self.github = Github(auth=auth)
 
+    def get_python_files_content(self, repo):
+        """
+        FITUR BARU: Mengambil konten dari semua file Python (.py) di repositori.
+        """
+        files_content = {}
+        try:
+            # Mengambil tree dari branch default
+            tree = repo.get_git_tree(repo.default_branch, recursive=True)
+            for element in tree.tree:
+                if element.path.endswith('.py') and element.type == 'blob':
+                    try:
+                        # Mengambil konten file
+                        content_blob = repo.get_contents(element.path)
+                        # Mendekode konten dari base64
+                        decoded_content = base64.b64decode(content_blob.content).decode('utf-8')
+                        files_content[element.path] = decoded_content
+                    except Exception as e:
+                        print(f"Gagal mengambil konten file {element.path}: {e}")
+        except UnknownObjectException:
+            print(f"Branch default '{repo.default_branch}' tidak ditemukan atau repositori kosong.")
+        except Exception as e:
+            print(f"Error saat mengambil daftar file dari repositori: {e}")
+        return files_content
+
+    # (Sisa dari file ini tetap sama seperti sebelumnya)
     def _categorize_commit_message(self, message):
-        """Memberi kategori pada commit berdasarkan pesannya menggunakan struktur data."""
         if not message:
             return 'Other'
         message_lower = message.lower()
@@ -54,14 +69,12 @@ class GitExtractor:
         return 'Other'
 
     def _extract_commits(self, repo):
-        """Mengekstrak data commit dari sebuah repositori, termasuk detail file."""
         commits_data = []
         try:
             for commit in repo.get_commits():
                 author_name = commit.commit.author.name if commit.commit.author else "Unknown Author"
                 author_email = commit.commit.author.email if commit.commit.author else "No Email"
                 
-                # FITUR BARU: Ekstrak detail file yang berubah
                 files_changed = []
                 for file in commit.files:
                     files_changed.append({
@@ -80,7 +93,7 @@ class GitExtractor:
                     'commit_author_email': author_email,
                     'commit_date': commit.commit.author.date.replace(tzinfo=timezone.utc),
                     'category': self._categorize_commit_message(commit.commit.message),
-                    'files_changed': files_changed # Menambahkan data file
+                    'files_changed': files_changed
                 }
                 commits_data.append(commit_info)
         except Exception as e:
@@ -88,7 +101,6 @@ class GitExtractor:
         return commits_data
 
     def _extract_issues(self, repo):
-        """Mengekstrak data issue dari sebuah repositori."""
         issues_data = []
         try:
             for issue in repo.get_issues(state='all'):
@@ -109,7 +121,6 @@ class GitExtractor:
         return issues_data
 
     def _extract_pull_requests(self, repo):
-        """Mengekstrak data pull request dari sebuah repositori."""
         prs_data = []
         try:
             for pr in repo.get_pulls(state='all'):
@@ -133,10 +144,6 @@ class GitExtractor:
         return prs_data
 
     def extract_git_metadata(self, repo_name):
-        """
-        Mengekstrak semua metadata, dengan implementasi cache dan penanganan rate limit.
-        """
-        # FITUR BARU: Logika Caching
         cache_filename = os.path.join(self.CACHE_DIR, f"{repo_name.replace('/', '_')}.json")
         if os.path.exists(cache_filename):
             with open(cache_filename, 'r') as f:
@@ -145,7 +152,6 @@ class GitExtractor:
             cache_time = datetime.fromisoformat(cached_data['timestamp'])
             if datetime.now(timezone.utc) - cache_time < timedelta(seconds=self.CACHE_DURATION_SECONDS):
                 print(f"Menggunakan data dari cache untuk repositori: {repo_name}")
-                # Memuat data dari cache ke DataFrame
                 commits_df = pd.DataFrame(cached_data.get('commits', []))
                 issues_df = pd.DataFrame(cached_data.get('issues', []))
                 prs_df = pd.DataFrame(cached_data.get('pull_requests', []))
@@ -162,7 +168,6 @@ class GitExtractor:
             
             print(f"Ekstraksi selesai: {len(commits_list)} commit, {len(issues_list)} issue, {len(prs_list)} PR.")
 
-            # FITUR BARU: Simpan hasil ke cache
             new_cache_data = {
                 'timestamp': datetime.now(timezone.utc).isoformat(),
                 'commits': commits_list,
@@ -170,17 +175,15 @@ class GitExtractor:
                 'pull_requests': prs_list,
             }
             with open(cache_filename, 'w') as f:
-                json.dump(new_cache_data, f, indent=4, default=str) # default=str untuk handle datetime
+                json.dump(new_cache_data, f, indent=4, default=str)
             
             return pd.DataFrame(commits_list), pd.DataFrame(issues_list), pd.DataFrame(prs_list)
         
-        # FITUR BARU: Penanganan Rate Limit
         except RateLimitExceededException:
             print(f"WARNING: Batas API GitHub tercapai. Mencoba lagi dalam 15 menit.")
-            # Di aplikasi nyata, Anda mungkin ingin menunggu (time.sleep) atau memberi tahu pengguna
-            # Untuk sekarang, kita kembalikan DataFrame kosong agar aplikasi tidak crash
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
         except Exception as e:
             print(f"GAGAL mengakses repositori '{repo_name}'. Penyebab: {e}")
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+

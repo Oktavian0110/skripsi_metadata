@@ -1,3 +1,4 @@
+<!-- templates/repo_detail.html -->
 {% extends "base.html" %}
 
 {% block title %}Detail Repositori: {{ repo_name }}{% endblock %}
@@ -22,6 +23,7 @@
     </div>
 </div>
 
+<!-- (Bagian Ringkasan Statistik dan Grafik-grafik sebelumnya tetap sama) -->
 <!-- Ringkasan Statistik -->
 <div class="row mb-4">
     <div class="col-md-3">
@@ -133,6 +135,23 @@
     </div>
 </div>
 
+<!-- =================================================================== -->
+<!-- === BAGIAN BARU: ANALISIS KOMPLEKSITAS KODE === -->
+<!-- =================================================================== -->
+<div class="card mt-4 mb-4">
+    <div class="card-header">
+        <h3>Analisis Kompleksitas Kode (Top 10 File Paling Kompleks)</h3>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">
+            Kompleksitas Siklomatis mengukur jumlah jalur independen dalam kode. Skor yang lebih tinggi (biasanya > 10) menunjukkan kode yang lebih rumit, lebih sulit diuji, dan berpotensi memiliki lebih banyak bug.
+        </p>
+        <div style="position: relative; height:400px;">
+            <canvas id="complexityChart"></canvas>
+        </div>
+    </div>
+</div>
+
 
 <!-- Tabel Daftar Commit -->
 <div class="card">
@@ -151,7 +170,6 @@
                 <tbody>
                     {% for commit in commits %}
                     <tr>
-                        <!-- PERBAIKAN ZONA WAKTU DITERAPKAN DI SINI -->
                         <td><small>{{ (commit.commit_date | localtime).strftime('%Y-%m-%d %H:%M') if commit.commit_date else 'N/A' }}</small></td>
                         <td><a href="{{ url_for('student_profile', author_name=commit.commit_author) }}">{{ commit.commit_author }}</a></td>
                         <td>{{ commit.commit_message | truncate(100) }}</td>
@@ -171,6 +189,7 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- (Bagian scripts sebelumnya tetap sama) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
@@ -178,6 +197,7 @@ const authorData = {{ stats.author_commit_counts | tojson | safe }};
 const categoryData = {{ stats.commit_category_counts | tojson | safe }};
 const timeData = {{ stats.commits_over_time | tojson | safe }};
 
+// (Kode untuk 3 grafik pertama tetap sama)
 const authorCanvas = document.getElementById('authorChart');
 if (authorCanvas && authorData) {
     new Chart(authorCanvas.getContext('2d'), {
@@ -309,5 +329,70 @@ if (timeCanvas && timeData) {
         }
     });
 }
+
+// --- JAVASCRIPT BARU UNTUK GRAFIK KOMPLEKSITAS ---
+document.addEventListener('DOMContentLoaded', function() {
+    const complexityCanvas = document.getElementById('complexityChart');
+    if (complexityCanvas) {
+        // Mengambil data dari API endpoint yang kita buat
+        fetch(`/api/repo/{{ repo_name }}/complexity`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const labels = data.map(item => item.filepath);
+                    const complexityValues = data.map(item => item.complexity);
+
+                    new Chart(complexityCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Rata-rata Kompleksitas',
+                                data: complexityValues,
+                                backgroundColor: 'rgba(217, 54, 43, 0.8)',
+                                borderColor: 'rgba(217, 54, 43, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y', // Membuat bar menjadi horizontal
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Skor Kompleksitas (lebih rendah lebih baik)'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `Kompleksitas: ${context.parsed.x}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    // Tampilkan pesan jika tidak ada data
+                    const ctx = complexityCanvas.getContext('2d');
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = '16px sans-serif';
+                    ctx.fillText('Tidak ada data kompleksitas untuk file Python di repositori ini.', complexityCanvas.width / 2, complexityCanvas.height / 2);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching complexity data:', error);
+            });
+    }
+});
+
 </script>
 {% endblock %}

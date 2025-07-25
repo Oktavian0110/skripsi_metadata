@@ -20,7 +20,6 @@ from git_extractor import GitExtractor
 from analyzer import Analyzer
 
 # --- Inisialisasi Awal Aplikasi ---
-# (Tidak ada perubahan di bagian ini)
 try:
     nltk.data.find('corpora/stopwords')
 except LookupError:
@@ -75,7 +74,6 @@ analyzer = Analyzer()
 
 
 # --- Fungsi-fungsi Database ---
-# (Tidak ada perubahan di semua fungsi database)
 def get_db_connection():
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
@@ -142,8 +140,31 @@ def save_git_data_to_db(commits_df, issues_df, prs_df):
             cursor.close()
             conn.close()
 
+def save_complexity_to_db(repo_name, complexity_data):
+    """Menyimpan data kompleksitas kode ke database."""
+    if not complexity_data:
+        return False
+    conn = get_db_connection()
+    if not conn: return False
+    try:
+        cursor = conn.cursor()
+        # Hapus data lama sebelum memasukkan yang baru untuk menghindari duplikat
+        cursor.execute("DELETE FROM git_code_complexity WHERE repo_name = %s", (repo_name,))
+        
+        sql = "INSERT INTO git_code_complexity (repo_name, filepath, complexity) VALUES (%s, %s, %s)"
+        for item in complexity_data:
+            cursor.execute(sql, (repo_name, item['filepath'], item['complexity']))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"Error saving complexity data: {e}")
+        return False
+    finally:
+        if conn and conn.is_connected():
+            cursor.close()
+            conn.close()
+
 # --- Fungsi-fungsi Helper ---
-# (Tidak ada perubahan di sini)
 def check_similarity(new_doc_id, new_doc_text):
     conn = get_db_connection()
     if not conn: return
@@ -201,8 +222,6 @@ def analyze_and_save_pdfs(pdf_metadata_list, deadline=None):
         return False
 
 # --- Rute-rute Aplikasi Flask ---
-# (Semua rute lain tetap sama)
-
 @app.route('/')
 def dashboard():
     pdf_stats, git_stats = {}, {}
@@ -542,20 +561,29 @@ def analyze_git():
 
     try:
         commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
+        
         if commits_df.empty and issues_df.empty and prs_df.empty:
             flash(f'Gagal mengambil data atau repositori "{repo_name}" kosong.', 'danger')
         else:
             if save_git_data_to_db(commits_df, issues_df, prs_df):
-                flash(f'Data untuk repositori "{repo_name}" berhasil disimpan.', 'success')
+                flash(f'Data dasar untuk repositori "{repo_name}" berhasil disimpan.', 'success')
+            
+            repo_obj = git_extractor.github.get_repo(repo_name)
+            files_content = git_extractor.get_python_files_content(repo_obj)
+            if files_content:
+                complexity_data = analyzer.analyze_code_complexity(files_content)
+                if save_complexity_to_db(repo_name, complexity_data):
+                    flash(f'Analisis kompleksitas kode untuk "{repo_name}" selesai dan disimpan.', 'info')
+
             if deadline and not commits_df.empty:
                 deadline_stats = analyzer.analyze_git_data(commits_df, deadline)
                 flash(f"Hasil Analisis Deadline: Tepat Waktu: {deadline_stats['on_time_commits']} commit, Terlambat: {deadline_stats['late_commits']} commit.", "info")
+
     except Exception as e:
         flash(f"Terjadi error saat analisis Git: {e}", "danger")
 
     return redirect(url_for('dashboard'))
     
-# --- PERBAIKAN BUG DI RUTE INI ---
 @app.route('/clear-cache/<path:repo_name>', methods=['POST'])
 def clear_cache(repo_name):
     conn = get_db_connection()
@@ -563,12 +591,12 @@ def clear_cache(repo_name):
         return redirect(url_for('repo_detail', repo_name=repo_name))
 
     try:
-        # Langkah 1 & 2: Hapus data lama dari DB dan juga file cache
         print(f"Menghapus data lama untuk {repo_name} dari database...")
         cursor = conn.cursor()
         cursor.execute("DELETE FROM git_commits WHERE repo_name = %s", (repo_name,))
         cursor.execute("DELETE FROM git_issues WHERE repo_name = %s", (repo_name,))
         cursor.execute("DELETE FROM git_pull_requests WHERE repo_name = %s", (repo_name,))
+        cursor.execute("DELETE FROM git_code_complexity WHERE repo_name = %s", (repo_name,))
         conn.commit()
         print("Data lama berhasil dihapus dari DB.")
 
@@ -579,19 +607,22 @@ def clear_cache(repo_name):
             os.remove(cache_file)
             print(f"File cache {cache_file} berhasil dihapus.")
 
-        # Langkah 3: Ambil data baru dari API
         print(f"Mengambil data baru untuk {repo_name} dari API...")
         commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
-
-        # Langkah 4: Simpan data baru ke DB
+        
         if not (commits_df.empty and issues_df.empty and prs_df.empty):
             print("Menyimpan data baru ke database...")
-            if save_git_data_to_db(commits_df, issues_df, prs_df):
-                flash(f"Data untuk repositori {repo_name} berhasil diperbarui.", "success")
-            else:
-                flash(f"Gagal menyimpan data baru untuk {repo_name} ke database.", "danger")
+            save_git_data_to_db(commits_df, issues_df, prs_df)
+            
+            repo_obj = git_extractor.github.get_repo(repo_name)
+            files_content = git_extractor.get_python_files_content(repo_obj)
+            if files_content:
+                complexity_data = analyzer.analyze_code_complexity(files_content)
+                save_complexity_to_db(repo_name, complexity_data)
+            
+            flash(f"Data untuk repositori {repo_name} berhasil diperbarui.", "success")
         else:
-            flash(f"Gagal mengambil data baru untuk {repo_name}. Repositori mungkin kosong atau tidak dapat diakses.", "warning")
+            flash(f"Gagal mengambil data baru untuk {repo_name}.", "warning")
 
     except Exception as e:
         flash(f"Terjadi kesalahan saat memperbarui data: {e}", "danger")
@@ -600,8 +631,32 @@ def clear_cache(repo_name):
             cursor.close()
             conn.close()
         
-    # Langkah 5: Redirect kembali ke halaman detail
     return redirect(url_for('repo_detail', repo_name=repo_name))
+
+@app.route('/api/repo/<path:repo_name>/complexity')
+def repo_complexity_api(repo_name):
+    """Endpoint API untuk memberikan data kompleksitas kode."""
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+    
+    try:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT filepath, complexity 
+            FROM git_code_complexity 
+            WHERE repo_name = %s 
+            ORDER BY complexity DESC
+            LIMIT 10
+        """, (repo_name,))
+        data = cursor.fetchall()
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
 
 
 @app.route('/compare-repos')
@@ -669,6 +724,7 @@ def delete_git_repo(repo_name):
             cursor.execute("DELETE FROM git_commits WHERE repo_name = %s", (repo_name,))
             cursor.execute("DELETE FROM git_issues WHERE repo_name = %s", (repo_name,))
             cursor.execute("DELETE FROM git_pull_requests WHERE repo_name = %s", (repo_name,))
+            cursor.execute("DELETE FROM git_code_complexity WHERE repo_name = %s", (repo_name,))
             conn.commit()
             flash(f"Semua data untuk repositori {repo_name} berhasil dihapus.", "success")
         except Exception as e:
@@ -691,6 +747,7 @@ def reset_data():
             cursor.execute("TRUNCATE TABLE git_issues;")
             cursor.execute("TRUNCATE TABLE git_pull_requests;")
             cursor.execute("TRUNCATE TABLE pdf_similarity;")
+            cursor.execute("TRUNCATE TABLE git_code_complexity;")
             cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
             conn.commit()
             flash("Semua data di database telah berhasil dihapus.", "success")
