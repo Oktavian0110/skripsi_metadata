@@ -1,6 +1,66 @@
 {
-    "timestamp": "2025-07-25T08:55:55.233082+00:00",
+    "timestamp": "2025-07-28T07:06:15.720803+00:00",
     "commits": [
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "fb8c7d5514b6e52146dbf9e9de76b077bcd91119",
+            "commit_message": "feat: Add code complexity analysis feature and update related database handling",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2025-07-25 09:01:22+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 40,
+                    "deletions": 32,
+                    "changes": 72,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 74,
+                    "deletions": 17,
+                    "changes": 91,
+                    "status": "modified"
+                },
+                {
+                    "filename": "cache/Oktavian0110_Alaskaki-Project.json",
+                    "additions": 1,
+                    "deletions": 1,
+                    "changes": 2,
+                    "status": "modified"
+                },
+                {
+                    "filename": "cache/Oktavian0110_skripsi_metadata.json",
+                    "additions": 26,
+                    "deletions": 1,
+                    "changes": 27,
+                    "status": "modified"
+                },
+                {
+                    "filename": "cache/qalbiiazzahra_project-big-data-2023.json",
+                    "additions": 1,
+                    "deletions": 1,
+                    "changes": 2,
+                    "status": "modified"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 32,
+                    "deletions": 29,
+                    "changes": 61,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/repo_detail.html",
+                    "additions": 86,
+                    "deletions": 1,
+                    "changes": 87,
+                    "status": "modified"
+                }
+            ]
+        },
         {
             "repo_name": "Oktavian0110/skripsi_metadata",
             "commit_sha": "92f95e4f291da1e438affbbd1a1efab43a7fdfd6",

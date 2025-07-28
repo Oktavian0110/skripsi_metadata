@@ -11,6 +11,10 @@ import re
 import json
 from datetime import datetime 
 import pytz 
+from dotenv import load_dotenv # <-- IMPORT BARU
+
+# --- PERUBAHAN: Muat environment variables dari file .env ---
+load_dotenv()
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -20,6 +24,7 @@ from git_extractor import GitExtractor
 from analyzer import Analyzer
 
 # --- Inisialisasi Awal Aplikasi ---
+# (Sisa dari file ini tetap sama seperti sebelumnya, tidak ada perubahan lain)
 try:
     nltk.data.find('corpora/stopwords')
 except LookupError:
@@ -148,7 +153,6 @@ def save_complexity_to_db(repo_name, complexity_data):
     if not conn: return False
     try:
         cursor = conn.cursor()
-        # Hapus data lama sebelum memasukkan yang baru untuk menghindari duplikat
         cursor.execute("DELETE FROM git_code_complexity WHERE repo_name = %s", (repo_name,))
         
         sql = "INSERT INTO git_code_complexity (repo_name, filepath, complexity) VALUES (%s, %s, %s)"
