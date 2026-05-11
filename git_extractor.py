@@ -28,12 +28,13 @@ class GitExtractor:
     def __init__(self):
         os.makedirs(self.CACHE_DIR, exist_ok=True)
         token = os.getenv('GITHUB_API_TOKEN')
-        if not token:
-            raise ValueError(
-                "Token GitHub tidak ditemukan. Harap atur sebagai environment variable 'GITHUB_API_TOKEN'."
-            )
-        auth = Auth.Token(token)
-        self.github = Github(auth=auth)
+        if token:
+            auth = Auth.Token(token)
+            self.github = Github(auth=auth)
+            logging.info("GitHub API diakses DENGAN token (Batas: 5000 request/jam).")
+        else:
+            self.github = Github()
+            logging.info("GitHub API diakses TANPA token (Batas: 60 request/jam, hanya bisa akses repositori publik).")
 
     def get_python_files_content(self, repo):
         """
@@ -185,6 +186,32 @@ class GitExtractor:
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
         except Exception as e:
-            logging.info(f"GAGAL mengakses repositori '{repo_name}'. Penyebab: {e}")
+            # Jika error 401 (Bad Credentials), berarti token invalid. Coba fallback tanpa token!
+            if hasattr(e, 'status') and e.status == 401:
+                logging.warning(f"Token GitHub Anda tidak valid/kadaluarsa (Error 401). Mencoba akses ulang TANPA token...")
+                try:
+                    self.github = Github()
+                    repo = self.github.get_repo(repo_name)
+                    
+                    commits_list = self._extract_commits(repo)
+                    issues_list = self._extract_issues(repo)
+                    prs_list = self._extract_pull_requests(repo)
+                    
+                    logging.info(f"Ekstraksi (Tanpa Token) selesai: {len(commits_list)} commit, {len(issues_list)} issue, {len(prs_list)} PR.")
+
+                    new_cache_data = {
+                        'timestamp': datetime.now(timezone.utc).isoformat(),
+                        'commits': commits_list,
+                        'issues': issues_list,
+                        'pull_requests': prs_list,
+                    }
+                    with open(cache_filename, 'w') as f:
+                        json.dump(new_cache_data, f, indent=4, default=str)
+                    
+                    return pd.DataFrame(commits_list), pd.DataFrame(issues_list), pd.DataFrame(prs_list)
+                except Exception as fallback_error:
+                    logging.error(f"Fallback tanpa token juga gagal: {fallback_error}")
+            
+            logging.error(f"GAGAL mengakses repositori '{repo_name}'. Penyebab: {e}")
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 

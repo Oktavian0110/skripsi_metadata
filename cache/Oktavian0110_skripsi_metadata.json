@@ -1,6 +1,175 @@
 {
-    "timestamp": "2026-01-21T05:07:14.430776+00:00",
+    "timestamp": "2026-05-11T21:19:13.405954+00:00",
     "commits": [
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "deaa85c5ae1b999e1c8e41dcbbd32810f8b98d56",
+            "commit_message": "update all",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-11 21:12:39+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": ".env.example",
+                    "additions": 11,
+                    "deletions": 0,
+                    "changes": 11,
+                    "status": "added"
+                },
+                {
+                    "filename": "ai_grader.py",
+                    "additions": 101,
+                    "deletions": 0,
+                    "changes": 101,
+                    "status": "added"
+                },
+                {
+                    "filename": "analyzer.py",
+                    "additions": 2,
+                    "deletions": 1,
+                    "changes": 3,
+                    "status": "modified"
+                },
+                {
+                    "filename": "app.py",
+                    "additions": 269,
+                    "deletions": 52,
+                    "changes": 321,
+                    "status": "modified"
+                },
+                {
+                    "filename": "cek_gemini.py",
+                    "additions": 43,
+                    "deletions": 0,
+                    "changes": 43,
+                    "status": "added"
+                },
+                {
+                    "filename": "git_extractor.py",
+                    "additions": 13,
+                    "deletions": 12,
+                    "changes": 25,
+                    "status": "modified"
+                },
+                {
+                    "filename": "pdf_extractor.py",
+                    "additions": 38,
+                    "deletions": 9,
+                    "changes": 47,
+                    "status": "modified"
+                },
+                {
+                    "filename": "refactor_logging.py",
+                    "additions": 28,
+                    "deletions": 0,
+                    "changes": 28,
+                    "status": "added"
+                },
+                {
+                    "filename": "static/css/style.css",
+                    "additions": 89,
+                    "deletions": 24,
+                    "changes": 113,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/ai_results.html",
+                    "additions": 185,
+                    "deletions": 0,
+                    "changes": 185,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/base.html",
+                    "additions": 64,
+                    "deletions": 37,
+                    "changes": 101,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/compare_repos.html",
+                    "additions": 57,
+                    "deletions": 33,
+                    "changes": 90,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/dashboard.html",
+                    "additions": 586,
+                    "deletions": 118,
+                    "changes": 704,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/data_master.html",
+                    "additions": 127,
+                    "deletions": 73,
+                    "changes": 200,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/pdf_detail.html",
+                    "additions": 112,
+                    "deletions": 53,
+                    "changes": 165,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/repo_detail.html",
+                    "additions": 243,
+                    "deletions": 186,
+                    "changes": 429,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/student_profile.html",
+                    "additions": 129,
+                    "deletions": 94,
+                    "changes": 223,
+                    "status": "modified"
+                },
+                {
+                    "filename": "templates/visualisasi.html",
+                    "additions": 126,
+                    "deletions": 34,
+                    "changes": 160,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "Oktavian0110/skripsi_metadata",
+            "commit_sha": "6d099ef6925433781b01009a86344fce6bf0a056",
+            "commit_message": "update",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-11 15:23:51+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "analyzer.py",
+                    "additions": 40,
+                    "deletions": 14,
+                    "changes": 54,
+                    "status": "modified"
+                },
+                {
+                    "filename": "cache/Oktavian0110_skripsi_metadata.json",
+                    "additions": 625,
+                    "deletions": 1,
+                    "changes": 626,
+                    "status": "modified"
+                },
+                {
+                    "filename": "pdf_extractor.py",
+                    "additions": 48,
+                    "deletions": 43,
+                    "changes": 91,
+                    "status": "modified"
+                }
+            ]
+        },
         {
             "repo_name": "Oktavian0110/skripsi_metadata",
             "commit_sha": "21e28d18efdd613e45d7efa17fc053965162270c",
