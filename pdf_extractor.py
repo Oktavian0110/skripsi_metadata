@@ -1,24 +1,15 @@
 # pdf_extractor.py
 
 import os
-import re
-import requests
-import tempfile
+import gdown
 from PyPDF2 import PdfReader
 import pandas as pd
 
 class PdfExtractor:
     """
     Mengekstrak metadata dan teks lengkap dari dokumen PDF.
-    Bisa melalui link Google Drive atau file lokal.
+    Menggunakan gdown untuk menangani link Google Drive dan mendeteksi nama file asli.
     """
-    def _get_gdrive_download_url(self, gdrive_url):
-        """Mengubah link sharing Google Drive menjadi link download langsung."""
-        file_id_match = re.search(r'/file/d/([a-zA-Z0-9_-]+)', gdrive_url)
-        if file_id_match:
-            file_id = file_id_match.group(1)
-            return f'https://drive.google.com/uc?export=download&id={file_id}'
-        return None
 
     def _extract_single_pdf_metadata(self, file_path):
         """Mengekstrak metadata dari satu file PDF lokal."""
@@ -35,13 +26,16 @@ class PdfExtractor:
                 except Exception:
                     continue
 
+            # Ambil nama file asli dari path
+            filename = os.path.basename(file_path)
+
             metadata = {
-                'file_name': os.path.basename(file_path),
-                'title': meta.title or "Unknown",
-                'author': meta.author or "Unknown",
+                'file_name': filename,  # <--- Ini sekarang akan mengambil nama asli
+                'title': meta.title if meta and meta.title else "Unknown",
+                'author': meta.author if meta and meta.author else "Unknown",
                 'num_pages': len(reader.pages),
-                'creation_date': meta.creation_date,
-                'modification_date': meta.modification_date,
+                'creation_date': meta.creation_date if meta else None,
+                'modification_date': meta.modification_date if meta else None,
                 'full_text': full_text,
                 'word_count': len(full_text.split())
             }
@@ -51,54 +45,65 @@ class PdfExtractor:
             return None
 
     def extract_metadata_from_gdrive_links(self, links):
-        """Menerima list link, mengunduh, dan mengekstrak metadata."""
+        """Menerima list link, mengunduh via gdown dengan nama asli, dan mengekstrak metadata."""
         if not links:
             return ('invalid_link', [])
         
         link = links[0] 
-        temp_filepath = None
+        downloaded_file = None
+        
         try:
-            download_url = self._get_gdrive_download_url(link)
-            if not download_url:
-                return ('invalid_link', [])
+            # --- PERBAIKAN: Hapus tempfile ---
+            # Biarkan gdown mendownload ke folder saat ini agar nama aslinya terdeteksi
+            downloaded_file = gdown.download(link, quiet=True, fuzzy=True)
             
-            response = requests.get(download_url, stream=True, timeout=30)
-            response.raise_for_status()
-            
-            if 'text/html' in response.headers.get('Content-Type', ''):
-                return ('private', [])
-            
-            with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_pdf:
-                temp_pdf.write(response.content)
-                temp_filepath = temp_pdf.name
-            
-            metadata = self._extract_single_pdf_metadata(temp_filepath)
+            # Cek apakah download berhasil
+            if not downloaded_file or not os.path.exists(downloaded_file):
+                 return ('download_error', [])
+
+            # Cek apakah file kosong
+            if os.path.getsize(downloaded_file) == 0:
+                return ('download_error', [])
+
+            # Cek Header PDF (Untuk memastikan bukan file HTML/Login page)
+            with open(downloaded_file, 'rb') as f:
+                header = f.read(4)
+                if header != b'%PDF':
+                    # Jika bukan PDF, hapus dan return private
+                    return ('private', [])
+
+            # Ekstrak metadata (sekarang downloaded_file memiliki nama asli)
+            metadata = self._extract_single_pdf_metadata(downloaded_file)
             
             if metadata:
                 return ('success', [metadata])
             else:
                 return ('processing_error', [])
-        except requests.exceptions.RequestException as e:
-            print(f"Gagal mengunduh dari {link}: {e}")
+
+        except Exception as e:
+            print(f"Gagal memproses link {link}: {e}")
             return ('download_error', [])
+            
         finally:
-            if temp_filepath and os.path.exists(temp_filepath):
-                os.remove(temp_filepath)
+            # --- PENTING: Bersihkan File ---
+            # Karena kita mendownload ke folder aplikasi, kita WAJIB menghapusnya setelah selesai
+            # agar server tidak penuh sampah file PDF.
+            if downloaded_file and os.path.exists(downloaded_file):
+                try:
+                    os.remove(downloaded_file)
+                except PermissionError:
+                    pass 
+                    
         return ('unknown_error', [])
 
-    # --- TAMBAHAN: Fungsi baru untuk memproses file lokal ---
     def extract_metadata_from_local_file(self, file_path):
-        """
-        Mengekstrak metadata dari satu file PDF lokal yang sudah ada.
-        Ini adalah wrapper untuk _extract_single_pdf_metadata.
-        """
+        """Wrapper untuk file lokal."""
         try:
             metadata = self._extract_single_pdf_metadata(file_path)
             if metadata:
-                # Mengembalikan dalam format yang sama dengan fungsi gdrive
                 return ('success', [metadata])
             else:
                 return ('processing_error', [])
         except Exception as e:
             print(f"Error mengekstrak file lokal {os.path.basename(file_path)}: {e}")
-            return ('unknown_error', [])
+            return ('unknown_error', [])    

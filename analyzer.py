@@ -3,24 +3,21 @@ from collections import Counter
 import json
 import re
 from nltk.corpus import stopwords
-from radon.visitors import ComplexityVisitor # <-- IMPORT BARU
+from radon.visitors import ComplexityVisitor
 
 class Analyzer:
     """
     Menganalisis data dari DataFrame yang sudah diekstrak.
+    Memperbaiki masalah perbandingan Timezone (UTC vs Naive).
     """
 
     def analyze_code_complexity(self, files_content):
-        """
-        FITUR BARU: Menganalisis kompleksitas siklomatis dari file Python.
-        """
         complexity_results = []
         if not files_content:
             return complexity_results
 
         for filepath, content in files_content.items():
             try:
-                # Menggunakan Radon untuk menganalisis kode
                 visitor = ComplexityVisitor.from_code(content)
                 total_complexity = 0
                 func_count = 0
@@ -28,7 +25,6 @@ class Analyzer:
                     total_complexity += func.complexity
                     func_count += 1
                 
-                # Menghitung rata-rata kompleksitas jika ada fungsi
                 avg_complexity = total_complexity / func_count if func_count > 0 else 0
                 
                 if avg_complexity > 0:
@@ -39,16 +35,21 @@ class Analyzer:
             except Exception as e:
                 print(f"Gagal menganalisis kompleksitas untuk file {filepath}: {e}")
         
-        # Mengurutkan hasil dari yang paling kompleks ke yang paling sederhana
         complexity_results.sort(key=lambda x: x['complexity'], reverse=True)
         return complexity_results
 
-    # (Sisa dari file ini tetap sama seperti sebelumnya)
     def analyze_git_data(self, commits_df, deadline=None):
         if commits_df.empty:
             return {}
         
+        # 1. Konversi ke Datetime
         commits_df['commit_date'] = pd.to_datetime(commits_df['commit_date'])
+
+        # 2. Pastikan commit_date memiliki Zona Waktu UTC
+        if commits_df['commit_date'].dt.tz is None:
+            commits_df['commit_date'] = commits_df['commit_date'].dt.tz_localize('UTC')
+        else:
+            commits_df['commit_date'] = commits_df['commit_date'].dt.tz_convert('UTC')
 
         total_commits = len(commits_df)
         unique_contributors = commits_df['commit_author'].nunique()
@@ -68,8 +69,18 @@ class Analyzer:
             'last_commit_date': commits_df['commit_date'].max().strftime('%Y-%m-%d'),
         }
 
+        # --- PERBAIKAN UTAMA DI SINI ---
         if deadline:
+            # Konversi deadline ke datetime
             deadline_dt = pd.to_datetime(deadline)
+            
+            # Jika deadline tidak punya zona waktu (naive), set ke UTC
+            if deadline_dt.tz is None:
+                deadline_dt = deadline_dt.tz_localize('UTC')
+            else:
+                deadline_dt = deadline_dt.tz_convert('UTC')
+
+            # Sekarang keduanya sama-sama UTC, aman dibandingkan
             stats['on_time_commits'] = (commits_df['commit_date'] <= deadline_dt).sum()
             stats['late_commits'] = (commits_df['commit_date'] > deadline_dt).sum()
 
@@ -135,8 +146,21 @@ class Analyzer:
         }
 
         if deadline:
-            deadline_dt = pd.to_datetime(deadline).tz_localize('UTC')
+            # Perbaikan serupa untuk PDF
+            deadline_dt = pd.to_datetime(deadline)
+            if deadline_dt.tz is None:
+                deadline_dt = deadline_dt.tz_localize('UTC')
+            else:
+                deadline_dt = deadline_dt.tz_convert('UTC')
+
             pdf_df['modification_date'] = pd.to_datetime(pdf_df['modification_date'])
+            
+            # Pastikan kolom modification_date juga UTC
+            if pdf_df['modification_date'].dt.tz is None:
+                 pdf_df['modification_date'] = pdf_df['modification_date'].dt.tz_localize('UTC')
+            else:
+                 pdf_df['modification_date'] = pdf_df['modification_date'].dt.tz_convert('UTC')
+
             on_time_docs = (pdf_df['modification_date'] <= deadline_dt).sum()
             stats['deadline_status'] = "Tepat Waktu" if on_time_docs > 0 else "Terlambat"
 
@@ -149,10 +173,12 @@ class Analyzer:
         try:
             stop_words = set(stopwords.words('english'))
         except LookupError:
-            print("NLTK stopwords for English not found. Downloading...")
-            import nltk
-            nltk.download('stopwords')
-            stop_words = set(stopwords.words('english'))
+            try:
+                import nltk
+                nltk.download('stopwords')
+                stop_words = set(stopwords.words('english'))
+            except:
+                stop_words = {'the', 'and', 'is', 'in', 'to', 'of', 'a', 'for'} # Fallback manual
 
         stop_words.update(['dan', 'di', 'yang', 'untuk', 'ini', 'itu', 'dengan', 'dalam', 'adalah'])
 
