@@ -1,7 +1,10 @@
+import logging
 # pdf_extractor.py
 
 import os
 import gdown
+import shutil # <--- Pindahkan ke atas
+import glob   # <--- Pindahkan ke atas
 from PyPDF2 import PdfReader
 import pandas as pd
 
@@ -41,7 +44,7 @@ class PdfExtractor:
             }
             return metadata
         except Exception as e:
-            print(f"Error membaca file PDF {os.path.basename(file_path)}: {e}")
+            logging.error(f"Error membaca file PDF {os.path.basename(file_path)}: {e}")
             return None
 
     def extract_metadata_from_gdrive_links(self, links):
@@ -53,8 +56,6 @@ class PdfExtractor:
         downloaded_file = None
         
         try:
-            # --- PERBAIKAN: Hapus tempfile ---
-            # Biarkan gdown mendownload ke folder saat ini agar nama aslinya terdeteksi
             downloaded_file = gdown.download(link, quiet=True, fuzzy=True)
             
             # Cek apakah download berhasil
@@ -81,13 +82,10 @@ class PdfExtractor:
                 return ('processing_error', [])
 
         except Exception as e:
-            print(f"Gagal memproses link {link}: {e}")
+            logging.error(f"Gagal memproses link {link}: {e}")
             return ('download_error', [])
             
         finally:
-            # --- PENTING: Bersihkan File ---
-            # Karena kita mendownload ke folder aplikasi, kita WAJIB menghapusnya setelah selesai
-            # agar server tidak penuh sampah file PDF.
             if downloaded_file and os.path.exists(downloaded_file):
                 try:
                     os.remove(downloaded_file)
@@ -105,5 +103,36 @@ class PdfExtractor:
             else:
                 return ('processing_error', [])
         except Exception as e:
-            print(f"Error mengekstrak file lokal {os.path.basename(file_path)}: {e}")
+            logging.error(f"Error mengekstrak file lokal {os.path.basename(file_path)}: {e}")
             return ('unknown_error', [])    
+        
+    def extract_metadata_from_gdrive_folder(self, folder_url):
+        """Mendownload folder GDrive, mengekstrak semua PDF di dalamnya."""
+        output_folder = 'temp_gdrive_folder'
+        
+        # Buat/Bersihkan folder temp
+        if os.path.exists(output_folder):
+            shutil.rmtree(output_folder)
+        os.makedirs(output_folder)
+
+        try:
+            # Download seluruh folder
+            gdown.download_folder(url=folder_url, output=output_folder, quiet=False, use_cookies=False)
+            
+            metadata_list = []
+            # Cari semua file .pdf di dalam folder yang didownload
+            pdf_files = glob.glob(f"{output_folder}/**/*.pdf", recursive=True)
+            
+            for file_path in pdf_files:
+                meta = self._extract_single_pdf_metadata(file_path)
+                if meta:
+                    metadata_list.append(meta)
+                    
+            return ('success', metadata_list)
+        except Exception as e:
+            logging.error(f"Gagal memproses folder {folder_url}: {e}")
+            return ('download_error', [])
+        finally:
+            # Bersihkan folder sampah setelah selesai
+            if os.path.exists(output_folder):
+                shutil.rmtree(output_folder)

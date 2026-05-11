@@ -4,78 +4,137 @@
 {% block title %}Detail Dokumen: {{ doc.file_name }}{% endblock %}
 
 {% block content %}
-<div class="page-header mb-4">
-    <a href="{{ url_for('data_master', tab='pdf') }}" class="btn btn-sm btn-outline-secondary mb-3">
-        <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Dokumen
-    </a>
-    <h2>Analisis Detail Dokumen</h2>
-    <p class="text-muted">{{ doc.file_name }}</p>
+<div class="page-header mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <a href="{{ url_for('data_master', tab='pdf') }}" class="btn btn-sm btn-outline-secondary mb-3 rounded-pill px-3 transition-all hover-bg-dark">
+                <i data-feather="arrow-left" class="me-1" style="width: 14px;"></i> Kembali ke Daftar Dokumen
+            </a>
+            <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+                <i data-feather="file-text" class="me-3 text-primary" style="width: 28px; height: 28px;"></i>
+                Detail Dokumen
+            </h2>
+            <p class="text-secondary mb-0 text-truncate" style="max-width: 600px;" title="{{ doc.file_name }}">{{ doc.file_name }}</p>
+        </div>
+    </div>
 </div>
 
-<div class="row">
+<div class="row g-4">
     <!-- Kolom Kiri: Metadata & Kemiripan -->
-    <div class="col-lg-8 mb-4">
-        <div class="card mb-4">
-            <div class="card-header">Informasi Metadata</div>
-            <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-3">Nama File</dt>
-                    <dd class="col-sm-9">{{ doc.file_name }}</dd>
-
-                    <dt class="col-sm-3">Judul</dt>
-                    <dd class="col-sm-9">{{ doc.title or 'Tidak ada' }}</dd>
-
-                    <dt class="col-sm-3">Author</dt>
-                    <dd class="col-sm-9">{{ doc.author or 'Tidak ada' }}</dd>
-
-                    <dt class="col-sm-3">Jumlah Halaman</dt>
-                    <dd class="col-sm-9">{{ doc.num_pages }}</dd>
-
-                    <dt class="col-sm-3">Jumlah Kata</dt>
-                    <dd class="col-sm-9">{{ doc.word_count }}</dd>
-
-                    <dt class="col-sm-3">Tanggal Dibuat</dt>
-                    <dd class="col-sm-9">{{ doc.creation_date.strftime('%Y-%m-%d %H:%M:%S') if doc.creation_date else 'Tidak diketahui' }}</dd>
-
-                    <dt class="col-sm-3">Tanggal Dimodifikasi</dt>
-                    <dd class="col-sm-9">{{ doc.modification_date.strftime('%Y-%m-%d %H:%M:%S') if doc.modification_date else 'Tidak diketahui' }}</dd>
-
-                    <dt class="col-sm-3">Dianalisis Pada</dt>
-                    <dd class="col-sm-9">{{ doc.analysis_timestamp.strftime('%Y-%m-%d %H:%M:%S') if doc.analysis_timestamp else 'Tidak diketahui' }}</dd>
-                </dl>
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-lg glass-card mb-4">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="info" class="text-info me-2" style="width: 18px;"></i>
+                <h5 class="mb-0 text-light fw-bold">Informasi Metadata</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3">
+                            <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Judul Dokumen</div>
+                            <div class="text-light fw-medium fs-5">{{ doc.title or 'Tidak ada judul' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 h-100">
+                            <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Author</div>
+                            <div class="text-light fw-medium">{{ doc.author or 'Tidak diketahui' }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 h-100">
+                            <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Halaman</div>
+                            <div class="text-primary fw-bolder fs-4 mb-0">{{ doc.num_pages }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="p-3 bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 h-100">
+                            <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Kata</div>
+                            <div class="text-info fw-bolder fs-4 mb-0">{{ doc.word_count }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 mt-4">
+                        <hr class="border-secondary opacity-25 my-0">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Tanggal Dibuat</div>
+                        <div class="text-light small">{{ doc.creation_date.strftime('%Y-%m-%d %H:%M:%S') if doc.creation_date else 'Tidak diketahui' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Tanggal Modifikasi</div>
+                        <div class="text-light small">{{ doc.modification_date.strftime('%Y-%m-%d %H:%M:%S') if doc.modification_date else 'Tidak diketahui' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Dianalisis Pada</div>
+                        <div class="text-light small">{{ doc.analysis_timestamp.strftime('%Y-%m-%d %H:%M:%S') if doc.analysis_timestamp else 'Tidak diketahui' }}</div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-secondary small fw-semibold text-uppercase tracking-wide mb-1">Status Pengumpulan</div>
+                        {% if doc.deadline_status %}
+                            {% if doc.deadline_status == 'Tepat Waktu' %}
+                                <span class="badge bg-success bg-opacity-25 text-success px-3 py-1 mt-1 rounded-pill"><i data-feather="check-circle" style="width: 14px;" class="me-1"></i>Tepat Waktu</span>
+                            {% else %}
+                                <span class="badge bg-danger bg-opacity-25 text-danger px-3 py-1 mt-1 rounded-pill"><i data-feather="alert-triangle" style="width: 14px;" class="me-1"></i>Terlambat</span>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-secondary small fst-italic mt-1">Tidak ada deadline</div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="card">
-            <div class="card-header">Dokumen dengan Kemiripan Tertinggi</div>
-            <div class="card-body">
+        <div class="card border-0 shadow-lg glass-card mb-4 mb-lg-0">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="copy" class="text-warning me-2" style="width: 18px;"></i>
+                <h5 class="mb-0 text-light fw-bold">Dokumen dengan Kemiripan Tertinggi</h5>
+            </div>
+            <div class="card-body p-0">
                 {% if similar_docs %}
-                    <ul class="list-group list-group-flush">
+                    <div class="list-group list-group-flush rounded-bottom-4 overflow-hidden">
                     {% for similar in similar_docs %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <!-- PERBAIKAN: Gunakan nama kolom yang benar -->
-                            <a href="{{ url_for('pdf_detail', doc_id=similar.id) }}">{{ similar.file_name }}</a>
-                            <span class="badge bg-warning rounded-pill">{{ "%.1f"|format(similar.similarity_score * 100) }}% mirip</span>
-                        </li>
+                        <div class="list-group-item bg-transparent border-bottom border-secondary border-opacity-25 px-4 py-3 d-flex justify-content-between align-items-center hover-bg-dark transition-all">
+                            <div class="d-flex align-items-center overflow-hidden pe-3">
+                                <i data-feather="file" class="text-secondary me-3 flex-shrink-0" style="width: 16px;"></i>
+                                <a href="{{ url_for('pdf_detail', doc_id=similar.id) }}" class="text-info text-decoration-none fw-medium text-truncate" title="{{ similar.file_name }}">{{ similar.file_name }}</a>
+                            </div>
+                            <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50 rounded-pill px-3 py-2 flex-shrink-0">
+                                {{ "%.1f"|format(similar.similarity_score * 100) }}% mirip
+                            </span>
+                        </div>
                     {% endfor %}
-                    </ul>
+                    </div>
                 {% else %}
-                    <p class="text-muted fst-italic">Tidak ditemukan dokumen lain dengan tingkat kemiripan yang signifikan.</p>
+                    <div class="p-5 text-center text-secondary">
+                        <i data-feather="shield" class="mb-3 opacity-50" style="width: 40px; height: 40px;"></i>
+                        <p class="mb-0 fst-italic">Tidak ditemukan dokumen lain dengan tingkat kemiripan yang signifikan.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
+    
     <!-- Kolom Kanan: Kata Kunci -->
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">Kata Kunci yang Ditemukan</div>
-            <div class="card-body">
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-lg glass-card h-100">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="key" class="text-success me-2" style="width: 18px;"></i>
+                <h5 class="mb-0 text-light fw-bold">Kata Kunci Utama</h5>
+            </div>
+            <div class="card-body p-4">
                 {% if doc.keywords_list %}
+                    <div class="d-flex flex-wrap gap-2">
                     {% for keyword in doc.keywords_list %}
-                        <span class="badge bg-primary fw-normal me-1 mb-2 p-2">{{ keyword }}</span>
+                        <span class="badge bg-dark border border-secondary text-light px-3 py-2 fw-medium fs-6 hover-bg-dark transition-all" style="cursor: default;">{{ keyword }}</span>
                     {% endfor %}
+                    </div>
                 {% else %}
-                    <p class="text-muted fst-italic">Tidak ada kata kunci yang berhasil diekstrak dari dokumen ini.</p>
+                    <div class="text-center text-secondary py-5">
+                        <i data-feather="slash" class="mb-3 opacity-50" style="width: 32px; height: 32px;"></i>
+                        <p class="mb-0 fst-italic">Tidak ada kata kunci yang berhasil diekstrak dari dokumen ini.</p>
+                    </div>
                 {% endif %}
             </div>
         </div>

@@ -1,3 +1,13 @@
+import sys
+import logging
+logging.basicConfig(
+    level=logging.INFO, 
+    format="%(asctime)s - %(levelname)s - %(message)s", 
+    handlers=[
+        logging.FileHandler("app.log", mode="a"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 # app.py
 
 import os
@@ -9,6 +19,8 @@ from werkzeug.utils import secure_filename
 import nltk
 import re
 import json
+import uuid
+import concurrent.futures
 from datetime import datetime 
 import pytz 
 from dotenv import load_dotenv # <-- IMPORT BARU
@@ -23,31 +35,45 @@ from pdf_extractor import PdfExtractor
 from git_extractor import GitExtractor
 from analyzer import Analyzer
 
+from ai_grader import AIGrader
+ai_grader = AIGrader() # Inisialisasi AI
+
 # --- Inisialisasi Awal Aplikasi ---
 # (Sisa dari file ini tetap sama seperti sebelumnya, tidak ada perubahan lain)
 try:
     nltk.data.find('corpora/stopwords')
 except LookupError:
-    print("Downloading NLTK stopwords data...")
+    logging.info("Downloading NLTK stopwords data...")
     nltk.download('stopwords')
-    print("Download complete.")
+    logging.info("Download complete.")
 
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
-    print("Downloading NLTK punkt data...")
+    logging.info("Downloading NLTK punkt data...")
     nltk.download('punkt')
-    print("Download complete.")
+    logging.info("Download complete.")
 
 DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'database': 'skripsi_metadata_db'
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'root'),
+    'password': os.getenv('DB_PASSWORD', ''),
+    'database': os.getenv('DB_NAME', 'skripsi_metadata_db')
 }
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey_yang_lebih_aman'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'supersecretkey_yang_lebih_aman')
+
+# --- Asynchronous Tasks Setup ---
+executor = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+background_tasks = {}
+
+@app.route('/task-status/<task_id>')
+def task_status(task_id):
+    task = background_tasks.get(task_id)
+    if not task:
+        return jsonify({'status': 'error', 'message': 'Tugas tidak ditemukan.'}), 404
+    return jsonify(task)
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'xlsx', 'csv', 'pdf'}
@@ -93,7 +119,7 @@ def save_pdf_to_db(df):
     last_id = None
     try:
         cursor = conn.cursor()
-        sql = "INSERT INTO pdf_documents (file_name, title, author, num_pages, creation_date, modification_date, keywords, word_count, full_text) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO pdf_documents (file_name, title, author, num_pages, creation_date, modification_date, keywords, word_count, full_text, deadline_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         for _, row in df.iterrows():
             keywords_list = row.get('keywords', [])
             keywords_str = ", ".join(keywords_list) if isinstance(keywords_list, list) else ""
@@ -101,13 +127,14 @@ def save_pdf_to_db(df):
             create_date = row['creation_date'] if pd.notna(row['creation_date']) else None
             word_count = int(row['word_count']) if pd.notna(row['word_count']) else 0
             full_text = row.get('full_text', '')
+            deadline_status = row.get('deadline_status', None)
             
-            cursor.execute(sql, (row['file_name'], row['title'], row['author'], int(row['num_pages']), create_date, mod_date, keywords_str, word_count, full_text))
+            cursor.execute(sql, (row['file_name'], row['title'], row['author'], int(row['num_pages']), create_date, mod_date, keywords_str, word_count, full_text, deadline_status))
             last_id = cursor.lastrowid
         conn.commit()
         return True, last_id
     except Exception as e:
-        print(f"Error saving PDF data: {e}")
+        logging.error(f"Error saving PDF data: {e}")
         return False, None
     finally:
         if conn and conn.is_connected():
@@ -138,7 +165,7 @@ def save_git_data_to_db(commits_df, issues_df, prs_df):
         conn.commit()
         return True
     except Exception as e:
-        print(f"Error saving Git data: {e}")
+        logging.error(f"Error saving Git data: {e}")
         return False
     finally:
         if conn and conn.is_connected():
@@ -161,7 +188,7 @@ def save_complexity_to_db(repo_name, complexity_data):
         conn.commit()
         return True
     except Exception as e:
-        print(f"Error saving complexity data: {e}")
+        logging.error(f"Error saving complexity data: {e}")
         return False
     finally:
         if conn and conn.is_connected():
@@ -198,7 +225,7 @@ def check_similarity(new_doc_id, new_doc_text):
         conn.commit()
 
     except Exception as e:
-        print(f"Error saat memeriksa kemiripan: {e}")
+        logging.error(f"Error saat memeriksa kemiripan: {e}")
     finally:
         if conn and conn.is_connected():
             cursor.close()
@@ -212,15 +239,19 @@ def analyze_and_save_pdfs(pdf_metadata_list, deadline=None):
     df = pd.DataFrame(pdf_metadata_list)
     df['keywords'] = df['full_text'].apply(lambda text: local_analyzer.extract_keywords_from_text(text))
     
+    if deadline:
+        stats = local_analyzer.analyze_pdf_data(df.copy(), deadline)
+        df['deadline_status'] = stats.get('deadline_status', None)
+    else:
+        df['deadline_status'] = None
+
     is_saved, last_id = save_pdf_to_db(df)
     
     if is_saved and last_id:
         new_doc_text = df.iloc[0]['full_text']
         check_similarity(last_id, new_doc_text)
-        if deadline:
-            stats = local_analyzer.analyze_pdf_data(df.iloc[[0]], deadline)
-            if stats.get('deadline_status'):
-                flash(f"Status Pengumpulan: {stats['deadline_status']}", "info")
+        if deadline and df['deadline_status'].iloc[0]:
+            flash(f"Status Pengumpulan: {df['deadline_status'].iloc[0]}", "info")
         return True
     else:
         return False
@@ -314,7 +345,7 @@ def data_master():
         context['data'] = cursor.fetchall()
 
     except Exception as e:
-        print(f"Error in data_master: {e}")
+        logging.error(f"Error in data_master: {e}")
         flash("Terjadi kesalahan saat memuat data master.", "danger")
     finally:
         if conn.is_connected():
@@ -495,6 +526,7 @@ def analyze_pdf():
 
 @app.route('/upload-and-analyze-pdf', methods=['POST'])
 def upload_and_analyze_pdf():
+    deadline = request.form.get('deadline')
     if 'file' not in request.files:
         flash('Tidak ada file yang dipilih.', 'warning')
         return redirect(url_for('dashboard'))
@@ -511,7 +543,7 @@ def upload_and_analyze_pdf():
             if file_extension == 'pdf':
                 status, metadata_list = pdf_extractor.extract_metadata_from_local_file(filepath)
                 if status == 'success':
-                    is_success = analyze_and_save_pdfs(metadata_list)
+                    is_success = analyze_and_save_pdfs(metadata_list, deadline=deadline)
                     if is_success:
                         flash(f'Dokumen PDF "{filename}" berhasil dianalisis dan disimpan.', 'success')
                 else:
@@ -548,14 +580,47 @@ def upload_and_analyze_pdf():
         flash('Format file tidak didukung. Harap unggah file .pdf, .xlsx, atau .csv.', 'warning')
         return redirect(url_for('dashboard'))
 
+def process_git_background(task_id, repo_name, deadline):
+    try:
+        background_tasks[task_id]['status'] = 'running'
+        background_tasks[task_id]['message'] = f'Mengekstrak data GitHub untuk {repo_name}...'
+        
+        commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
+        
+        if commits_df.empty and issues_df.empty and prs_df.empty:
+            background_tasks[task_id]['status'] = 'error'
+            background_tasks[task_id]['message'] = f'Gagal mengambil data atau repositori "{repo_name}" kosong.'
+            return
+            
+        background_tasks[task_id]['message'] = f'Menyimpan data dasar ke database...'
+        save_git_data_to_db(commits_df, issues_df, prs_df)
+        
+        background_tasks[task_id]['message'] = f'Menganalisis kompleksitas kode Python...'
+        repo_obj = git_extractor.github.get_repo(repo_name)
+        files_content = git_extractor.get_python_files_content(repo_obj)
+        if files_content:
+            complexity_data = analyzer.analyze_code_complexity(files_content)
+            save_complexity_to_db(repo_name, complexity_data)
+
+        if deadline and not commits_df.empty:
+            deadline_stats = analyzer.analyze_git_data(commits_df, deadline)
+            logging.info(f"Hasil Analisis Deadline: Tepat Waktu: {deadline_stats['on_time_commits']}, Terlambat: {deadline_stats['late_commits']}.")
+
+        background_tasks[task_id]['status'] = 'completed'
+        background_tasks[task_id]['message'] = f'Analisis repositori "{repo_name}" selesai!'
+        
+    except Exception as e:
+        logging.error(f"Terjadi error saat analisis Git: {e}")
+        background_tasks[task_id]['status'] = 'error'
+        background_tasks[task_id]['message'] = f'Terjadi error saat analisis Git: {e}'
+
 @app.route('/analyze-git', methods=['POST'])
 def analyze_git():
     repo_input = request.form.get('repo_name', '').strip()
     deadline = request.form.get('deadline')
 
     if not repo_input:
-        flash('Nama repositori tidak boleh kosong.', 'warning')
-        return redirect(url_for('dashboard'))
+        return jsonify({'status': 'error', 'message': 'Nama repositori tidak boleh kosong.'}), 400
 
     match = re.search(r'github\.com/([\w-]+/[\w.-]+)', repo_input)
     if match:
@@ -563,30 +628,12 @@ def analyze_git():
     else:
         repo_name = repo_input
 
-    try:
-        commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
-        
-        if commits_df.empty and issues_df.empty and prs_df.empty:
-            flash(f'Gagal mengambil data atau repositori "{repo_name}" kosong.', 'danger')
-        else:
-            if save_git_data_to_db(commits_df, issues_df, prs_df):
-                flash(f'Data dasar untuk repositori "{repo_name}" berhasil disimpan.', 'success')
-            
-            repo_obj = git_extractor.github.get_repo(repo_name)
-            files_content = git_extractor.get_python_files_content(repo_obj)
-            if files_content:
-                complexity_data = analyzer.analyze_code_complexity(files_content)
-                if save_complexity_to_db(repo_name, complexity_data):
-                    flash(f'Analisis kompleksitas kode untuk "{repo_name}" selesai dan disimpan.', 'info')
-
-            if deadline and not commits_df.empty:
-                deadline_stats = analyzer.analyze_git_data(commits_df, deadline)
-                flash(f"Hasil Analisis Deadline: Tepat Waktu: {deadline_stats['on_time_commits']} commit, Terlambat: {deadline_stats['late_commits']} commit.", "info")
-
-    except Exception as e:
-        flash(f"Terjadi error saat analisis Git: {e}", "danger")
-
-    return redirect(url_for('dashboard'))
+    task_id = str(uuid.uuid4())
+    background_tasks[task_id] = {'status': 'queued', 'message': 'Menunggu antrean untuk diproses...'}
+    
+    executor.submit(process_git_background, task_id, repo_name, deadline)
+    
+    return jsonify({'status': 'success', 'task_id': task_id})
     
 @app.route('/clear-cache/<path:repo_name>', methods=['POST'])
 def clear_cache(repo_name):
@@ -595,27 +642,27 @@ def clear_cache(repo_name):
         return redirect(url_for('repo_detail', repo_name=repo_name))
 
     try:
-        print(f"Menghapus data lama untuk {repo_name} dari database...")
+        logging.info(f"Menghapus data lama untuk {repo_name} dari database...")
         cursor = conn.cursor()
         cursor.execute("DELETE FROM git_commits WHERE repo_name = %s", (repo_name,))
         cursor.execute("DELETE FROM git_issues WHERE repo_name = %s", (repo_name,))
         cursor.execute("DELETE FROM git_pull_requests WHERE repo_name = %s", (repo_name,))
         cursor.execute("DELETE FROM git_code_complexity WHERE repo_name = %s", (repo_name,))
         conn.commit()
-        print("Data lama berhasil dihapus dari DB.")
+        logging.info("Data lama berhasil dihapus dari DB.")
 
         cache_dir = "cache"
         sanitized_repo_name = repo_name.replace('/', '_')
         cache_file = os.path.join(cache_dir, f"{sanitized_repo_name}.json")
         if os.path.exists(cache_file):
             os.remove(cache_file)
-            print(f"File cache {cache_file} berhasil dihapus.")
+            logging.info(f"File cache {cache_file} berhasil dihapus.")
 
-        print(f"Mengambil data baru untuk {repo_name} dari API...")
+        logging.info(f"Mengambil data baru untuk {repo_name} dari API...")
         commits_df, issues_df, prs_df = git_extractor.extract_git_metadata(repo_name)
         
         if not (commits_df.empty and issues_df.empty and prs_df.empty):
-            print("Menyimpan data baru ke database...")
+            logging.info("Menyimpan data baru ke database...")
             save_git_data_to_db(commits_df, issues_df, prs_df)
             
             repo_obj = git_extractor.github.get_repo(repo_name)
@@ -762,6 +809,176 @@ def reset_data():
                 cursor.close()
                 conn.close()
     return redirect(url_for('dashboard'))
+
+def process_folder_ai_background(task_id, folder_url, rubric_text, rubric_filename, deadline=None):
+    try:
+        background_tasks[task_id]['status'] = 'running'
+        background_tasks[task_id]['message'] = 'Mengunduh folder mahasiswa dari Google Drive...'
+        
+        status_folder, students_metadata = pdf_extractor.extract_metadata_from_gdrive_folder(folder_url)
+        
+        if status_folder != 'success' or not students_metadata:
+            background_tasks[task_id]['status'] = 'error'
+            background_tasks[task_id]['message'] = 'Gagal mendownload atau mengekstrak folder Google Drive.'
+            return
+            
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        success_count = 0
+        skipped_count = 0
+        total_files = len(students_metadata)
+        
+        for i, student_data in enumerate(students_metadata):
+            student_file_name = student_data['file_name']
+            
+            # Cek apakah sudah pernah dinilai
+            cursor.execute("SELECT id FROM ai_evaluations WHERE student_file_name = %s", (student_file_name,))
+            if cursor.fetchone():
+                skipped_count += 1
+                background_tasks[task_id]['message'] = f'Melewati {student_file_name} (Sudah Dinilai)... ({i+1}/{total_files})'
+                continue
+            
+            background_tasks[task_id]['message'] = f'Menilai {student_file_name}... ({i+1}/{total_files})'
+            student_text = student_data['full_text']
+            
+            ai_result = ai_grader.grade_document(rubric_text, student_text)
+            
+            if ai_result:
+                feedback = ai_result.get('feedback', '')
+                if deadline:
+                    try:
+                        import pandas as pd
+                        deadline_dt = pd.to_datetime(deadline)
+                        if deadline_dt.tz is None: deadline_dt = deadline_dt.tz_localize('UTC')
+                        
+                        mod_date = student_data.get('modification_date') or student_data.get('creation_date')
+                        if mod_date:
+                            mod_dt = pd.to_datetime(mod_date)
+                            if mod_dt.tz is None: mod_dt = mod_dt.tz_localize('UTC')
+                            else: mod_dt = mod_dt.tz_convert('UTC')
+                            
+                            if mod_dt > deadline_dt:
+                                feedback = f"⚠️ **TERLAMBAT**: Dokumen ini disubmit pada {mod_dt.strftime('%d %b %Y %H:%M')}, melewati tenggat waktu yang ditentukan.\n\n{feedback}"
+                            else:
+                                feedback = f"✅ **TEPAT WAKTU**: Dokumen ini disubmit sebelum tenggat waktu.\n\n{feedback}"
+                    except Exception as e:
+                        logging.error(f"Gagal memparsing deadline AI: {e}")
+
+                criteria_json = json.dumps(ai_result.get('criteria_scores', {}))
+                sql = """INSERT INTO ai_evaluations 
+                         (student_file_name, rubric_used, total_score, criteria_scores, feedback) 
+                         VALUES (%s, %s, %s, %s, %s)"""
+                cursor.execute(sql, (
+                    student_file_name, 
+                    rubric_filename,
+                    ai_result.get('total_score', 0), 
+                    criteria_json, 
+                    feedback
+                ))
+                conn.commit()
+                success_count += 1
+                
+        cursor.close()
+        conn.close()
+        
+        background_tasks[task_id]['status'] = 'completed'
+        background_tasks[task_id]['message'] = f'Selesai! {success_count} dinilai, {skipped_count} dilewati (sudah ada di database).'
+        
+    except Exception as e:
+        logging.error(f"Error in process_folder_ai_background: {e}")
+        background_tasks[task_id]['status'] = 'error'
+        background_tasks[task_id]['message'] = f'Terjadi kesalahan internal: {str(e)}'
+
+@app.route('/analyze-folder-ai', methods=['POST'])
+def analyze_folder_ai():
+    folder_url = request.form.get('folder_link')
+    rubric_file = request.files.get('rubric_file')
+    deadline = request.form.get('deadline')
+
+    if not folder_url or not rubric_file or rubric_file.filename == '':
+        return jsonify({'status': 'error', 'message': 'Link folder dan file Rubrik harus diisi!'}), 400
+
+    # 1. Simpan dan Ekstrak Teks Rubrik
+    rubric_filename = secure_filename(rubric_file.filename)
+    rubric_path = os.path.join(app.config['UPLOAD_FOLDER'], rubric_filename)
+    rubric_file.save(rubric_path)
+    
+    status, rubric_meta = pdf_extractor.extract_metadata_from_local_file(rubric_path)
+    os.remove(rubric_path) # Hapus setelah diekstrak
+
+    if status != 'success' or not rubric_meta:
+        return jsonify({'status': 'error', 'message': 'Gagal mengekstrak teks dari file Rubrik.'}), 400
+    
+    rubric_text = rubric_meta[0]['full_text']
+
+    task_id = str(uuid.uuid4())
+    background_tasks[task_id] = {'status': 'queued', 'message': 'Menunggu antrean...'}
+    
+    executor.submit(process_folder_ai_background, task_id, folder_url, rubric_text, rubric_filename, deadline)
+    
+    return jsonify({'status': 'success', 'task_id': task_id})
+
+@app.route('/delete-ai-result/<int:id>', methods=['POST'])
+def delete_ai_result(id):
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM ai_evaluations WHERE id = %s", (id,))
+            conn.commit()
+            flash("Data penilaian berhasil dihapus.", "success")
+        except Exception as e:
+            flash(f"Gagal menghapus data: {e}", "danger")
+        finally:
+            cursor.close()
+            conn.close()
+    return redirect(url_for('ai_results'))
+
+@app.route('/delete-ai-results-bulk', methods=['POST'])
+def delete_ai_results_bulk():
+    eval_ids = request.form.getlist('eval_ids')
+    if not eval_ids:
+        flash("Tidak ada data yang dipilih untuk dihapus.", "warning")
+        return redirect(url_for('ai_results'))
+        
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            format_strings = ','.join(['%s'] * len(eval_ids))
+            cursor.execute(f"DELETE FROM ai_evaluations WHERE id IN ({format_strings})", tuple(eval_ids))
+            conn.commit()
+            flash(f"{cursor.rowcount} data penilaian berhasil dihapus.", "success")
+        except Exception as e:
+            flash(f"Gagal menghapus data: {e}", "danger")
+        finally:
+            cursor.close()
+            conn.close()
+    return redirect(url_for('ai_results'))
+
+@app.route('/ai-results')
+def ai_results():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    # Ambil semua data penilaian AI dari yang terbaru
+    cursor.execute("SELECT * FROM ai_evaluations ORDER BY analysis_timestamp DESC")
+    evaluations = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+
+    # Ubah format string JSON di database menjadi Dictionary Python
+    # agar mudah dibaca oleh template HTML
+    for eval in evaluations:
+        if eval['criteria_scores']:
+            try:
+                eval['criteria_scores'] = json.loads(eval['criteria_scores'])
+            except:
+                eval['criteria_scores'] = {}
+
+    return render_template('ai_results.html', evaluations=evaluations)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil Penilaian{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 page-header gap-3">
+    <div>
+        <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+            <i data-feather="award" class="me-3 text-warning" style="width: 28px; height: 28px;"></i>
+            Hasil Penilaian <span class="badge bg-warning text-dark ms-3 fs-6 rounded-pill fw-bold">Auto-Grader</span>
+        </h2>
+        <p class="text-secondary mb-0">Daftar evaluasi dokumen mahasiswa berdasarkan rubrik penilaian menggunakan model LLM.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-12">
+        {% if evaluations %}
+        <form action="{{ url_for('delete_ai_results_bulk') }}" method="POST" id="bulkDeleteForm">
+            <div class="mb-3 d-flex justify-content-between align-items-center">
+                <div class="form-check d-flex align-items-center">
+                    <input class="form-check-input bg-dark border-secondary me-2" type="checkbox" id="selectAll" style="width: 20px; height: 20px;">
+                    <label class="form-check-label text-light fw-medium" for="selectAll" style="padding-top: 2px;">
+                        Pilih Semua
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-outline-danger px-4 rounded-pill d-flex align-items-center" onclick="return confirm('Yakin ingin menghapus semua data penilaian yang dipilih?');">
+                    <i data-feather="trash-2" class="me-2" style="width: 16px;"></i> Hapus Terpilih
+                </button>
+            </div>
+
+            <div class="accordion custom-accordion" id="accordionEvaluations">
+                
+                {% for eval in evaluations %}
+                <div class="accordion-item bg-transparent border-0 mb-4 rounded-4 overflow-hidden glass-card shadow-lg transition-all">
+                    <h2 class="accordion-header m-0 d-flex align-items-center" id="heading{{ loop.index }}">
+                        <!-- Gradient border top based on score -->
+                        {% set score = eval.total_score|int %}
+                        {% set color_class = 'success' if score >= 80 else ('warning' if score >= 60 else 'danger') %}
+                        
+                        <div class="bg-dark bg-opacity-75 ps-4 py-4 d-flex align-items-center" style="border-top: 4px solid var(--bs-{{ color_class }}); border-bottom-left-radius: 1rem;">
+                            <input class="form-check-input bg-dark border-secondary eval-checkbox" type="checkbox" name="eval_ids" value="{{ eval.id }}" style="width: 20px; height: 20px;">
+                        </div>
+
+                        <button class="accordion-button collapsed bg-dark bg-opacity-75 text-light border-0 py-4 px-4 px-lg-5 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}" style="border-top: 4px solid var(--bs-{{ color_class }});">
+                            
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center w-100 me-3 gap-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-{{ color_class }} bg-opacity-10 text-{{ color_class }} p-2 rounded-circle me-3 flex-shrink-0 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                        <i data-feather="file-text" style="width: 20px;"></i> 
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1 fw-bold text-light fs-5">{{ eval.student_file_name }}</h6>
+                                        <div class="text-secondary small d-flex align-items-center">
+                                            <i data-feather="clock" class="me-1" style="width: 12px;"></i> {{ eval.analysis_timestamp.strftime('%d %b %Y, %H:%M') }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center">
+                                    <div class="text-secondary small text-uppercase tracking-wide fw-semibold me-3 d-none d-md-block">Total Skor</div>
+                                    <span class="badge bg-{{ color_class }} {% if color_class == 'warning' %}text-dark{% else %}text-white{% endif %} rounded-pill shadow-sm" style="font-size: 1.1rem; padding: 0.5em 1.2em;">
+                                        {{ score }} / 100
+                                    </span>
+                                </div>
+                            </div>
+
+                        </button>
+                    </h2>
+                    
+                    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="heading{{ loop.index }}" data-bs-parent="#accordionEvaluations">
+                        <div class="accordion-body bg-dark bg-opacity-50 border-top border-secondary border-opacity-25 p-4 p-lg-5 position-relative">
+                            
+                            <!-- Tombol Delete Satuan -->
+                            <div class="position-absolute top-0 end-0 m-4">
+                                <form action="{{ url_for('delete_ai_result', id=eval.id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data penilaian ini?');" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                        <i data-feather="trash-2" class="me-1" style="width: 14px;"></i> Hapus
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="row g-5 mt-2">
+                                <div class="col-lg-4">
+                                    <h6 class="fw-bold text-light mb-4 d-flex align-items-center">
+                                        <i data-feather="bar-chart-2" class="me-2 text-info" style="width: 18px;"></i>
+                                        Rincian Nilai Kriteria
+                                    </h6>
+                                    <div class="list-group rounded-4 overflow-hidden border border-secondary border-opacity-25 shadow-sm">
+                                        {% for kriteria, nilai in eval.criteria_scores.items() %}
+                                        <div class="list-group-item bg-dark text-light border-bottom border-secondary border-opacity-25 d-flex justify-content-between align-items-center p-3">
+                                            <span class="text-secondary fw-medium">{{ kriteria }}</span>
+                                            <span class="badge bg-primary bg-opacity-25 text-info border border-info border-opacity-50 rounded-pill px-3 py-2 fs-6">{{ nilai }}</span>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="mt-4 p-3 bg-dark border border-secondary border-opacity-25 rounded-3 d-flex align-items-start text-secondary small">
+                                        <i data-feather="paperclip" class="me-2 mt-1 flex-shrink-0" style="width: 14px;"></i> 
+                                        <div>
+                                            <span class="fw-semibold text-light d-block mb-1">Rubrik Acuan:</span>
+                                            {{ eval.rubric_used }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-8">
+                                    <h6 class="fw-bold text-light mb-4 d-flex align-items-center">
+                                        <i data-feather="message-square" class="me-2 text-warning" style="width: 18px;"></i>
+                                        Feedback & Analisis
+                                    </h6>
+                                    <div class="p-4 p-xl-5 bg-dark border border-secondary border-opacity-25 rounded-4 shadow-inner text-light position-relative overflow-hidden" style="border-left: 4px solid var(--bs-warning) !important; font-size: 1rem; line-height: 1.8;">
+                                        <div class="position-relative z-1" style="white-space: pre-wrap;">{{ eval.feedback }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </form>
+        {% else %}
+        <div class="card border-0 shadow-lg glass-card py-5">
+            <div class="card-body text-center py-5">
+                <div class="d-inline-flex bg-dark bg-opacity-50 text-secondary p-4 rounded-circle mb-4 border border-secondary border-opacity-25 shadow-inner">
+                    <i data-feather="cpu" style="width: 48px; height: 48px;"></i>
+                </div>
+                <h4 class="text-light fw-bold mb-3">Belum Ada Data Penilaian</h4>
+                <p class="text-secondary fs-6 mb-4 max-w-md mx-auto" style="max-width: 500px;">Sistem auto-grader belum mengevaluasi dokumen apapun. Silakan kembali ke Dashboard untuk memulai penilaian folder tugas baru.</p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-warning fw-bold text-dark rounded-pill px-4 py-2 glow-btn-warning">
+                    Buka Dashboard <i data-feather="arrow-right" class="ms-1" style="width: 16px;"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Logic untuk Select All Checkboxes
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const evalCheckboxes = document.querySelectorAll('.eval-checkbox');
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            evalCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        });
+
+        evalCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(evalCheckboxes).every(c => c.checked);
+                selectAllCheckbox.checked = allChecked;
+            });
+        });
+    }
+</script>
+<style>
+    /* Styling Accordion Kustom */
+    .custom-accordion .accordion-button::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2394a3b8'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+    .custom-accordion .accordion-button:not(.collapsed)::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23f8fafc'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    }
+    .custom-accordion .accordion-button:focus {
+        box-shadow: inset 0 -1px 0 rgba(255,255,255,0.1);
+    }
+    .custom-accordion .accordion-item {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .custom-accordion .accordion-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(255, 193, 7, 0.1) !important;
+    }
+    .shadow-inner {
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+    }
+</style>
+{% endblock %}

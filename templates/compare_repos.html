@@ -3,79 +3,103 @@
 {% block title %}Perbandingan Repositori{% endblock %}
 
 {% block content %}
-<div class="page-header mb-4">
-    <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3">
-        <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Repositori
-    </a>
-    <h2>Perbandingan Repositori</h2>
-    <p class="text-muted">Menampilkan perbandingan statistik kunci antar repositori yang dipilih.</p>
+<div class="page-header mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3 rounded-pill px-3 transition-all hover-bg-dark">
+                <i data-feather="arrow-left" class="me-1" style="width: 14px;"></i> Kembali ke Daftar
+            </a>
+            <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+                <i data-feather="git-merge" class="me-3 text-primary" style="width: 28px; height: 28px;"></i>
+                Perbandingan Repositori
+            </h2>
+            <p class="text-secondary mb-0">Menampilkan komparasi statistik kunci antar repositori secara berdampingan.</p>
+        </div>
+    </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
+<div class="card border-0 shadow-lg glass-card mb-5 overflow-hidden">
+    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <i data-feather="columns" class="text-info me-2" style="width: 18px;"></i>
+        <h5 class="mb-0 text-light fw-bold">Matriks Perbandingan</h5>
+    </div>
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover" style="table-layout: fixed;">
+            <table class="table table-hover table-dark-custom mb-0" style="table-layout: fixed; min-width: 800px;">
                 <thead>
-                    <tr class="table-light">
-                        <th style="width: 20%;">Metrik</th>
+                    <tr>
+                        <th style="width: 20%;" class="ps-4 text-start bg-dark bg-opacity-75">Metrik Analisis</th>
                         {% for name in repo_names %}
-                        <th class="text-center">{{ name }}</th>
+                        <th class="text-center bg-dark bg-opacity-75">
+                            <div class="d-flex flex-column align-items-center justify-content-center py-2">
+                                <div class="bg-primary bg-opacity-25 text-primary p-2 rounded-circle mb-2">
+                                    <i data-feather="github" style="width: 16px;"></i>
+                                </div>
+                                <span class="text-light fw-bold fs-6">{{ name }}</span>
+                            </div>
+                        </th>
                         {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="fw-bold">Total Commit</td>
+                        <td class="ps-4 fw-semibold text-secondary">Total Commit</td>
                         {% for name in repo_names %}
-                        <td class="text-center">{{ comparison_data[name].total_commits }}</td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Jumlah Kontributor</td>
-                        {% for name in repo_names %}
-                        <td class="text-center">{{ comparison_data[name].unique_contributors }}</td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Total Baris Kode Ditambah</td>
-                        {% for name in repo_names %}
-                        <td class="text-center text-success">+{{ comparison_data[name].total_lines_added }}</td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Commit Pertama</td>
-                        {% for name in repo_names %}
-                        <td class="text-center"><small>{{ comparison_data[name].first_commit_date }}</small></td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Commit Terakhir</td>
-                        {% for name in repo_names %}
-                        <td class="text-center"><small>{{ comparison_data[name].last_commit_date }}</small></td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Kontributor & Jumlah Commit</td>
-                        {% for name in repo_names %}
-                        <td>
-                            <ul class="list-unstyled mb-0">
-                                {% for author, count in comparison_data[name].author_commit_counts.items() %}
-                                <li>
-                                    <a href="{{ url_for('student_profile', author_name=author) }}">{{ author }}</a>: 
-                                    <span class="badge bg-primary rounded-pill">{{ count }}</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
+                        <td class="text-center">
+                            <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 fs-6 px-3 py-2">{{ comparison_data[name].total_commits }}</span>
                         </td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="fw-bold">Kategori Commit</td>
+                        <td class="ps-4 fw-semibold text-secondary">Jumlah Kontributor</td>
                         {% for name in repo_names %}
-                        <td>
+                        <td class="text-center">
+                            <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50 fs-6 px-3 py-2">{{ comparison_data[name].unique_contributors }}</span>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">Baris Kode Ditambah (+)</td>
+                        {% for name in repo_names %}
+                        <td class="text-center text-success fw-bolder fs-5">+{{ comparison_data[name].total_lines_added }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">Commit Pertama</td>
+                        {% for name in repo_names %}
+                        <td class="text-center text-light small">{{ comparison_data[name].first_commit_date }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">Commit Terakhir</td>
+                        {% for name in repo_names %}
+                        <td class="text-center text-light small">{{ comparison_data[name].last_commit_date }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">Kontributor Teratas</td>
+                        {% for name in repo_names %}
+                        <td class="p-3">
+                            <div class="d-flex flex-column gap-2">
+                                {% for author, count in comparison_data[name].author_commit_counts.items() %}
+                                <div class="d-flex justify-content-between align-items-center bg-dark bg-opacity-50 border border-secondary border-opacity-25 rounded-3 p-2">
+                                    <a href="{{ url_for('student_profile', author_name=author) }}" class="text-info text-decoration-none small text-truncate" style="max-width: 120px;" title="{{ author }}">{{ author }}</a> 
+                                    <span class="badge bg-dark border border-secondary text-light">{{ count }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-semibold text-secondary">Kategori Utama</td>
+                        {% for name in repo_names %}
+                        <td class="p-3">
+                            <div class="d-flex flex-wrap gap-1 justify-content-center">
                             {% for category, count in comparison_data[name].commit_category_counts.items() %}
-                                <span class="badge bg-light text-dark fw-normal">{{ category }}: {{ count }}</span><br>
+                                <span class="badge bg-secondary bg-opacity-25 border border-secondary border-opacity-50 text-light fw-normal">{{ category }}: <span class="fw-bold">{{ count }}</span></span>
                             {% endfor %}
+                            </div>
                         </td>
                         {% endfor %}
                     </tr>

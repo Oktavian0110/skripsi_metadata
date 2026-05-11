@@ -3,119 +3,154 @@
 {% block title %}Profil Mahasiswa - {{ profile.author_name }}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">Profil Mahasiswa: <strong>{{ profile.author_name }}</strong></h1>
-
-    <!-- Ringkasan Statistik -->
-    <div class="row">
-        <div class="col-xl-6 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Total Pengumpulan Dokumen (PDF)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ profile.total_pdf_submissions }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-file-pdf fa-2x text-gray-300"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Header Profil -->
+<div class="card border-0 shadow-lg mb-5 overflow-hidden rounded-4" style="background: linear-gradient(135deg, rgba(30,41,59,1) 0%, rgba(15,23,42,1) 100%);">
+    <div class="position-absolute top-0 end-0 w-50 h-100 bg-primary opacity-10 blur-3xl pointer-events-none" style="border-radius: 50%;"></div>
+    <div class="card-body p-4 p-lg-5 position-relative z-1 d-flex flex-column flex-md-row align-items-md-center gap-4">
+        <div class="bg-dark bg-opacity-50 border border-secondary border-opacity-50 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 80px; height: 80px; box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);">
+            <i data-feather="user" class="text-light" style="width: 40px; height: 40px;"></i>
         </div>
-        <div class="col-xl-6 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Kontribusi Commit (Git)</div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ profile.total_git_commits }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-code-branch fa-2x text-gray-300"></i>
-                        </div>
+        <div>
+            <h5 class="text-secondary small fw-bold text-uppercase tracking-wide mb-1">Profil Mahasiswa</h5>
+            <h1 class="fw-bolder text-light mb-0 d-flex align-items-center">
+                {{ profile.author_name }}
+                <i data-feather="check-circle" class="text-primary ms-3" style="width: 24px; height: 24px;" title="Terverifikasi dalam sistem"></i>
+            </h1>
+        </div>
+        <div class="ms-md-auto mt-3 mt-md-0 d-flex gap-2">
+            <button onclick="window.history.back()" class="btn btn-outline-secondary rounded-pill px-4 hover-bg-dark transition-all">
+                <i data-feather="arrow-left" class="me-2" style="width: 16px;"></i> Kembali
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Ringkasan Statistik -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-4 opacity-10">
+                <i data-feather="file-text" style="width: 80px; height: 80px;"></i>
+            </div>
+            <div class="card-body p-4 position-relative z-1">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-25 text-primary p-2 rounded-3 me-3">
+                        <i data-feather="file" style="width: 20px; height: 20px;"></i>
                     </div>
+                    <h6 class="mb-0 text-light fw-semibold text-uppercase tracking-wide">Pengumpulan Dokumen (PDF)</h6>
                 </div>
+                <h2 class="fw-bolder text-primary mb-0 ms-2" style="font-size: 3rem;">{{ profile.total_pdf_submissions }}</h2>
             </div>
         </div>
     </div>
-
-    <!-- Daftar Repositori Git -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Kontribusi Repositori Git</h6>
+    
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect overflow-hidden">
+            <div class="position-absolute top-0 end-0 p-4 opacity-10">
+                <i data-feather="git-merge" style="width: 80px; height: 80px;"></i>
+            </div>
+            <div class="card-body p-4 position-relative z-1">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success bg-opacity-25 text-success p-2 rounded-3 me-3">
+                        <i data-feather="github" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <h6 class="mb-0 text-light fw-semibold text-uppercase tracking-wide">Kontribusi Commit (Git)</h6>
+                </div>
+                <h2 class="fw-bolder text-success mb-0 ms-2" style="font-size: 3rem;">{{ profile.total_git_commits }}</h2>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Nama Repositori</th>
-                            <th>Total Commit oleh Mahasiswa Ini</th>
-                            <th>Commit Terakhir</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for repo in profile.git_repositories %}
-                        <tr>
-                            <td>{{ repo.repo_name }}</td>
-                            <td>{{ repo.total_commits }}</td>
-                            <!-- PERBAIKAN ZONA WAKTU DITERAPKAN DI SINI -->
-                            <td>{{ (repo.last_commit | localtime).strftime('%Y-%m-%d %H:%M') if repo.last_commit else 'N/A' }}</td>
-                            <td>
-                                <a href="{{ url_for('repo_detail', repo_name=repo.repo_name) }}" class="btn btn-info btn-sm">Lihat Detail</a>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center">Tidak ada kontribusi di repositori Git yang tercatat.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Daftar Repositori Git -->
+    <div class="col-xl-6">
+        <div class="card border-0 shadow-lg glass-card h-100">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="git-branch" class="text-info me-2" style="width: 18px;"></i>
+                <h5 class="mb-0 text-light fw-bold">Kontribusi Repositori Git</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-dark-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Repositori</th>
+                                <th class="text-center">Commits</th>
+                                <th>Aktivitas Terakhir</th>
+                                <th class="pe-4 text-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for repo in profile.git_repositories %}
+                            <tr>
+                                <td class="ps-4 fw-medium">{{ repo.repo_name }}</td>
+                                <td class="text-center"><span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50">{{ repo.total_commits }}</span></td>
+                                <td class="text-secondary small">{{ (repo.last_commit | localtime).strftime('%Y-%m-%d %H:%M') if repo.last_commit else 'N/A' }}</td>
+                                <td class="pe-4 text-end">
+                                    <a href="{{ url_for('repo_detail', repo_name=repo.repo_name) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 transition-all">Detail</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-secondary">
+                                    <i data-feather="slash" class="mb-3 opacity-50" style="width: 32px; height: 32px;"></i>
+                                    <p class="mb-0">Tidak ada kontribusi Git yang tercatat.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Daftar Dokumen PDF -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Pengumpulan Dokumen PDF</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Nama File</th>
-                            <th>Judul Dokumen</th>
-                            <th>Jumlah Halaman</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for doc in profile.pdf_documents %}
-                        <tr>
-                            <td>{{ doc.file_name }}</td>
-                            <td>{{ doc.title or 'Tidak ada judul' }}</td>
-                            <td>{{ doc.num_pages }}</td>
-                            <td>
-                                <a href="{{ url_for('pdf_detail', doc_id=doc.id) }}" class="btn btn-info btn-sm">Lihat Detail</a>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="4" class="text-center">Tidak ada dokumen PDF yang tercatat.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="col-xl-6">
+        <div class="card border-0 shadow-lg glass-card h-100">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="file" class="text-primary me-2" style="width: 18px;"></i>
+                <h5 class="mb-0 text-light fw-bold">Pengumpulan Dokumen PDF</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-dark-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Nama File</th>
+                                <th class="text-center">Halaman</th>
+                                <th>Judul</th>
+                                <th class="pe-4 text-end">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in profile.pdf_documents %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="text-light fw-medium text-truncate" style="max-width: 200px;" title="{{ doc.file_name }}">{{ doc.file_name }}</div>
+                                </td>
+                                <td class="text-center"><span class="badge bg-dark border border-secondary">{{ doc.num_pages }}</span></td>
+                                <td class="text-secondary small">
+                                    <div class="text-truncate" style="max-width: 150px;" title="{{ doc.title or 'Tidak ada judul' }}">{{ doc.title or 'Tidak ada judul' }}</div>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <a href="{{ url_for('pdf_detail', doc_id=doc.id) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 transition-all">Detail</a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-secondary">
+                                    <i data-feather="slash" class="mb-3 opacity-50" style="width: 32px; height: 32px;"></i>
+                                    <p class="mb-0">Tidak ada dokumen PDF yang tercatat.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-
 </div>
 {% endblock %}

@@ -1,15 +1,14 @@
-<!-- templates/base.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Dashboard Analisis Metadata{% endblock %}</title>
+    <title>{% block title %}Deep Space Analytics{% endblock %}</title>
     
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -22,52 +21,80 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <i data-feather="box" class="me-2"></i>
-            <span>Analisis Data</span>
+    <div class="sidebar d-flex flex-column">
+        <div class="sidebar-brand d-flex align-items-center mb-5 mt-2 px-3">
+            <div class="brand-icon bg-primary bg-opacity-25 text-primary rounded-3 p-2 me-3 shadow-glow-primary">
+                <i data-feather="hexagon" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+                <h5 class="mb-0 fw-bolder text-light tracking-wide">ANALYTICS</h5>
+                <span class="text-primary small fw-semibold" style="letter-spacing: 2px;">DEEP SPACE</span>
+            </div>
         </div>
-        <!-- --- PERBAIKAN: Tambahkan link ke halaman Visualisasi --- -->
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link {% if request.path == url_for('dashboard') %}active{% endif %}" href="{{ url_for('dashboard') }}">
-                    <i data-feather="home"></i>
-                    <span>Ringkasan</span>
+
+        <div class="px-3 mb-2 text-secondary small fw-bold text-uppercase tracking-wide" style="font-size: 0.75rem;">Menu Utama</div>
+        <ul class="nav flex-column sidebar-nav flex-grow-1 px-2">
+            <li class="nav-item mb-1">
+                <a class="nav-link rounded-3 transition-all {% if request.path == url_for('dashboard') %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                    <i data-feather="home" class="me-3"></i>
+                    <span class="fw-medium">Dashboard</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {% if request.path == url_for('data_master') %}active{% endif %}" href="{{ url_for('data_master') }}">
-                    <i data-feather="database"></i>
-                    <span>Data Master</span>
+            <li class="nav-item mb-1">
+                <a class="nav-link rounded-3 transition-all {% if request.path == url_for('data_master') %}active{% endif %}" href="{{ url_for('data_master') }}">
+                    <i data-feather="database" class="me-3"></i>
+                    <span class="fw-medium">Data Master</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {% if request.path == url_for('visualisasi') %}active{% endif %}" href="{{ url_for('visualisasi') }}">
-                    <i data-feather="bar-chart-2"></i>
-                    <span>Visualisasi</span>
+            <li class="nav-item mb-1">
+                <a class="nav-link rounded-3 transition-all {% if request.path == url_for('visualisasi') %}active{% endif %}" href="{{ url_for('visualisasi') }}">
+                    <i data-feather="pie-chart" class="me-3"></i>
+                    <span class="fw-medium">Visualisasi Global</span>
+                </a>
+            </li>
+            <li class="nav-item mt-4 mb-1">
+                <div class="px-3 mb-2 text-secondary small fw-bold text-uppercase tracking-wide" style="font-size: 0.75rem;">Evaluasi</div>
+                <a class="nav-link rounded-3 transition-all {% if request.endpoint == 'ai_results' %}active{% endif %}" href="{{ url_for('ai_results') }}">
+                    <i data-feather="award" class="me-3 text-warning"></i>
+                    <span class="fw-medium">Hasil Auto-Grader</span>
                 </a>
             </li>
         </ul>
-        <div class="sidebar-footer">
-            Oktavian Vandi T.S - Skripsi 2025
+
+        <div class="sidebar-user mt-auto p-3 mx-2 mb-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 d-flex align-items-center">
+            <div class="user-avatar bg-secondary bg-opacity-25 rounded-circle p-2 me-3 d-flex justify-content-center align-items-center">
+                <i data-feather="user" class="text-light" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div class="user-info">
+                <h6 class="mb-0 text-light fw-semibold fs-6">Oktavian V.T.S</h6>
+                <span class="text-secondary small">Admin Skripsi 2025</span>
+            </div>
         </div>
     </div>
 
     <div class="main-content">
-        <!-- Pesan Flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <!-- Top Navbar/Header can go here if needed, currently empty -->
+        <div class="content-wrapper pt-4 pb-5 px-xl-5">
+            <!-- Pesan Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages-container mb-4">
+                    {% for category, message in messages %}
+                        {% set bs_category = category %}
+                        {% if category == 'error' %}{% set bs_category = 'danger' %}{% endif %}
+                        <div class="alert alert-{{ bs_category }} bg-{{ bs_category }} bg-opacity-10 border border-{{ bs_category }} border-opacity-50 text-{{ bs_category }} alert-dismissible fade show shadow-sm rounded-4 d-flex align-items-center" role="alert">
+                            <i data-feather="info" class="me-2" style="width: 18px;"></i>
+                            <div>{{ message }}</div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
 
-        <!-- Konten Halaman akan diisi di sini -->
-        {% block content %}{% endblock %}
+            <!-- Konten Halaman -->
+            {% block content %}{% endblock %}
+        </div>
     </div>
 
     <!-- Feather Icons -->

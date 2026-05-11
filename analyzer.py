@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 from collections import Counter
 import json
@@ -33,7 +34,7 @@ class Analyzer:
                         'complexity': round(avg_complexity)
                     })
             except Exception as e:
-                print(f"Gagal menganalisis kompleksitas untuk file {filepath}: {e}")
+                logging.error(f"Gagal menganalisis kompleksitas untuk file {filepath}: {e}")
         
         complexity_results.sort(key=lambda x: x['complexity'], reverse=True)
         return complexity_results

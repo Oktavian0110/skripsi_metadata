@@ -4,76 +4,96 @@
 {% block title %}Detail Repositori: {{ repo_name }}{% endblock %}
 
 {% block content %}
-<div class="page-header mb-4">
-    <div class="d-flex justify-content-between align-items-center">
+<div class="page-header mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-            <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3">
-                <i data-feather="arrow-left" class="me-1"></i> Kembali ke Daftar Repositori
+            <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3 rounded-pill px-3 transition-all hover-bg-dark">
+                <i data-feather="arrow-left" class="me-1" style="width: 14px;"></i> Kembali ke Daftar
             </a>
-            <h2>Analisis Detail: {{ repo_name }}</h2>
-            <p class="text-muted">Menampilkan ringkasan dan visualisasi data untuk repositori yang dipilih.</p>
+            <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+                <i data-feather="github" class="me-3 text-info" style="width: 28px; height: 28px;"></i>
+                {{ repo_name }}
+            </h2>
+            <p class="text-secondary mb-0">Analisis Detail Repositori Git.</p>
         </div>
         <div>
             <form action="{{ url_for('clear_cache', repo_name=repo_name) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menganalisis ulang repositori ini? Ini akan mengambil data terbaru dari API.');">
-                <button type="submit" class="btn btn-sm btn-warning">
-                    <i data-feather="refresh-cw" class="me-1"></i> Analisis Ulang (Hapus Cache)
+                <button type="submit" class="btn btn-outline-warning glow-btn-warning rounded-pill px-4 fw-semibold d-flex align-items-center">
+                    <i data-feather="refresh-cw" class="me-2" style="width: 16px;"></i> Analisis Ulang (Sinkronisasi API)
                 </button>
             </form>
         </div>
     </div>
 </div>
 
-<!-- (Bagian Ringkasan Statistik dan Grafik-grafik sebelumnya tetap sama) -->
 <!-- Ringkasan Statistik -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4 class="card-title">{{ stats.total_commits }}</h4>
-                <p class="card-text text-muted">Total Commit</p>
+<div class="row g-4 mb-5">
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+            <div class="card-body text-center p-4">
+                <div class="d-inline-flex bg-primary bg-opacity-25 text-primary p-3 rounded-circle mb-3">
+                    <i data-feather="git-commit" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h2 class="fw-bolder text-light mb-0">{{ stats.total_commits }}</h2>
+                <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Total Commit</p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4 class="card-title">{{ stats.unique_contributors }}</h4>
-                <p class="card-text text-muted">Total Kontributor</p>
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+            <div class="card-body text-center p-4">
+                <div class="d-inline-flex bg-info bg-opacity-25 text-info p-3 rounded-circle mb-3">
+                    <i data-feather="users" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h2 class="fw-bolder text-light mb-0">{{ stats.unique_contributors }}</h2>
+                <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Kontributor</p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4 class="card-title">{{ stats.get('total_issues', 0) }}</h4>
-                <p class="card-text text-muted">Total Issue</p>
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+            <div class="card-body text-center p-4">
+                <div class="d-inline-flex bg-warning bg-opacity-25 text-warning p-3 rounded-circle mb-3">
+                    <i data-feather="alert-circle" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h2 class="fw-bolder text-light mb-0">{{ stats.get('total_issues', 0) }}</h2>
+                <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Total Issue</p>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4 class="card-title">{{ stats.get('total_pull_requests', 0) }}</h4>
-                <p class="card-text text-muted">Total Pull Request</p>
+    <div class="col-6 col-md-3">
+        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+            <div class="card-body text-center p-4">
+                <div class="d-inline-flex bg-success bg-opacity-25 text-success p-3 rounded-circle mb-3">
+                    <i data-feather="git-pull-request" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h2 class="fw-bolder text-light mb-0">{{ stats.get('total_pull_requests', 0) }}</h2>
+                <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Pull Request</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Baris untuk Grafik -->
-<div class="row">
-    <div class="col-lg-6 mb-4">
-        <div class="card">
-            <div class="card-header">Commit per Kontributor</div>
-            <div class="card-body" style="position: relative; height:350px;">
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100 border-0 shadow-lg glass-card card-hover-effect">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="user-check" class="text-info me-2" style="width: 18px;"></i>
+                <h6 class="mb-0 text-light fw-bold">Commit per Kontributor</h6>
+            </div>
+            <div class="card-body p-4" style="position: relative; height:350px;">
                 <canvas id="authorChart"></canvas>
             </div>
         </div>
     </div>
-    <div class="col-lg-6 mb-4">
-        <div class="card">
-            <div class="card-header">Distribusi Kategori Commit</div>
-            <div class="card-body" style="position: relative; height:350px;">
+    <div class="col-lg-6">
+        <div class="card h-100 border-0 shadow-lg glass-card card-hover-effect">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="pie-chart" class="text-warning me-2" style="width: 18px;"></i>
+                <h6 class="mb-0 text-light fw-bold">Distribusi Kategori Commit</h6>
+            </div>
+            <div class="card-body p-4 d-flex justify-content-center" style="position: relative; height:350px;">
                 <canvas id="categoryChart"></canvas>
             </div>
         </div>
@@ -81,11 +101,14 @@
 </div>
 
 <!-- Baris untuk Grafik Tren -->
-<div class="row">
-    <div class="col-lg-12 mb-4">
-        <div class="card">
-            <div class="card-header">Perkembangan Jumlah Commit</div>
-            <div class="card-body" style="position: relative; height:300px;">
+<div class="row g-4 mb-5">
+    <div class="col-lg-12">
+        <div class="card border-0 shadow-lg glass-card card-hover-effect">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="trending-up" class="text-primary me-2" style="width: 18px;"></i>
+                <h6 class="mb-0 text-light fw-bold">Tren Perkembangan Commit</h6>
+            </div>
+            <div class="card-body p-4" style="position: relative; height:300px;">
                 <canvas id="commitsOverTimeChart"></canvas>
             </div>
         </div>
@@ -93,40 +116,46 @@
 </div>
 
 <!-- Analisis Kontribusi Tim -->
-<div class="card mt-4 mb-4">
-    <div class="card-header">
-        <h3>Analisis Kontribusi Tim</h3>
+<div class="card border-0 shadow-lg glass-card mb-5">
+    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <i data-feather="users" class="text-success me-2" style="width: 18px;"></i>
+        <h5 class="mb-0 text-light fw-bold">Analisis Kontribusi Tim</h5>
     </div>
-    <div class="card-body">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table table-hover table-dark-custom mb-0">
                 <thead>
                     <tr>
-                        <th>Kontributor</th>
-                        <th>Total Commits</th>
-                        <th>Baris Ditambah (+)</th>
-                        <th>Baris Dihapus (-)</th>
-                        <th>Jenis File yang Dikerjakan</th>
+                        <th class="ps-4">Kontributor</th>
+                        <th class="text-center">Total Commits</th>
+                        <th class="text-center">Baris Ditambah (+)</th>
+                        <th class="text-center">Baris Dihapus (-)</th>
+                        <th class="pe-4">Jenis File Utama</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for author, author_stats in team_contribution.items() %}
                     <tr>
-                        <td><a href="{{ url_for('student_profile', author_name=author) }}">{{ author }}</a></td>
-                        <td>{{ author_stats.total_commits }}</td>
-                        <td class="text-success">+{{ author_stats.lines_added }}</td>
-                        <td class="text-danger">-{{ author_stats.lines_deleted }}</td>
-                        <td>
+                        <td class="ps-4"><a href="{{ url_for('student_profile', author_name=author) }}" class="text-info text-decoration-none fw-semibold d-flex align-items-center"><i data-feather="user" class="me-2" style="width: 14px;"></i>{{ author }}</a></td>
+                        <td class="text-center"><span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50">{{ author_stats.total_commits }}</span></td>
+                        <td class="text-center text-success fw-semibold">+{{ author_stats.lines_added }}</td>
+                        <td class="text-center text-danger fw-semibold">-{{ author_stats.lines_deleted }}</td>
+                        <td class="pe-4">
+                            <div class="d-flex flex-wrap gap-1">
                             {% for ext, count in author_stats.file_types.items() %}
-                                <span class="badge bg-secondary">{{ ext }} ({{ count }})</span>
+                                <span class="badge bg-dark border border-secondary text-secondary">{{ ext }} ({{ count }})</span>
                             {% else %}
-                                <span class="text-muted">-</span>
+                                <span class="text-muted small fst-italic">-</span>
                             {% endfor %}
+                            </div>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center">Data kontribusi tidak tersedia.</td>
+                        <td colspan="5" class="text-center py-5 text-secondary">
+                            <i data-feather="slash" class="mb-2 opacity-50" style="width: 32px; height: 32px;"></i>
+                            <p class="mb-0">Data kontribusi tim tidak tersedia.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -135,49 +164,58 @@
     </div>
 </div>
 
-<!-- =================================================================== -->
-<!-- === BAGIAN BARU: ANALISIS KOMPLEKSITAS KODE === -->
-<!-- =================================================================== -->
-<div class="card mt-4 mb-4">
-    <div class="card-header">
-        <h3>Analisis Kompleksitas Kode (Top 10 File Paling Kompleks)</h3>
+<!-- Analisis Kompleksitas Kode -->
+<div class="card border-0 shadow-lg glass-card mb-5">
+    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <i data-feather="activity" class="text-danger me-2" style="width: 18px;"></i>
+        <h5 class="mb-0 text-light fw-bold">Analisis Kompleksitas Kode <span class="fw-normal text-secondary fs-6">(Top 10 File Python)</span></h5>
     </div>
-    <div class="card-body">
-        <p class="text-muted">
-            Kompleksitas Siklomatis mengukur jumlah jalur independen dalam kode. Skor yang lebih tinggi (biasanya > 10) menunjukkan kode yang lebih rumit, lebih sulit diuji, dan berpotensi memiliki lebih banyak bug.
-        </p>
-        <div style="position: relative; height:400px;">
+    <div class="card-body p-4 p-xl-5">
+        <div class="alert alert-secondary bg-dark bg-opacity-50 border-secondary border-opacity-25 text-secondary d-flex align-items-start rounded-4 mb-4" role="alert">
+            <i data-feather="info" class="me-3 mt-1 flex-shrink-0" style="width: 20px; height: 20px;"></i>
+            <div>
+                <strong>Kompleksitas Siklomatis</strong> mengukur jumlah jalur independen dalam kode. Skor yang lebih tinggi (biasanya > 10) menunjukkan kode yang lebih rumit, lebih sulit diuji, dan berpotensi memiliki lebih banyak bug.
+            </div>
+        </div>
+        <div style="position: relative; height:400px; width: 100%;">
             <canvas id="complexityChart"></canvas>
         </div>
     </div>
 </div>
 
-
 <!-- Tabel Daftar Commit -->
-<div class="card">
-    <div class="card-header">Daftar Commit</div>
-    <div class="card-body">
+<div class="card border-0 shadow-lg glass-card mb-5">
+    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <i data-feather="list" class="text-light me-2" style="width: 18px;"></i>
+        <h5 class="mb-0 text-light fw-bold">Riwayat Commit Terakhir</h5>
+    </div>
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover table-dark-custom mb-0">
                 <thead>
                     <tr>
-                        <th>Tanggal</th>
-                        <th>Author</th>
-                        <th>Pesan</th>
-                        <th>Kategori</th>
+                        <th class="ps-4" style="width: 180px;">Waktu</th>
+                        <th style="width: 180px;">Author</th>
+                        <th>Pesan Commit</th>
+                        <th class="pe-4 text-center" style="width: 120px;">Kategori</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for commit in commits %}
                     <tr>
-                        <td><small>{{ (commit.commit_date | localtime).strftime('%Y-%m-%d %H:%M') if commit.commit_date else 'N/A' }}</small></td>
-                        <td><a href="{{ url_for('student_profile', author_name=commit.commit_author) }}">{{ commit.commit_author }}</a></td>
-                        <td>{{ commit.commit_message | truncate(100) }}</td>
-                        <td><span class="badge bg-light text-dark fw-normal">{{ commit.category }}</span></td>
+                        <td class="ps-4 text-secondary small fw-medium">{{ (commit.commit_date | localtime).strftime('%Y-%m-%d %H:%M') if commit.commit_date else 'N/A' }}</td>
+                        <td><a href="{{ url_for('student_profile', author_name=commit.commit_author) }}" class="text-info text-decoration-none fw-medium">{{ commit.commit_author }}</a></td>
+                        <td class="text-light">{{ commit.commit_message | truncate(120) }}</td>
+                        <td class="pe-4 text-center">
+                            <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 px-2 py-1 fw-normal">{{ commit.category }}</span>
+                        </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" class="text-center text-muted">Tidak ada commit untuk ditampilkan.</td>
+                        <td colspan="4" class="text-center py-5 text-secondary">
+                            <i data-feather="inbox" class="mb-2 opacity-50" style="width: 32px; height: 32px;"></i>
+                            <p class="mb-0">Tidak ada riwayat commit untuk ditampilkan.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -189,25 +227,49 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- (Bagian scripts sebelumnya tetap sama) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
 const authorData = {{ stats.author_commit_counts | tojson | safe }};
 const categoryData = {{ stats.commit_category_counts | tojson | safe }};
 const timeData = {{ stats.commits_over_time | tojson | safe }};
 
-// (Kode untuk 3 grafik pertama tetap sama)
+// Set Global Chart.js defaults untuk Dark Mode
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
+Chart.defaults.scale.grid.drawBorder = false;
+
+// Tooltip Global Config
+const tooltipOptions = {
+    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+    titleColor: '#f8fafc',
+    bodyColor: '#cbd5e1',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    padding: 12,
+    cornerRadius: 8,
+    displayColors: true,
+    boxPadding: 4
+};
+
+// 1. Author Chart
 const authorCanvas = document.getElementById('authorChart');
-if (authorCanvas && authorData) {
-    new Chart(authorCanvas.getContext('2d'), {
+if (authorCanvas && authorData && Object.keys(authorData).length > 0) {
+    const ctx = authorCanvas.getContext('2d');
+    let gradient = ctx.createLinearGradient(0, 0, 400, 0);
+    gradient.addColorStop(0, 'rgba(14, 165, 233, 0.8)'); // cyan
+    gradient.addColorStop(1, 'rgba(56, 189, 248, 0.4)');
+
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels: Object.keys(authorData),
             datasets: [{
                 label: 'Jumlah Commit',
                 data: Object.values(authorData),
-                backgroundColor: 'rgba(79, 70, 229, 0.8)'
+                backgroundColor: gradient,
+                borderRadius: 4,
+                borderWidth: 0,
+                hoverBackgroundColor: 'rgba(14, 165, 233, 1)'
             }]
         },
         options: {
@@ -216,76 +278,90 @@ if (authorCanvas && authorData) {
             maintainAspectRatio: false,
             plugins: { 
                 legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            if (context.parsed.x !== null) {
-                                label += context.parsed.x + ' commit';
-                            }
-                            return label;
-                        }
-                    }
-                }
+                tooltip: tooltipOptions
+            },
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 } }
             }
         }
     });
+} else if (authorCanvas) {
+    const ctx = authorCanvas.getContext('2d');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Inter';
+    ctx.fillText('Tidak ada data kontributor.', authorCanvas.width / 2, authorCanvas.height / 2);
 }
 
+// 2. Category Chart
 const categoryCanvas = document.getElementById('categoryChart');
-if (categoryCanvas && categoryData) {
+if (categoryCanvas && categoryData && Object.keys(categoryData).length > 0) {
     new Chart(categoryCanvas.getContext('2d'), {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels: Object.keys(categoryData),
             datasets: [{
                 data: Object.values(categoryData),
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
-                    'rgba(199, 199, 199, 0.8)'
+                    'rgba(99, 102, 241, 0.8)',
+                    'rgba(14, 165, 233, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(236, 72, 153, 0.8)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(100, 116, 139, 0.8)'
                 ],
-                borderColor: '#fff',
-                borderWidth: 2
+                borderColor: 'rgba(30, 41, 59, 1)',
+                borderWidth: 2,
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            cutout: '70%',
             plugins: { 
-                legend: { position: 'top' },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const label = context.label || '';
-                            const value = context.parsed;
-                            const sum = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = sum > 0 ? (value / sum * 100).toFixed(1) + '%' : '0%';
-                            return `${label}: ${value} commit (${percentage})`;
-                        }
-                    }
-                }
+                legend: { 
+                    position: 'right',
+                    labels: { color: '#e2e8f0', padding: 15, usePointStyle: true, pointStyle: 'circle' }
+                },
+                tooltip: tooltipOptions
             }
         }
     });
+} else if (categoryCanvas) {
+    const ctx = categoryCanvas.getContext('2d');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Inter';
+    ctx.fillText('Tidak ada data kategori.', categoryCanvas.width / 2, categoryCanvas.height / 2);
 }
 
+// 3. Timeline Chart
 const timeCanvas = document.getElementById('commitsOverTimeChart');
-if (timeCanvas && timeData) {
-    new Chart(timeCanvas.getContext('2d'), {
+if (timeCanvas && timeData && Object.keys(timeData).length > 0) {
+    const ctx = timeCanvas.getContext('2d');
+    let gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); // Indigo
+    gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+    new Chart(ctx, {
         type: 'line',
         data: {
             labels: Object.keys(timeData),
             datasets: [{
                 label: 'Jumlah Commit per Hari',
                 data: Object.values(timeData),
-                backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
+                backgroundColor: gradient,
+                borderColor: '#6366f1',
+                borderWidth: 3,
+                pointBackgroundColor: '#0f172a',
+                pointBorderColor: '#6366f1',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
                 fill: true,
                 tension: 0.4
             }]
@@ -296,103 +372,84 @@ if (timeCanvas && timeData) {
             scales: {
                 x: { 
                     type: 'time', 
-                    time: { 
-                        unit: 'day',
-                        tooltipFormat: 'dd MMM yyyy'
-                    },
-                    title: {
-                        display: true,
-                        text: 'Tanggal'
-                    }
+                    time: { unit: 'day', tooltipFormat: 'dd MMM yyyy' },
                 },
                 y: { 
                     beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    },
-                    title: {
-                        display: true,
-                        text: 'Jumlah Commit'
-                    }
+                    ticks: { precision: 0 }
                 }
             },
             plugins: { 
                 legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Jumlah Commit: ${context.parsed.y}`;
-                        }
-                    }
-                }
-            }
+                tooltip: tooltipOptions
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
         }
     });
+} else if (timeCanvas) {
+    const ctx = timeCanvas.getContext('2d');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Inter';
+    ctx.fillText('Tidak ada data tren waktu.', timeCanvas.width / 2, timeCanvas.height / 2);
 }
 
-// --- JAVASCRIPT BARU UNTUK GRAFIK KOMPLEKSITAS ---
+// 4. Complexity Chart
 document.addEventListener('DOMContentLoaded', function() {
     const complexityCanvas = document.getElementById('complexityChart');
     if (complexityCanvas) {
-        // Mengambil data dari API endpoint yang kita buat
         fetch(`/api/repo/{{ repo_name }}/complexity`)
             .then(response => response.json())
             .then(data => {
+                const ctx = complexityCanvas.getContext('2d');
                 if (data && data.length > 0) {
                     const labels = data.map(item => item.filepath);
                     const complexityValues = data.map(item => item.complexity);
+                    
+                    let gradient = ctx.createLinearGradient(0, 0, 400, 0);
+                    gradient.addColorStop(0, 'rgba(239, 68, 68, 0.8)'); // Red
+                    gradient.addColorStop(1, 'rgba(248, 113, 113, 0.4)');
 
-                    new Chart(complexityCanvas.getContext('2d'), {
+                    new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: labels,
                             datasets: [{
-                                label: 'Rata-rata Kompleksitas',
+                                label: 'Skor Kompleksitas',
                                 data: complexityValues,
-                                backgroundColor: 'rgba(217, 54, 43, 0.8)',
-                                borderColor: 'rgba(217, 54, 43, 1)',
-                                borderWidth: 1
+                                backgroundColor: gradient,
+                                borderRadius: 4,
+                                borderWidth: 0,
+                                hoverBackgroundColor: 'rgba(239, 68, 68, 1)'
                             }]
                         },
                         options: {
-                            indexAxis: 'y', // Membuat bar menjadi horizontal
+                            indexAxis: 'y',
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: {
-                                x: {
-                                    beginAtZero: true,
-                                    title: {
-                                        display: true,
-                                        text: 'Skor Kompleksitas (lebih rendah lebih baik)'
-                                    }
-                                }
+                                x: { beginAtZero: true }
                             },
                             plugins: {
                                 legend: { display: false },
-                                tooltip: {
-                                    callbacks: {
-                                        label: function(context) {
-                                            return `Kompleksitas: ${context.parsed.x}`;
-                                        }
-                                    }
-                                }
+                                tooltip: tooltipOptions
                             }
                         }
                     });
                 } else {
-                    // Tampilkan pesan jika tidak ada data
-                    const ctx = complexityCanvas.getContext('2d');
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.font = '16px sans-serif';
-                    ctx.fillText('Tidak ada data kompleksitas untuk file Python di repositori ini.', complexityCanvas.width / 2, complexityCanvas.height / 2);
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = '14px Inter';
+                    ctx.fillText('Tidak ada data kompleksitas file Python di repositori ini.', complexityCanvas.width / 2, complexityCanvas.height / 2);
                 }
             })
-            .catch(error => {
-                console.error('Error fetching complexity data:', error);
-            });
+            .catch(error => console.error('Error fetching complexity data:', error));
     }
 });
-
 </script>
 {% endblock %}

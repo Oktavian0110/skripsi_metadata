@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 from github import Github, Auth, RateLimitExceededException, UnknownObjectException
 import re
@@ -51,11 +52,11 @@ class GitExtractor:
                         decoded_content = base64.b64decode(content_blob.content).decode('utf-8')
                         files_content[element.path] = decoded_content
                     except Exception as e:
-                        print(f"Gagal mengambil konten file {element.path}: {e}")
+                        logging.error(f"Gagal mengambil konten file {element.path}: {e}")
         except UnknownObjectException:
-            print(f"Branch default '{repo.default_branch}' tidak ditemukan atau repositori kosong.")
+            logging.info(f"Branch default '{repo.default_branch}' tidak ditemukan atau repositori kosong.")
         except Exception as e:
-            print(f"Error saat mengambil daftar file dari repositori: {e}")
+            logging.error(f"Error saat mengambil daftar file dari repositori: {e}")
         return files_content
 
     # (Sisa dari file ini tetap sama seperti sebelumnya)
@@ -97,7 +98,7 @@ class GitExtractor:
                 }
                 commits_data.append(commit_info)
         except Exception as e:
-            print(f"Error saat mengekstrak commit dari '{repo.full_name}': {e}")
+            logging.error(f"Error saat mengekstrak commit dari '{repo.full_name}': {e}")
         return commits_data
 
     def _extract_issues(self, repo):
@@ -117,7 +118,7 @@ class GitExtractor:
                 }
                 issues_data.append(issue_info)
         except Exception as e:
-            print(f"Error saat mengekstrak issue dari '{repo.full_name}': {e}")
+            logging.error(f"Error saat mengekstrak issue dari '{repo.full_name}': {e}")
         return issues_data
 
     def _extract_pull_requests(self, repo):
@@ -140,7 +141,7 @@ class GitExtractor:
                 }
                 prs_data.append(pr_info)
         except Exception as e:
-            print(f"Error saat mengekstrak pull request dari '{repo.full_name}': {e}")
+            logging.error(f"Error saat mengekstrak pull request dari '{repo.full_name}': {e}")
         return prs_data
 
     def extract_git_metadata(self, repo_name):
@@ -151,22 +152,22 @@ class GitExtractor:
             
             cache_time = datetime.fromisoformat(cached_data['timestamp'])
             if datetime.now(timezone.utc) - cache_time < timedelta(seconds=self.CACHE_DURATION_SECONDS):
-                print(f"Menggunakan data dari cache untuk repositori: {repo_name}")
+                logging.info(f"Menggunakan data dari cache untuk repositori: {repo_name}")
                 commits_df = pd.DataFrame(cached_data.get('commits', []))
                 issues_df = pd.DataFrame(cached_data.get('issues', []))
                 prs_df = pd.DataFrame(cached_data.get('pull_requests', []))
                 return commits_df, issues_df, prs_df
 
         try:
-            print(f"Mencoba mengakses repositori via API: {repo_name}...")
+            logging.info(f"Mencoba mengakses repositori via API: {repo_name}...")
             repo = self.github.get_repo(repo_name)
-            print("Repositori berhasil diakses.")
+            logging.info("Repositori berhasil diakses.")
             
             commits_list = self._extract_commits(repo)
             issues_list = self._extract_issues(repo)
             prs_list = self._extract_pull_requests(repo)
             
-            print(f"Ekstraksi selesai: {len(commits_list)} commit, {len(issues_list)} issue, {len(prs_list)} PR.")
+            logging.info(f"Ekstraksi selesai: {len(commits_list)} commit, {len(issues_list)} issue, {len(prs_list)} PR.")
 
             new_cache_data = {
                 'timestamp': datetime.now(timezone.utc).isoformat(),
@@ -180,10 +181,10 @@ class GitExtractor:
             return pd.DataFrame(commits_list), pd.DataFrame(issues_list), pd.DataFrame(prs_list)
         
         except RateLimitExceededException:
-            print(f"WARNING: Batas API GitHub tercapai. Mencoba lagi dalam 15 menit.")
+            logging.warning(f"WARNING: Batas API GitHub tercapai. Mencoba lagi dalam 15 menit.")
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 
         except Exception as e:
-            print(f"GAGAL mengakses repositori '{repo_name}'. Penyebab: {e}")
+            logging.info(f"GAGAL mengakses repositori '{repo_name}'. Penyebab: {e}")
             return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
 

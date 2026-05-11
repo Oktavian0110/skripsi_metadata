@@ -4,44 +4,57 @@
 {% block title %}Visualisasi Data Global{% endblock %}
 
 {% block content %}
-<div class="page-header mb-5">
-    <h2>Visualisasi Data Global</h2>
-    <p class="text-muted">Menampilkan ringkasan visual dari semua data yang telah dianalisis.</p>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 page-header gap-3">
+    <div>
+        <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+            <i data-feather="pie-chart" class="me-3 text-primary" style="width: 28px; height: 28px;"></i>
+            Visualisasi Data Global
+        </h2>
+        <p class="text-secondary mb-0">Menampilkan ringkasan visual dari semua data yang telah dianalisis.</p>
+    </div>
 </div>
 
-<div class="row">
+<div class="row g-4 mb-4">
     <!-- Grafik Kontributor Git -->
-    <div class="col-lg-6 mb-4">
-        <div class="card">
-            <div class="card-header">Top 10 Kontributor Git Teraktif</div>
-            <div class="card-body" style="position: relative; height: 350px;">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-lg glass-card h-100 card-hover-effect">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="users" class="text-info me-2" style="width: 18px;"></i>
+                <h6 class="mb-0 text-light fw-bold">Top 10 Kontributor Git Teraktif</h6>
+            </div>
+            <div class="card-body p-4" style="position: relative; height: 350px;">
                 <canvas id="gitContributorsChart"></canvas>
             </div>
         </div>
     </div>
 
     <!-- Grafik Kategori Commit -->
-    <div class="col-lg-6 mb-4">
-        <div class="card">
-            <div class="card-header">Distribusi Kategori Commit (Global)</div>
-            <div class="card-body" style="position: relative; height: 350px;">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-lg glass-card h-100 card-hover-effect">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="tag" class="text-warning me-2" style="width: 18px;"></i>
+                <h6 class="mb-0 text-light fw-bold">Distribusi Kategori Commit</h6>
+            </div>
+            <div class="card-body p-4 d-flex justify-content-center" style="position: relative; height: 350px;">
                 <canvas id="gitCategoriesChart"></canvas>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
+<div class="row g-4 mb-5">
     <!-- Grafik Author PDF -->
-    <div class="col-lg-6 mb-4">
-        <div class="card">
-            <div class="card-header">Top 10 Author PDF Terproduktif</div>
-            <div class="card-body" style="position: relative; height: 350px;">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-lg glass-card h-100 card-hover-effect">
+            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+                <i data-feather="edit-3" class="text-primary me-2" style="width: 18px;"></i>
+                <h6 class="mb-0 text-light fw-bold">Top 10 Author PDF Terproduktif</h6>
+            </div>
+            <div class="card-body p-4" style="position: relative; height: 350px;">
                 <canvas id="pdfAuthorsChart"></canvas>
             </div>
         </div>
     </div>
-    <!-- Anda bisa menambahkan grafik lain di sini -->
 </div>
 {% endblock %}
 
@@ -52,31 +65,71 @@ const gitContributorsData = {{ git_contributors_data | tojson | safe }};
 const gitCategoriesData = {{ git_categories_data | tojson | safe }};
 const pdfAuthorsData = {{ pdf_authors_data | tojson | safe }};
 
+// Set Global Chart.js defaults untuk Dark Mode
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
+Chart.defaults.scale.grid.drawBorder = false;
+
+// Tooltip Global Config
+const tooltipOptions = {
+    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    titleColor: '#f8fafc',
+    bodyColor: '#cbd5e1',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderWidth: 1,
+    padding: 12,
+    cornerRadius: 8,
+    displayColors: true,
+    boxPadding: 4
+};
+
 // Grafik 1: Kontributor Git (Bar Chart)
 const gitContributorsCanvas = document.getElementById('gitContributorsChart');
-if (gitContributorsCanvas && gitContributorsData) {
-    new Chart(gitContributorsCanvas.getContext('2d'), {
+if (gitContributorsCanvas && gitContributorsData && Object.keys(gitContributorsData).length > 0) {
+    const ctx = gitContributorsCanvas.getContext('2d');
+    let gradient = ctx.createLinearGradient(0, 0, 400, 0);
+    gradient.addColorStop(0, 'rgba(14, 165, 233, 0.8)');
+    gradient.addColorStop(1, 'rgba(56, 189, 248, 0.4)');
+
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels: Object.keys(gitContributorsData),
             datasets: [{
                 label: 'Total Commit',
                 data: Object.values(gitContributorsData),
-                backgroundColor: 'rgba(79, 70, 229, 0.8)'
+                backgroundColor: gradient,
+                borderRadius: 4,
+                borderWidth: 0,
+                hoverBackgroundColor: 'rgba(14, 165, 233, 1)'
             }]
         },
         options: {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            plugins: { 
+                legend: { display: false },
+                tooltip: tooltipOptions
+            },
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 } }
+            }
         }
     });
+} else if (gitContributorsCanvas) {
+    const ctx = gitContributorsCanvas.getContext('2d');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Inter';
+    ctx.fillText('Tidak ada data kontributor Git.', gitContributorsCanvas.width / 2, gitContributorsCanvas.height / 2);
 }
 
 // Grafik 2: Kategori Commit (Doughnut Chart)
 const gitCategoriesCanvas = document.getElementById('gitCategoriesChart');
-if (gitCategoriesCanvas && gitCategoriesData) {
+if (gitCategoriesCanvas && gitCategoriesData && Object.keys(gitCategoriesData).length > 0) {
     new Chart(gitCategoriesCanvas.getContext('2d'), {
         type: 'doughnut',
         data: {
@@ -84,43 +137,82 @@ if (gitCategoriesCanvas && gitCategoriesData) {
             datasets: [{
                 data: Object.values(gitCategoriesData),
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
-                    'rgba(199, 199, 199, 0.8)'
+                    'rgba(99, 102, 241, 0.8)',  // Indigo
+                    'rgba(14, 165, 233, 0.8)',  // Sky
+                    'rgba(245, 158, 11, 0.8)',  // Amber
+                    'rgba(16, 185, 129, 0.8)',  // Emerald
+                    'rgba(236, 72, 153, 0.8)',  // Pink
+                    'rgba(139, 92, 246, 0.8)',  // Violet
+                    'rgba(100, 116, 139, 0.8)'  // Slate
                 ],
-                borderColor: '#fff',
-                borderWidth: 2
+                borderColor: 'rgba(30, 41, 59, 1)',
+                borderWidth: 2,
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'top' } }
+            cutout: '70%',
+            plugins: { 
+                legend: { 
+                    position: 'right',
+                    labels: { color: '#e2e8f0', padding: 20, usePointStyle: true, pointStyle: 'circle' }
+                },
+                tooltip: tooltipOptions
+            }
         }
     });
+} else if (gitCategoriesCanvas) {
+    const ctx = gitCategoriesCanvas.getContext('2d');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Inter';
+    ctx.fillText('Tidak ada data kategori Git.', gitCategoriesCanvas.width / 2, gitCategoriesCanvas.height / 2);
 }
 
 // Grafik 3: Author PDF (Bar Chart)
 const pdfAuthorsCanvas = document.getElementById('pdfAuthorsChart');
-if (pdfAuthorsCanvas && pdfAuthorsData) {
-    new Chart(pdfAuthorsCanvas.getContext('2d'), {
+if (pdfAuthorsCanvas && pdfAuthorsData && Object.keys(pdfAuthorsData).length > 0) {
+    const ctx = pdfAuthorsCanvas.getContext('2d');
+    let gradient = ctx.createLinearGradient(0, 0, 400, 0);
+    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.8)');
+    gradient.addColorStop(1, 'rgba(129, 140, 248, 0.4)');
+
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels: Object.keys(pdfAuthorsData),
             datasets: [{
                 label: 'Total Dokumen',
                 data: Object.values(pdfAuthorsData),
-                backgroundColor: 'rgba(255, 159, 64, 0.8)'
+                backgroundColor: gradient,
+                borderRadius: 4,
+                borderWidth: 0,
+                hoverBackgroundColor: 'rgba(99, 102, 241, 1)'
             }]
         },
         options: {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
+            plugins: { 
+                legend: { display: false },
+                tooltip: tooltipOptions
+            },
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 } }
+            }
         }
     });
+} else if (pdfAuthorsCanvas) {
+    const ctx = pdfAuthorsCanvas.getContext('2d');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px Inter';
+    ctx.fillText('Tidak ada data author PDF.', pdfAuthorsCanvas.width / 2, pdfAuthorsCanvas.height / 2);
 }
 </script>
 {% endblock %}
