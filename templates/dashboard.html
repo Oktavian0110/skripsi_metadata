@@ -7,13 +7,13 @@
     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
-    <p id="loading-text" class="mt-4 fs-5 fw-semibold text-light text-center">Sedang Memproses Data...<br><small class="text-secondary fw-normal">Ini mungkin memakan waktu beberapa saat.</small></p>
+    <p id="loading-text" class="mt-4 fs-5 fw-semibold text-dark text-center">Sedang Memproses Data...<br><small class="text-secondary fw-normal">Ini mungkin memakan waktu beberapa saat.</small></p>
 </div>
 
 <!-- HERO HEADER -->
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 page-header gap-3">
     <div>
-        <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+        <h2 class="fw-bold mb-1 text-dark d-flex align-items-center">
             <i data-feather="activity" class="me-3 text-primary" style="width: 28px; height: 28px;"></i>
             Analytics Overview
         </h2>
@@ -28,29 +28,29 @@
 <div class="row g-4 mb-5">
     {% if pdf_stats %}
     <div class="col-lg-6">
-        <div class="card h-100 border-0 shadow-lg glass-card card-hover-effect">
+        <div class="card h-100 border-0 shadow-lg  card-hover-effect">
             <div class="card-body p-4 p-xl-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title mb-0 text-light fw-bold">Metadata PDF Terbaru</h5>
-                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 rounded-pill px-3 py-2 d-flex align-items-center">
+                    <h5 class="card-title mb-0 text-dark fw-bold">Metadata PDF Terbaru</h5>
+                    <span class="badge bg-primary-subtle text-primary border border-primary border-opacity-50 rounded-pill px-3 py-2 d-flex align-items-center">
                         <i data-feather="file-text" class="me-2" style="width: 14px; height: 14px;"></i> Document
                     </span>
                 </div>
                 
                 <div class="mb-4">
                     <p class="mb-1 text-secondary small text-uppercase fw-semibold tracking-wide">Nama File</p>
-                    <p class="fs-5 fw-semibold text-light text-truncate" title="{{ pdf_stats.analyzed_filename }}">{{ pdf_stats.analyzed_filename }}</p>
+                    <p class="fs-5 fw-semibold text-dark text-truncate" title="{{ pdf_stats.analyzed_filename }}">{{ pdf_stats.analyzed_filename }}</p>
                 </div>
                 
                 <div class="row g-3 mb-4">
                     <div class="col-6">
-                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 h-100 text-center d-flex flex-column justify-content-center">
+                        <div class="p-3 rounded-4 bg-white  border border h-100 text-center d-flex flex-column justify-content-center">
                             <p class="text-secondary small mb-1 text-uppercase fw-semibold">Author</p>
-                            <p class="fs-5 fw-bold text-light mb-0 text-truncate" title="{{ pdf_stats.author_counts.keys()|first }}">{{ pdf_stats.author_counts.keys()|first }}</p>
+                            <p class="fs-5 fw-bold text-dark mb-0 text-truncate" title="{{ pdf_stats.author_counts.keys()|first }}">{{ pdf_stats.author_counts.keys()|first }}</p>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 h-100 text-center d-flex flex-column justify-content-center">
+                        <div class="p-3 rounded-4 bg-white  border border h-100 text-center d-flex flex-column justify-content-center">
                             <p class="text-secondary small mb-1 text-uppercase fw-semibold">Halaman</p>
                             <p class="fs-2 fw-bolder text-primary mb-0">{{ pdf_stats.avg_pages }}</p>
                         </div>
@@ -62,7 +62,7 @@
                     <div class="d-flex flex-wrap gap-2">
                     {% if pdf_stats.keywords %}
                         {% for keyword in pdf_stats.keywords %}
-                            <span class="badge bg-dark text-info border border-info border-opacity-25 px-2 py-1 fw-normal">{{ keyword }}</span>
+                            <span class="badge bg-white text-info border border-info border-opacity-25 px-2 py-1 fw-normal">{{ keyword }}</span>
                         {% endfor %}
                     {% else %}
                         <span class="text-muted fst-italic small">Tidak ada kata kunci yang dapat diekstrak.</span>
@@ -75,10 +75,10 @@
     {% else %}
     <!-- EMPTY STATE PDF -->
     <div class="col-lg-6">
-        <div class="card h-100 border-0 glass-card d-flex align-items-center justify-content-center py-5">
-            <div class="text-center text-secondary opacity-75">
+        <div class="card h-100 border-0  d-flex align-items-center justify-content-center py-5">
+            <div class="text-center text-secondary ">
                 <i data-feather="file" class="mb-3" style="width: 48px; height: 48px;"></i>
-                <h5 class="text-light">Belum Ada Data PDF</h5>
+                <h5 class="text-dark">Belum Ada Data PDF</h5>
                 <p class="small mb-0">Gunakan tab di bawah untuk mulai menganalisis dokumen.</p>
             </div>
         </div>
@@ -87,31 +87,31 @@
 
     {% if git_stats %}
     <div class="col-lg-6">
-        <div class="card h-100 border-0 shadow-lg glass-card card-hover-effect">
+        <div class="card h-100 border-0 shadow-lg  card-hover-effect">
             <div class="card-body p-4 p-xl-5 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="card-title mb-0 text-light fw-bold">Aktivitas Git Terbaru</h5>
-                    <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50 rounded-pill px-3 py-2 d-flex align-items-center">
+                    <h5 class="card-title mb-0 text-dark fw-bold">Aktivitas Git Terbaru</h5>
+                    <span class="badge bg-info-subtle text-info border border-info border-opacity-50 rounded-pill px-3 py-2 d-flex align-items-center">
                         <i data-feather="github" class="me-2" style="width: 14px; height: 14px;"></i> Repository
                     </span>
                 </div>
                 
                 <div class="row g-3 text-center mb-4">
                     <div class="col-4">
-                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                        <div class="p-3 rounded-4 bg-white  border border">
                             <h2 class="fw-bolder text-primary mb-0">{{ git_stats.total_commits }}</h2>
                             <p class="text-secondary small mb-0 text-uppercase fw-semibold mt-1">Commits</p>
                         </div>
                     </div>
                     <div class="col-4">
-                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
-                            <h2 class="fw-bolder text-light mb-0">{{ git_stats.get('total_issues', 0) }}</h2>
+                        <div class="p-3 rounded-4 bg-white  border border">
+                            <h2 class="fw-bolder text-dark mb-0">{{ git_stats.get('total_issues', 0) }}</h2>
                             <p class="text-secondary small mb-0 text-uppercase fw-semibold mt-1">Issues</p>
                         </div>
                     </div>
                     <div class="col-4">
-                        <div class="p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
-                            <h2 class="fw-bolder text-light mb-0">{{ git_stats.get('total_pull_requests', 0) }}</h2>
+                        <div class="p-3 rounded-4 bg-white  border border">
+                            <h2 class="fw-bolder text-dark mb-0">{{ git_stats.get('total_pull_requests', 0) }}</h2>
                             <p class="text-secondary small mb-0 text-uppercase fw-semibold mt-1">PRs</p>
                         </div>
                     </div>
@@ -126,10 +126,10 @@
     {% else %}
      <!-- EMPTY STATE GIT -->
     <div class="col-lg-6">
-        <div class="card h-100 border-0 glass-card d-flex align-items-center justify-content-center py-5">
-            <div class="text-center text-secondary opacity-75">
+        <div class="card h-100 border-0  d-flex align-items-center justify-content-center py-5">
+            <div class="text-center text-secondary ">
                 <i data-feather="git-commit" class="mb-3" style="width: 48px; height: 48px;"></i>
-                <h5 class="text-light">Belum Ada Data Git</h5>
+                <h5 class="text-dark">Belum Ada Data Git</h5>
                 <p class="small mb-0">Analisis repositori di tab Git untuk melihat metrik kontribusi.</p>
             </div>
         </div>
@@ -138,8 +138,8 @@
 </div>
 
 <!-- ACTIONS TABBED INTERFACE -->
-<div class="card border-0 shadow-lg glass-card mb-5 overflow-hidden">
-    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-0 px-4 px-lg-5">
+<div class="card border-0 shadow-lg  mb-5 overflow-hidden">
+    <div class="card-header bg-white  border-bottom border pt-4 pb-0 px-4 px-lg-5">
         <ul class="nav nav-tabs custom-tabs border-0 gap-2" id="actionTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active rounded-top-3 px-4 py-3 fw-semibold d-flex align-items-center" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdf-pane" type="button" role="tab">
@@ -159,51 +159,50 @@
         </ul>
     </div>
     <div class="card-body p-4 p-lg-5 position-relative">
-        <!-- Glow effect behind tabs -->
-        <div class="position-absolute top-0 start-50 translate-middle-x w-50 h-50 bg-primary opacity-10 blur-3xl rounded-circle pointer-events-none"></div>
+        
         
         <div class="tab-content position-relative z-1" id="actionTabsContent">
             
             <!-- TAB: PDF -->
             <div class="tab-pane fade show active" id="pdf-pane" role="tabpanel" tabindex="0">
                 <div class="row g-5">
-                    <div class="col-md-6 border-md-end border-secondary border-opacity-25">
+                    <div class="col-md-6 border-md-end border">
                         <div class="d-flex align-items-center mb-4">
-                            <div class="bg-primary bg-opacity-25 text-primary p-2 rounded-3 me-3">
-                                <i data-feather="link" style="width: 20px;"></i>
+                            <div class="bg-primary-subtle text-primary rounded-4 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0;">
+                                <i data-feather="link" style="width: 24px; height: 24px;"></i>
                             </div>
-                            <h5 class="text-light mb-0">Input via Google Drive</h5>
+                            <h5 class="text-dark mb-0">Input via Google Drive</h5>
                         </div>
                         <form id="pdf-link-form" action="{{ url_for('analyze_pdf') }}" method="post">
                             <div class="mb-4">
                                 <label class="form-label text-secondary small text-uppercase fw-bold">URL Google Drive</label>
-                                <input type="url" class="form-control form-control-lg bg-dark text-light border-secondary focus-glow" name="gdrive_link" placeholder="https://drive.google.com/..." required>
+                                <input type="url" class="form-control form-control-lg bg-white text-dark border-light-subtle " name="gdrive_link" placeholder="https://drive.google.com/..." required>
                             </div>
                             <div class="mb-4">
                                 <label class="form-label text-secondary small text-uppercase fw-bold">Tenggat Waktu <span class="fw-normal text-muted text-lowercase">(opsional)</span></label>
-                                <input type="datetime-local" class="form-control form-control-lg bg-dark text-light border-secondary focus-glow" name="deadline">
+                                <input type="datetime-local" class="form-control form-control-lg bg-white text-dark border-light-subtle " name="deadline">
                             </div>
-                            <button class="btn btn-primary btn-lg w-100 fw-semibold glow-btn" type="submit">Proses Link Drive</button>
+                            <button class="btn btn-primary btn-lg w-100 fw-semibold " type="submit">Proses Link Drive</button>
                         </form>
                     </div>
                     
                     <div class="col-md-6 d-flex flex-column">
                         <div class="d-flex align-items-center mb-4">
-                            <div class="bg-info bg-opacity-25 text-info p-2 rounded-3 me-3">
-                                <i data-feather="upload" style="width: 20px;"></i>
+                            <div class="bg-info-subtle text-info rounded-4 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; flex-shrink: 0;">
+                                <i data-feather="upload" style="width: 24px; height: 24px;"></i>
                             </div>
-                            <h5 class="text-light mb-0">Upload File Lokal</h5>
+                            <h5 class="text-dark mb-0">Upload File Lokal</h5>
                         </div>
                         <form id="pdf-upload-form" action="{{ url_for('upload_and_analyze_pdf') }}" method="post" enctype="multipart/form-data" class="flex-grow-1 d-flex flex-column">
-                            <div class="mb-4 flex-grow-1 border border-secondary border-opacity-50 rounded-4 p-4 text-center position-relative hover-bg-dark transition-all d-flex flex-column justify-content-center align-items-center dashed-border">
+                            <div class="mb-4 flex-grow-1 border border rounded-4 p-4 text-center position-relative hover-bg-white transition-all d-flex flex-column justify-content-center align-items-center dashed-border">
                                 <i data-feather="upload-cloud" class="text-secondary mb-3 mt-2" style="width: 48px; height: 48px;"></i>
-                                <h6 class="text-light fw-semibold" id="pdf-upload-text">Tarik file ke sini atau klik</h6>
+                                <h6 class="text-dark fw-semibold" id="pdf-upload-text">Tarik file ke sini atau klik</h6>
                                 <p class="text-secondary small mb-0" id="pdf-upload-desc">Mendukung .pdf, .xlsx, .csv</p>
                                 <input type="file" id="pdf-file-input" class="form-control position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer" name="file" required accept=".pdf, .xlsx, .csv">
                             </div>
                             <div class="mb-4">
                                 <label class="form-label text-info small text-uppercase fw-bold">Tenggat Waktu <span class="fw-normal text-muted text-lowercase ms-1">(opsional)</span></label>
-                                <input type="datetime-local" class="form-control form-control-lg bg-dark text-light border-secondary focus-glow-info" name="deadline">
+                                <input type="datetime-local" class="form-control form-control-lg bg-white text-dark border-light-subtle " name="deadline">
                             </div>
                             <button class="btn btn-outline-info btn-lg w-100 fw-semibold" type="submit">Upload & Analisis</button>
                         </form>
@@ -215,31 +214,31 @@
             <div class="tab-pane fade" id="git-pane" role="tabpanel" tabindex="0">
                 <div class="row justify-content-center mb-5">
                     <div class="col-md-8 text-center">
-                        <div class="d-inline-flex bg-dark bg-opacity-50 p-3 rounded-circle mb-3 border border-secondary border-opacity-25">
+                        <div class="d-inline-flex bg-white  p-3 rounded-circle mb-3 border border">
                             <i data-feather="git-merge" class="text-info" style="width: 32px; height: 32px;"></i>
                         </div>
-                        <h4 class="text-light fw-bold">Analisis Repositori GitHub</h4>
+                        <h4 class="text-dark fw-bold">Analisis Repositori GitHub</h4>
                         <p class="text-secondary">Ekstrak metadata commit, pelacakan issues, metrik pull request, serta pengecekan kompleksitas kode secara terpusat.</p>
                     </div>
                 </div>
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-xl-6">
-                        <form id="git-form" action="{{ url_for('analyze_git') }}" method="post" class="p-4 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+                        <form id="git-form" action="{{ url_for('analyze_git') }}" method="post" class="p-4 rounded-4 bg-white  border border">
                             <div class="mb-4">
                                 <label class="form-label text-secondary small text-uppercase fw-bold">Nama / URL Repositori</label>
                                 <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-dark border-secondary border-end-0"><i data-feather="github" class="text-secondary"></i></span>
-                                    <input type="text" class="form-control bg-dark text-light border-secondary border-start-0 focus-glow ps-0" name="repo_name" placeholder="user/repo atau https://github.com/..." required>
+                                    <span class="input-group-text bg-white border-light-subtle border-end-0"><i data-feather="github" class="text-secondary"></i></span>
+                                    <input type="text" class="form-control bg-white text-dark border-light-subtle border-start-0  ps-0" name="repo_name" placeholder="user/repo atau https://github.com/..." required>
                                 </div>
                             </div>
                             <div class="mb-5">
                                 <label class="form-label text-secondary small text-uppercase fw-bold">Tenggat Waktu <span class="fw-normal text-muted text-lowercase">(opsional)</span></label>
                                 <div class="input-group input-group-lg">
-                                    <span class="input-group-text bg-dark border-secondary border-end-0"><i data-feather="calendar" class="text-secondary"></i></span>
-                                    <input type="datetime-local" class="form-control bg-dark text-light border-secondary border-start-0 focus-glow ps-0" name="deadline">
+                                    <span class="input-group-text bg-white border-light-subtle border-end-0"><i data-feather="calendar" class="text-secondary"></i></span>
+                                    <input type="datetime-local" class="form-control bg-white text-dark border-light-subtle border-start-0  ps-0" name="deadline">
                                 </div>
                             </div>
-                            <button class="btn btn-info btn-lg w-100 fw-bold glow-btn-info text-dark" type="submit">Analisis Repositori</button>
+                            <button class="btn btn-info btn-lg w-100 fw-bold  text-dark" type="submit">Analisis Repositori</button>
                         </form>
                     </div>
                 </div>
@@ -250,10 +249,10 @@
                 <div class="row g-5 align-items-center">
                     <div class="col-lg-5 text-center text-lg-start mb-4 mb-lg-0">
                         <div class="pe-lg-4">
-                            <div class="d-inline-flex bg-warning bg-opacity-10 p-3 rounded-circle mb-4 border border-warning border-opacity-25">
+                            <div class="d-inline-flex bg-warning-subtle p-3 rounded-circle mb-4 border border-warning border-opacity-25">
                                 <i data-feather="cpu" class="text-warning" style="width: 40px; height: 40px;"></i>
                             </div>
-                            <h3 class="text-light fw-bold mb-3">Auto-Grader</h3>
+                            <h3 class="text-dark fw-bold mb-3">Auto-Grader</h3>
                             <p class="text-secondary fs-6 mb-4" style="line-height: 1.7;">Evaluasi otomatis dokumen tugas mahasiswa di folder Google Drive secara masal. Didukung oleh LLM (Gemini) untuk membaca teks dan memberikan skor beserta *feedback* membangun.</p>
                             
                             <ul class="list-unstyled text-start text-secondary mb-0">
@@ -264,9 +263,8 @@
                         </div>
                     </div>
                     <div class="col-lg-7">
-                        <div class="p-4 p-lg-5 rounded-4 bg-dark bg-opacity-50 border border-warning border-opacity-25 position-relative overflow-hidden">
-                            <!-- Warning glow background -->
-                            <div class="position-absolute top-0 end-0 w-50 h-100 bg-warning opacity-10 blur-3xl pointer-events-none" style="border-radius: 50%;"></div>
+                        <div class="p-4 p-lg-5 rounded-4 bg-white  border border-warning border-opacity-25 position-relative overflow-hidden">
+                            
                             
                             <form id="ai-grader-form" action="{{ url_for('analyze_folder_ai') }}" method="post" enctype="multipart/form-data" class="position-relative z-1">
                                 <div class="mb-4">
@@ -275,7 +273,7 @@
                                         Upload Rubrik Penilaian (PDF)
                                     </label>
                                     <div class="position-relative">
-                                        <input type="file" id="rubric-file-input" class="form-control form-control-lg bg-dark text-light border-secondary focus-glow-warning" style="padding-right: 40px;" name="rubric_file" accept=".pdf" required>
+                                        <input type="file" id="rubric-file-input" class="form-control form-control-lg bg-white text-dark border-light-subtle " style="padding-right: 40px;" name="rubric_file" accept=".pdf" required>
                                         <i data-feather="file-text" class="text-warning position-absolute top-50 end-0 translate-middle-y me-3 pointer-events-none d-none" id="rubric-file-icon"></i>
                                     </div>
                                 </div>
@@ -285,10 +283,10 @@
                                         Link Folder Tugas (Google Drive)
                                     </label>
                                     <div class="input-group input-group-lg mb-2">
-                                        <span class="input-group-text bg-dark border-secondary"><i data-feather="folder" class="text-secondary"></i></span>
-                                        <input type="url" class="form-control bg-dark text-light border-secondary focus-glow-warning" name="folder_link" placeholder="https://drive.google.com/drive/folders/..." required>
+                                        <span class="input-group-text bg-white border-light-subtle"><i data-feather="folder" class="text-secondary"></i></span>
+                                        <input type="url" class="form-control bg-white text-dark border-light-subtle " name="folder_link" placeholder="https://drive.google.com/drive/folders/..." required>
                                     </div>
-                                    <div class="form-text text-secondary opacity-75 d-flex align-items-center">
+                                    <div class="form-text text-secondary  d-flex align-items-center">
                                         <i data-feather="info" class="me-1" style="width: 12px;"></i> Pastikan folder diset "Anyone with the link".
                                     </div>
                                 </div>
@@ -298,14 +296,14 @@
                                         Tenggat Waktu <span class="fw-normal text-muted text-lowercase ms-2">(opsional)</span>
                                     </label>
                                     <div class="input-group input-group-lg mb-2">
-                                        <span class="input-group-text bg-dark border-secondary"><i data-feather="calendar" class="text-secondary"></i></span>
-                                        <input type="datetime-local" class="form-control bg-dark text-light border-secondary focus-glow-warning" name="deadline">
+                                        <span class="input-group-text bg-white border-light-subtle"><i data-feather="calendar" class="text-secondary"></i></span>
+                                        <input type="datetime-local" class="form-control bg-white text-dark border-light-subtle " name="deadline">
                                     </div>
-                                    <div class="form-text text-secondary opacity-75">
+                                    <div class="form-text text-secondary ">
                                         Jika diisi, AI akan membandingkan tanggal modifikasi PDF dengan tenggat waktu.
                                     </div>
                                 </div>
-                                <button class="btn btn-warning btn-lg w-100 fw-bold text-dark shadow-lg glow-btn-warning" type="submit">
+                                <button class="btn btn-warning btn-lg w-100 fw-bold text-dark shadow-lg " type="submit">
                                     <i data-feather="play-circle" class="me-2"></i> Eksekusi Auto-Grader
                                 </button>
                             </form>
@@ -321,8 +319,8 @@
 <!-- Modal Reset -->
 <div class="modal fade" id="resetDataModal" tabindex="-1" aria-labelledby="resetDataModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark text-light border border-secondary border-opacity-50 shadow-lg">
-      <div class="modal-header border-bottom border-secondary border-opacity-25">
+    <div class="modal-content bg-white text-dark border border shadow-lg">
+      <div class="modal-header border-bottom border">
         <h5 class="modal-title fw-bold text-danger d-flex align-items-center" id="resetDataModalLabel">
             <i data-feather="alert-triangle" class="me-2"></i> Konfirmasi Reset
         </h5>
@@ -332,12 +330,12 @@
         <i data-feather="trash-2" class="text-danger mb-3" style="width: 64px; height: 64px; opacity: 0.8;"></i>
         <h4 class="mb-3">Hapus Semua Data?</h4>
         <p class="text-secondary">Anda yakin ingin menghapus <strong>seluruh data analisis PDF dan Git</strong> dari database?</p>
-        <p class="text-danger small mb-0 fw-semibold bg-danger bg-opacity-10 p-2 rounded">Tindakan ini permanen dan tidak dapat dibatalkan.</p>
+        <p class="text-danger small mb-0 fw-semibold bg-danger  p-2 rounded">Tindakan ini permanen dan tidak dapat dibatalkan.</p>
       </div>
-      <div class="modal-footer border-top border-secondary border-opacity-25 justify-content-center gap-2">
+      <div class="modal-footer border-top border justify-content-center gap-2">
         <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Batal</button>
         <form action="{{ url_for('reset_data') }}" method="post" class="m-0">
-            <button type="submit" class="btn btn-danger px-4 fw-semibold glow-btn-danger">Ya, Hapus Permanen</button>
+            <button type="submit" class="btn btn-danger px-4 fw-semibold ">Ya, Hapus Permanen</button>
         </form>
       </div>
     </div>
@@ -353,7 +351,7 @@
         const timeData = {{ (commits_over_time_data or {}) | tojson | safe }};
         if (timeData && Object.keys(timeData).length > 0) {
             const ctx = chartCanvas.getContext('2d');
-            Chart.defaults.color = '#94a3b8'; // Dark mode text color
+            Chart.defaults.color = '#334155'; // Dark mode text color
             Chart.defaults.font.family = "'Inter', sans-serif";
             
             // Create gradient for fill
@@ -371,7 +369,7 @@
                         backgroundColor: gradient, 
                         borderColor: '#0ea5e9', 
                         borderWidth: 3, 
-                        pointBackgroundColor: '#0f172a',
+                        pointBackgroundColor: '#ffffff',
                         pointBorderColor: '#0ea5e9',
                         pointBorderWidth: 2,
                         pointRadius: 4,
@@ -387,11 +385,11 @@
                         x: { 
                             type: 'time', 
                             time: { unit: 'day' }, 
-                            grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false } 
+                            grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false } 
                         }, 
                         y: { 
                             beginAtZero: true, 
-                            grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false },
                             ticks: { precision: 0 }
                         } 
                     }, 
@@ -401,7 +399,7 @@
                             backgroundColor: 'rgba(15, 23, 42, 0.9)',
                             titleColor: '#f8fafc',
                             bodyColor: '#cbd5e1',
-                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderColor: 'rgba(0, 0, 0, 0.1)',
                             borderWidth: 1,
                             padding: 12,
                             displayColors: false
@@ -494,12 +492,12 @@
                 if(this.files && this.files.length > 0) {
                     const fileName = this.files[0].name;
                     pdfUploadText.innerHTML = `<span class="text-info">${fileName}</span>`;
-                    pdfUploadText.classList.remove('text-light');
+                    pdfUploadText.classList.remove('text-dark');
                     pdfUploadDesc.textContent = "File siap diunggah!";
                     pdfUploadDesc.classList.replace('text-secondary', 'text-info');
                 } else {
                     pdfUploadText.textContent = 'Tarik file ke sini atau klik';
-                    pdfUploadText.classList.add('text-light');
+                    pdfUploadText.classList.add('text-dark');
                     pdfUploadDesc.textContent = 'Mendukung .pdf, .xlsx, .csv';
                     pdfUploadDesc.classList.replace('text-info', 'text-secondary');
                 }
@@ -551,7 +549,7 @@
 </script>
 <style>
     /* CSS Kustom Tambahan khusus Dashboard */
-    .glass-card {
+    . {
         background-color: rgba(30, 41, 59, 0.6);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
@@ -559,40 +557,42 @@
     }
     
     .card-hover-effect {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .card-hover-effect:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px rgba(99, 102, 241, 0.15) !important;
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.01) !important;
     }
     
     .custom-tabs .nav-link {
-        color: #94a3b8;
+        color: #64748b;
         background: transparent;
         border: none;
         border-bottom: 2px solid transparent;
         transition: all 0.3s ease;
         border-radius: 0;
+        font-weight: 600;
+        padding-bottom: 1rem;
     }
     .custom-tabs .nav-link:hover {
-        color: #f8fafc;
-        border-color: rgba(255, 255, 255, 0.1);
+        color: #0f172a;
+        border-color: rgba(0, 0, 0, 0.1);
     }
     .custom-tabs .nav-link.active {
-        color: #6366f1;
+        color: #4f46e5;
         background: transparent;
-        border-bottom: 2px solid #6366f1;
+        border-bottom: 2px solid #4f46e5;
     }
     .custom-tabs .nav-link#ai-tab.active {
-        color: #ffc107;
-        border-bottom: 2px solid #ffc107;
+        color: #d97706;
+        border-bottom: 2px solid #d97706;
     }
     
-    .focus-glow:focus {
+    .:focus {
         border-color: #6366f1;
         box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.25);
     }
-    .focus-glow-warning:focus {
+    .:focus {
         border-color: #ffc107;
         box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
     }
@@ -602,7 +602,7 @@
         border-width: 2px !important;
     }
     
-    .hover-bg-dark:hover {
+    .hover-bg-white:hover {
         background-color: rgba(15, 23, 42, 0.3);
     }
     
@@ -622,35 +622,35 @@
     }
     
     /* Tombol Glow Effect */
-    .glow-btn {
+    . {
         box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
         transition: all 0.3s ease;
     }
-    .glow-btn:hover {
+    .:hover {
         box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
         transform: translateY(-2px);
     }
-    .glow-btn-info {
+    . {
         box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
         transition: all 0.3s ease;
     }
-    .glow-btn-info:hover {
+    .:hover {
         box-shadow: 0 6px 20px rgba(14, 165, 233, 0.6);
         transform: translateY(-2px);
     }
-    .glow-btn-warning {
+    . {
         box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
         transition: all 0.3s ease;
     }
-    .glow-btn-warning:hover {
+    .:hover {
         box-shadow: 0 6px 20px rgba(255, 193, 7, 0.6);
         transform: translateY(-2px);
     }
-    .glow-btn-danger {
+    . {
         box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
         transition: all 0.3s ease;
     }
-    .glow-btn-danger:hover {
+    .:hover {
         box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
         transform: translateY(-2px);
     }

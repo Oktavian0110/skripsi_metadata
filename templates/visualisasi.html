@@ -6,7 +6,7 @@
 {% block content %}
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 page-header gap-3">
     <div>
-        <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+        <h2 class="fw-bold mb-1 text-dark d-flex align-items-center">
             <i data-feather="pie-chart" class="me-3 text-primary" style="width: 28px; height: 28px;"></i>
             Visualisasi Data Global
         </h2>
@@ -17,10 +17,10 @@
 <div class="row g-4 mb-4">
     <!-- Grafik Kontributor Git -->
     <div class="col-lg-6">
-        <div class="card border-0 shadow-lg glass-card h-100 card-hover-effect">
-            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <div class="card border-0 shadow-lg  h-100 card-hover-effect">
+            <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
                 <i data-feather="users" class="text-info me-2" style="width: 18px;"></i>
-                <h6 class="mb-0 text-light fw-bold">Top 10 Kontributor Git Teraktif</h6>
+                <h6 class="mb-0 text-dark fw-bold">Top 10 Kontributor Git Teraktif</h6>
             </div>
             <div class="card-body p-4" style="position: relative; height: 350px;">
                 <canvas id="gitContributorsChart"></canvas>
@@ -30,10 +30,10 @@
 
     <!-- Grafik Kategori Commit -->
     <div class="col-lg-6">
-        <div class="card border-0 shadow-lg glass-card h-100 card-hover-effect">
-            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <div class="card border-0 shadow-lg  h-100 card-hover-effect">
+            <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
                 <i data-feather="tag" class="text-warning me-2" style="width: 18px;"></i>
-                <h6 class="mb-0 text-light fw-bold">Distribusi Kategori Commit</h6>
+                <h6 class="mb-0 text-dark fw-bold">Distribusi Kategori Commit</h6>
             </div>
             <div class="card-body p-4 d-flex justify-content-center" style="position: relative; height: 350px;">
                 <canvas id="gitCategoriesChart"></canvas>
@@ -45,10 +45,10 @@
 <div class="row g-4 mb-5">
     <!-- Grafik Author PDF -->
     <div class="col-lg-6">
-        <div class="card border-0 shadow-lg glass-card h-100 card-hover-effect">
-            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <div class="card border-0 shadow-lg  h-100 card-hover-effect">
+            <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
                 <i data-feather="edit-3" class="text-primary me-2" style="width: 18px;"></i>
-                <h6 class="mb-0 text-light fw-bold">Top 10 Author PDF Terproduktif</h6>
+                <h6 class="mb-0 text-dark fw-bold">Top 10 Author PDF Terproduktif</h6>
             </div>
             <div class="card-body p-4" style="position: relative; height: 350px;">
                 <canvas id="pdfAuthorsChart"></canvas>
@@ -66,9 +66,9 @@ const gitCategoriesData = {{ git_categories_data | tojson | safe }};
 const pdfAuthorsData = {{ pdf_authors_data | tojson | safe }};
 
 // Set Global Chart.js defaults untuk Dark Mode
-Chart.defaults.color = '#94a3b8';
+Chart.defaults.color = '#334155';
 Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
+Chart.defaults.scale.grid.color = 'rgba(0, 0, 0, 0.05)';
 Chart.defaults.scale.grid.drawBorder = false;
 
 // Tooltip Global Config
@@ -76,7 +76,7 @@ const tooltipOptions = {
     backgroundColor: 'rgba(15, 23, 42, 0.9)',
     titleColor: '#f8fafc',
     bodyColor: '#cbd5e1',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(0, 0, 0, 0.1)',
     borderWidth: 1,
     padding: 12,
     cornerRadius: 8,
@@ -145,7 +145,7 @@ if (gitCategoriesCanvas && gitCategoriesData && Object.keys(gitCategoriesData).l
                     'rgba(139, 92, 246, 0.8)',  // Violet
                     'rgba(100, 116, 139, 0.8)'  // Slate
                 ],
-                borderColor: 'rgba(30, 41, 59, 1)',
+                borderColor: '#ffffff',
                 borderWidth: 2,
                 hoverOffset: 4
             }]
@@ -157,7 +157,7 @@ if (gitCategoriesCanvas && gitCategoriesData && Object.keys(gitCategoriesData).l
             plugins: { 
                 legend: { 
                     position: 'right',
-                    labels: { color: '#e2e8f0', padding: 20, usePointStyle: true, pointStyle: 'circle' }
+                    labels: { color: '#334155', padding: 20, usePointStyle: true, pointStyle: 'circle' }
                 },
                 tooltip: tooltipOptions
             }

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 page-header gap-3">
     <div>
-        <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+        <h2 class="fw-bold mb-1 text-dark d-flex align-items-center">
             <i data-feather="database" class="me-3 text-primary" style="width: 28px; height: 28px;"></i>
             Data Master
         </h2>
@@ -13,8 +13,8 @@
     </div>
 </div>
 
-<div class="card border-0 shadow-lg glass-card mb-5 overflow-hidden">
-    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-0 px-4 px-lg-5">
+<div class="card border-0 shadow-lg  mb-5 overflow-hidden">
+    <div class="card-header bg-white  border-bottom border pt-4 pb-0 px-4 px-lg-5">
         <ul class="nav nav-tabs custom-tabs border-0 gap-2">
             <li class="nav-item">
                 <a class="nav-link rounded-top-3 px-4 py-3 fw-semibold d-flex align-items-center {% if active_tab == 'pdf' %}active{% endif %}" href="{{ url_for('data_master', tab='pdf') }}">
@@ -31,14 +31,14 @@
     
     <div class="card-body p-4 p-lg-5 position-relative">
         <!-- Glow effect -->
-        <div class="position-absolute top-0 start-50 translate-middle-x w-50 h-50 bg-primary opacity-10 blur-3xl rounded-circle pointer-events-none"></div>
+        
         
         <div class="position-relative z-1">
             <div class="row mb-4 align-items-center">
                 <div class="col-md-6 mb-3 mb-md-0">
                     {% if active_tab == 'git' %}
                     <form id="compareForm" action="{{ url_for('compare_repos') }}" method="GET">
-                        <button type="submit" class="btn btn-primary fw-semibold glow-btn">
+                        <button type="submit" class="btn btn-primary fw-semibold ">
                             <i data-feather="git-merge" class="me-2" style="width: 16px;"></i>Bandingkan Repositori Terpilih
                         </button>
                     </form>
@@ -48,8 +48,8 @@
                     <form action="{{ url_for('data_master', tab=active_tab) }}" method="GET" class="d-flex">
                         <input type="hidden" name="tab" value="{{ active_tab }}">
                         <div class="input-group">
-                            <span class="input-group-text bg-dark border-secondary"><i data-feather="search" class="text-secondary" style="width: 18px;"></i></span>
-                            <input type="search" class="form-control bg-dark text-light border-secondary focus-glow ps-0" name="q" placeholder="Cari data..." value="{{ search_query or '' }}">
+                            <span class="input-group-text bg-white border-light-subtle"><i data-feather="search" class="text-secondary" style="width: 18px;"></i></span>
+                            <input type="search" class="form-control bg-white text-dark border-light-subtle  ps-0" name="q" placeholder="Cari data..." value="{{ search_query or '' }}">
                             <button class="btn btn-outline-secondary" type="submit">Cari</button>
                         </div>
                     </form>
@@ -74,7 +74,7 @@
                                     <td class="text-secondary fw-semibold">#{{ row.id }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-2 me-3">
+                                            <div class="bg-primary-subtle text-primary p-2 rounded-2 me-3">
                                                 <i data-feather="file" style="width: 16px; height: 16px;"></i>
                                             </div>
                                             <span class="fw-medium">{{ row.file_name }}</span>
@@ -82,43 +82,47 @@
                                     </td>
                                     <td class="text-secondary">{{ row.title or 'N/A' }}</td>
                                     <td><a href="{{ url_for('student_profile', author_name=row.author) }}" class="text-info text-decoration-none fw-medium">{{ row.author }}</a></td>
-                                    <td><span class="badge bg-dark border border-secondary">{{ row.num_pages }}</span></td>
+                                    <td><span class="badge bg-white text-dark border border-light-subtle">{{ row.num_pages }}</span></td>
                                     <td class="text-secondary small">{{ (row.analysis_timestamp | localtime).strftime('%Y-%m-%d %H:%M') if row.analysis_timestamp else 'N/A' }}</td>
                                     <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
                                         <a href="{{ url_for('pdf_detail', doc_id=row.id) }}" class="btn btn-sm btn-outline-info me-1"><i data-feather="eye" style="width: 14px;"></i></a>
                                         <form action="{{ url_for('delete_pdf', doc_id=row.id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus dokumen ini?');">
                                             <button type="submit" class="btn btn-sm btn-outline-danger"><i data-feather="trash-2" style="width: 14px;"></i></button>
                                         </form>
+                                        </div>
                                     </td>
                                 {% elif active_tab == 'git' %}
                                     <td class="text-center">
                                         <div class="form-check d-flex justify-content-center">
-                                            <input class="form-check-input bg-dark border-secondary" type="checkbox" name="repo" value="{{ row.repo_name }}" form="compareForm">
+                                            <input class="form-check-input border-secondary shadow-sm" type="checkbox" name="repo" value="{{ row.repo_name }}" form="compareForm">
                                         </div>
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-info bg-opacity-10 text-info p-2 rounded-2 me-3">
+                                            <div class="bg-info-subtle text-info p-2 rounded-2 me-3">
                                                 <i data-feather="github" style="width: 16px; height: 16px;"></i>
                                             </div>
                                             <span class="fw-medium">{{ row.repo_name }}</span>
                                         </div>
                                     </td>
-                                    <td><span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50">{{ row.total_commits }}</span></td>
-                                    <td><span class="badge bg-dark border border-secondary">{{ row.contributors }}</span></td>
+                                    <td><span class="badge bg-primary-subtle text-primary border border-primary border-opacity-50">{{ row.total_commits }}</span></td>
+                                    <td><span class="badge bg-white text-dark border border-light-subtle">{{ row.contributors }}</span></td>
                                     <td class="text-secondary small">{{ (row.last_commit | localtime).strftime('%Y-%m-%d %H:%M') if row.last_commit else 'N/A' }}</td>
                                     <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
                                         <a href="{{ url_for('repo_detail', repo_name=row.repo_name) }}" class="btn btn-sm btn-outline-info me-1"><i data-feather="activity" style="width: 14px;"></i></a>
                                         <form action="{{ url_for('delete_git_repo', repo_name=row.repo_name) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus semua data untuk repositori ini?');">
                                             <button type="submit" class="btn btn-sm btn-outline-danger"><i data-feather="trash-2" style="width: 14px;"></i></button>
                                         </form>
+                                        </div>
                                     </td>
                                 {% endif %}
                             </tr>
                             {% else %}
                             <tr>
                                 <td colspan="{{ headers|length + (1 if active_tab == 'git' else 0) }}" class="text-center py-5">
-                                    <div class="text-secondary opacity-75">
+                                    <div class="text-secondary ">
                                         <i data-feather="inbox" style="width: 48px; height: 48px;" class="mb-3"></i>
                                         <h6>Tidak ada data yang ditemukan.</h6>
                                         <p class="small mb-0">Silakan lakukan analisis melalui Dashboard.</p>
@@ -136,17 +140,17 @@
             <nav aria-label="Page navigation" class="mt-4">
                 <ul class="pagination justify-content-center mb-0">
                     <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
-                        <a class="page-link bg-dark text-light border-secondary hover-bg-dark" href="{{ url_for('data_master', tab=active_tab, page=current_page-1, q=search_query) }}" tabindex="-1" aria-disabled="true">
+                        <a class="page-link bg-white text-dark border-light-subtle hover-bg-white" href="{{ url_for('data_master', tab=active_tab, page=current_page-1, q=search_query) }}" tabindex="-1" aria-disabled="true">
                             <i data-feather="chevron-left" style="width: 16px;"></i>
                         </a>
                     </li>
                     {% for page_num in range(1, total_pages + 1) %}
                     <li class="page-item {% if page_num == current_page %}active{% endif %}">
-                        <a class="page-link {% if page_num == current_page %}bg-primary border-primary text-white{% else %}bg-dark text-light border-secondary hover-bg-dark{% endif %}" href="{{ url_for('data_master', tab=active_tab, page=page_num, q=search_query) }}">{{ page_num }}</a>
+                        <a class="page-link {% if page_num == current_page %}bg-primary border-primary text-dark{% else %}bg-white text-dark border-light-subtle hover-bg-white{% endif %}" href="{{ url_for('data_master', tab=active_tab, page=page_num, q=search_query) }}">{{ page_num }}</a>
                     </li>
                     {% endfor %}
                     <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
-                        <a class="page-link bg-dark text-light border-secondary hover-bg-dark" href="{{ url_for('data_master', tab=active_tab, page=current_page+1, q=search_query) }}">
+                        <a class="page-link bg-white text-dark border-light-subtle hover-bg-white" href="{{ url_for('data_master', tab=active_tab, page=current_page+1, q=search_query) }}">
                             <i data-feather="chevron-right" style="width: 16px;"></i>
                         </a>
                     </li>

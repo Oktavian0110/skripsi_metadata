@@ -7,10 +7,10 @@
 <div class="page-header mb-5">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
-            <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3 rounded-pill px-3 transition-all hover-bg-dark">
+            <a href="{{ url_for('data_master', tab='git') }}" class="btn btn-sm btn-outline-secondary mb-3 rounded-pill px-3 transition-all hover-bg-white">
                 <i data-feather="arrow-left" class="me-1" style="width: 14px;"></i> Kembali ke Daftar
             </a>
-            <h2 class="fw-bold mb-1 text-light d-flex align-items-center">
+            <h2 class="fw-bold mb-1 text-dark d-flex align-items-center">
                 <i data-feather="github" class="me-3 text-info" style="width: 28px; height: 28px;"></i>
                 {{ repo_name }}
             </h2>
@@ -18,7 +18,7 @@
         </div>
         <div>
             <form action="{{ url_for('clear_cache', repo_name=repo_name) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menganalisis ulang repositori ini? Ini akan mengambil data terbaru dari API.');">
-                <button type="submit" class="btn btn-outline-warning glow-btn-warning rounded-pill px-4 fw-semibold d-flex align-items-center">
+                <button type="submit" class="btn btn-outline-warning  rounded-pill px-4 fw-semibold d-flex align-items-center">
                     <i data-feather="refresh-cw" class="me-2" style="width: 16px;"></i> Analisis Ulang (Sinkronisasi API)
                 </button>
             </form>
@@ -29,45 +29,45 @@
 <!-- Ringkasan Statistik -->
 <div class="row g-4 mb-5">
     <div class="col-6 col-md-3">
-        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+        <div class="card h-100 border-0 shadow-sm  card-hover-effect">
             <div class="card-body text-center p-4">
-                <div class="d-inline-flex bg-primary bg-opacity-25 text-primary p-3 rounded-circle mb-3">
+                <div class="d-inline-flex bg-primary-subtle text-primary p-3 rounded-circle mb-3">
                     <i data-feather="git-commit" style="width: 24px; height: 24px;"></i>
                 </div>
-                <h2 class="fw-bolder text-light mb-0">{{ stats.total_commits }}</h2>
+                <h2 class="fw-bolder text-dark mb-0">{{ stats.total_commits }}</h2>
                 <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Total Commit</p>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+        <div class="card h-100 border-0 shadow-sm  card-hover-effect">
             <div class="card-body text-center p-4">
-                <div class="d-inline-flex bg-info bg-opacity-25 text-info p-3 rounded-circle mb-3">
+                <div class="d-inline-flex bg-info-subtle text-info p-3 rounded-circle mb-3">
                     <i data-feather="users" style="width: 24px; height: 24px;"></i>
                 </div>
-                <h2 class="fw-bolder text-light mb-0">{{ stats.unique_contributors }}</h2>
+                <h2 class="fw-bolder text-dark mb-0">{{ stats.unique_contributors }}</h2>
                 <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Kontributor</p>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+        <div class="card h-100 border-0 shadow-sm  card-hover-effect">
             <div class="card-body text-center p-4">
-                <div class="d-inline-flex bg-warning bg-opacity-25 text-warning p-3 rounded-circle mb-3">
+                <div class="d-inline-flex bg-warning-subtle text-warning p-3 rounded-circle mb-3">
                     <i data-feather="alert-circle" style="width: 24px; height: 24px;"></i>
                 </div>
-                <h2 class="fw-bolder text-light mb-0">{{ stats.get('total_issues', 0) }}</h2>
+                <h2 class="fw-bolder text-dark mb-0">{{ stats.get('total_issues', 0) }}</h2>
                 <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Total Issue</p>
             </div>
         </div>
     </div>
     <div class="col-6 col-md-3">
-        <div class="card h-100 border-0 shadow-sm glass-card card-hover-effect">
+        <div class="card h-100 border-0 shadow-sm  card-hover-effect">
             <div class="card-body text-center p-4">
-                <div class="d-inline-flex bg-success bg-opacity-25 text-success p-3 rounded-circle mb-3">
+                <div class="d-inline-flex bg-success-subtle text-success p-3 rounded-circle mb-3">
                     <i data-feather="git-pull-request" style="width: 24px; height: 24px;"></i>
                 </div>
-                <h2 class="fw-bolder text-light mb-0">{{ stats.get('total_pull_requests', 0) }}</h2>
+                <h2 class="fw-bolder text-dark mb-0">{{ stats.get('total_pull_requests', 0) }}</h2>
                 <p class="text-secondary small fw-semibold text-uppercase tracking-wide mb-0 mt-1">Pull Request</p>
             </div>
         </div>
@@ -77,10 +77,10 @@
 <!-- Baris untuk Grafik -->
 <div class="row g-4 mb-4">
     <div class="col-lg-6">
-        <div class="card h-100 border-0 shadow-lg glass-card card-hover-effect">
-            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <div class="card h-100 border-0 shadow-lg  card-hover-effect">
+            <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
                 <i data-feather="user-check" class="text-info me-2" style="width: 18px;"></i>
-                <h6 class="mb-0 text-light fw-bold">Commit per Kontributor</h6>
+                <h6 class="mb-0 text-dark fw-bold">Commit per Kontributor</h6>
             </div>
             <div class="card-body p-4" style="position: relative; height:350px;">
                 <canvas id="authorChart"></canvas>
@@ -88,10 +88,10 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card h-100 border-0 shadow-lg glass-card card-hover-effect">
-            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <div class="card h-100 border-0 shadow-lg  card-hover-effect">
+            <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
                 <i data-feather="pie-chart" class="text-warning me-2" style="width: 18px;"></i>
-                <h6 class="mb-0 text-light fw-bold">Distribusi Kategori Commit</h6>
+                <h6 class="mb-0 text-dark fw-bold">Distribusi Kategori Commit</h6>
             </div>
             <div class="card-body p-4 d-flex justify-content-center" style="position: relative; height:350px;">
                 <canvas id="categoryChart"></canvas>
@@ -103,10 +103,10 @@
 <!-- Baris untuk Grafik Tren -->
 <div class="row g-4 mb-5">
     <div class="col-lg-12">
-        <div class="card border-0 shadow-lg glass-card card-hover-effect">
-            <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+        <div class="card border-0 shadow-lg  card-hover-effect">
+            <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
                 <i data-feather="trending-up" class="text-primary me-2" style="width: 18px;"></i>
-                <h6 class="mb-0 text-light fw-bold">Tren Perkembangan Commit</h6>
+                <h6 class="mb-0 text-dark fw-bold">Tren Perkembangan Commit</h6>
             </div>
             <div class="card-body p-4" style="position: relative; height:300px;">
                 <canvas id="commitsOverTimeChart"></canvas>
@@ -116,10 +116,10 @@
 </div>
 
 <!-- Analisis Kontribusi Tim -->
-<div class="card border-0 shadow-lg glass-card mb-5">
-    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+<div class="card border-0 shadow-lg  mb-5">
+    <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
         <i data-feather="users" class="text-success me-2" style="width: 18px;"></i>
-        <h5 class="mb-0 text-light fw-bold">Analisis Kontribusi Tim</h5>
+        <h5 class="mb-0 text-dark fw-bold">Analisis Kontribusi Tim</h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -137,13 +137,13 @@
                     {% for author, author_stats in team_contribution.items() %}
                     <tr>
                         <td class="ps-4"><a href="{{ url_for('student_profile', author_name=author) }}" class="text-info text-decoration-none fw-semibold d-flex align-items-center"><i data-feather="user" class="me-2" style="width: 14px;"></i>{{ author }}</a></td>
-                        <td class="text-center"><span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50">{{ author_stats.total_commits }}</span></td>
+                        <td class="text-center"><span class="badge bg-primary-subtle text-primary border border-primary border-opacity-50">{{ author_stats.total_commits }}</span></td>
                         <td class="text-center text-success fw-semibold">+{{ author_stats.lines_added }}</td>
                         <td class="text-center text-danger fw-semibold">-{{ author_stats.lines_deleted }}</td>
                         <td class="pe-4">
                             <div class="d-flex flex-wrap gap-1">
                             {% for ext, count in author_stats.file_types.items() %}
-                                <span class="badge bg-dark border border-secondary text-secondary">{{ ext }} ({{ count }})</span>
+                                <span class="badge bg-white text-dark border border-light-subtle text-secondary">{{ ext }} ({{ count }})</span>
                             {% else %}
                                 <span class="text-muted small fst-italic">-</span>
                             {% endfor %}
@@ -165,13 +165,13 @@
 </div>
 
 <!-- Analisis Kompleksitas Kode -->
-<div class="card border-0 shadow-lg glass-card mb-5">
-    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
+<div class="card border-0 shadow-lg  mb-5">
+    <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
         <i data-feather="activity" class="text-danger me-2" style="width: 18px;"></i>
-        <h5 class="mb-0 text-light fw-bold">Analisis Kompleksitas Kode <span class="fw-normal text-secondary fs-6">(Top 10 File Python)</span></h5>
+        <h5 class="mb-0 text-dark fw-bold">Analisis Kompleksitas Kode <span class="fw-normal text-secondary fs-6">(Top 10 File Python)</span></h5>
     </div>
     <div class="card-body p-4 p-xl-5">
-        <div class="alert alert-secondary bg-dark bg-opacity-50 border-secondary border-opacity-25 text-secondary d-flex align-items-start rounded-4 mb-4" role="alert">
+        <div class="alert alert-secondary bg-white  border text-secondary d-flex align-items-start rounded-4 mb-4" role="alert">
             <i data-feather="info" class="me-3 mt-1 flex-shrink-0" style="width: 20px; height: 20px;"></i>
             <div>
                 <strong>Kompleksitas Siklomatis</strong> mengukur jumlah jalur independen dalam kode. Skor yang lebih tinggi (biasanya > 10) menunjukkan kode yang lebih rumit, lebih sulit diuji, dan berpotensi memiliki lebih banyak bug.
@@ -184,10 +184,10 @@
 </div>
 
 <!-- Tabel Daftar Commit -->
-<div class="card border-0 shadow-lg glass-card mb-5">
-    <div class="card-header bg-dark bg-opacity-50 border-bottom border-secondary border-opacity-25 pt-4 pb-3 px-4 d-flex align-items-center">
-        <i data-feather="list" class="text-light me-2" style="width: 18px;"></i>
-        <h5 class="mb-0 text-light fw-bold">Riwayat Commit Terakhir</h5>
+<div class="card border-0 shadow-lg  mb-5">
+    <div class="card-header bg-white  border-bottom border pt-4 pb-3 px-4 d-flex align-items-center">
+        <i data-feather="list" class="text-dark me-2" style="width: 18px;"></i>
+        <h5 class="mb-0 text-dark fw-bold">Riwayat Commit Terakhir</h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -205,9 +205,9 @@
                     <tr>
                         <td class="ps-4 text-secondary small fw-medium">{{ (commit.commit_date | localtime).strftime('%Y-%m-%d %H:%M') if commit.commit_date else 'N/A' }}</td>
                         <td><a href="{{ url_for('student_profile', author_name=commit.commit_author) }}" class="text-info text-decoration-none fw-medium">{{ commit.commit_author }}</a></td>
-                        <td class="text-light">{{ commit.commit_message | truncate(120) }}</td>
+                        <td class="text-dark">{{ commit.commit_message | truncate(120) }}</td>
                         <td class="pe-4 text-center">
-                            <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 px-2 py-1 fw-normal">{{ commit.category }}</span>
+                            <span class="badge bg-secondary  text-dark border border px-2 py-1 fw-normal">{{ commit.category }}</span>
                         </td>
                     </tr>
                     {% else %}
@@ -233,9 +233,9 @@ const categoryData = {{ stats.commit_category_counts | tojson | safe }};
 const timeData = {{ stats.commits_over_time | tojson | safe }};
 
 // Set Global Chart.js defaults untuk Dark Mode
-Chart.defaults.color = '#94a3b8';
+Chart.defaults.color = '#334155';
 Chart.defaults.font.family = "'Inter', sans-serif";
-Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
+Chart.defaults.scale.grid.color = 'rgba(0, 0, 0, 0.05)';
 Chart.defaults.scale.grid.drawBorder = false;
 
 // Tooltip Global Config
@@ -243,7 +243,7 @@ const tooltipOptions = {
     backgroundColor: 'rgba(15, 23, 42, 0.95)',
     titleColor: '#f8fafc',
     bodyColor: '#cbd5e1',
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(0, 0, 0, 0.1)',
     borderWidth: 1,
     padding: 12,
     cornerRadius: 8,
@@ -312,7 +312,7 @@ if (categoryCanvas && categoryData && Object.keys(categoryData).length > 0) {
                     'rgba(139, 92, 246, 0.8)',
                     'rgba(100, 116, 139, 0.8)'
                 ],
-                borderColor: 'rgba(30, 41, 59, 1)',
+                borderColor: '#ffffff',
                 borderWidth: 2,
                 hoverOffset: 4
             }]
@@ -324,7 +324,7 @@ if (categoryCanvas && categoryData && Object.keys(categoryData).length > 0) {
             plugins: { 
                 legend: { 
                     position: 'right',
-                    labels: { color: '#e2e8f0', padding: 15, usePointStyle: true, pointStyle: 'circle' }
+                    labels: { color: '#334155', padding: 15, usePointStyle: true, pointStyle: 'circle' }
                 },
                 tooltip: tooltipOptions
             }
@@ -357,7 +357,7 @@ if (timeCanvas && timeData && Object.keys(timeData).length > 0) {
                 backgroundColor: gradient,
                 borderColor: '#6366f1',
                 borderWidth: 3,
-                pointBackgroundColor: '#0f172a',
+                pointBackgroundColor: '#ffffff',
                 pointBorderColor: '#6366f1',
                 pointBorderWidth: 2,
                 pointRadius: 4,

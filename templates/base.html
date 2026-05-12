@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,11 +23,11 @@
 <body>
     <div class="sidebar d-flex flex-column">
         <div class="sidebar-brand d-flex align-items-center mb-5 mt-2 px-3">
-            <div class="brand-icon bg-primary bg-opacity-25 text-primary rounded-3 p-2 me-3 shadow-glow-primary">
+            <div class="brand-icon bg-primary-subtle text-primary rounded-3 p-2 me-3 ">
                 <i data-feather="hexagon" style="width: 24px; height: 24px;"></i>
             </div>
             <div>
-                <h5 class="mb-0 fw-bolder text-light tracking-wide">ANALYTICS</h5>
+                <h5 class="mb-0 fw-bolder text-dark tracking-wide">ANALYTICS</h5>
                 <span class="text-primary small fw-semibold" style="letter-spacing: 2px;">DEEP SPACE</span>
             </div>
         </div>
@@ -61,12 +61,12 @@
             </li>
         </ul>
 
-        <div class="sidebar-user mt-auto p-3 mx-2 mb-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-25 d-flex align-items-center">
-            <div class="user-avatar bg-secondary bg-opacity-25 rounded-circle p-2 me-3 d-flex justify-content-center align-items-center">
-                <i data-feather="user" class="text-light" style="width: 20px; height: 20px;"></i>
+        <div class="sidebar-user mt-auto p-3 mx-2 mb-3 rounded-4 bg-white  border border d-flex align-items-center">
+            <div class="user-avatar bg-secondary  rounded-circle p-2 me-3 d-flex justify-content-center align-items-center">
+                <i data-feather="user" class="text-dark" style="width: 20px; height: 20px;"></i>
             </div>
             <div class="user-info">
-                <h6 class="mb-0 text-light fw-semibold fs-6">Oktavian V.T.S</h6>
+                <h6 class="mb-0 text-dark fw-semibold fs-6">Oktavian V.T.S</h6>
                 <span class="text-secondary small">Admin Skripsi 2025</span>
             </div>
         </div>
@@ -82,7 +82,7 @@
                     {% for category, message in messages %}
                         {% set bs_category = category %}
                         {% if category == 'error' %}{% set bs_category = 'danger' %}{% endif %}
-                        <div class="alert alert-{{ bs_category }} bg-{{ bs_category }} bg-opacity-10 border border-{{ bs_category }} border-opacity-50 text-{{ bs_category }} alert-dismissible fade show shadow-sm rounded-4 d-flex align-items-center" role="alert">
+                        <div class="alert alert-{{ bs_category }} bg-{{ bs_category }}  border border-{{ bs_category }} border-opacity-50 text-{{ bs_category }} alert-dismissible fade show shadow-sm rounded-4 d-flex align-items-center" role="alert">
                             <i data-feather="info" class="me-2" style="width: 18px;"></i>
                             <div>{{ message }}</div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

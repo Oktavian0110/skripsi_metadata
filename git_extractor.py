@@ -38,22 +38,30 @@ class GitExtractor:
 
     def get_python_files_content(self, repo):
         """
-        FITUR BARU: Mengambil konten dari semua file Python (.py) di repositori.
+        FITUR BARU: Mengambil konten dari semua file Python (.py) di repositori secara paralel (Super Cepat).
         """
         files_content = {}
         try:
-            # Mengambil tree dari branch default
             tree = repo.get_git_tree(repo.default_branch, recursive=True)
-            for element in tree.tree:
-                if element.path.endswith('.py') and element.type == 'blob':
-                    try:
-                        # Mengambil konten file
-                        content_blob = repo.get_contents(element.path)
-                        # Mendekode konten dari base64
-                        decoded_content = base64.b64decode(content_blob.content).decode('utf-8')
-                        files_content[element.path] = decoded_content
-                    except Exception as e:
-                        logging.error(f"Gagal mengambil konten file {element.path}: {e}")
+            py_files = [e for e in tree.tree if e.path.endswith('.py') and e.type == 'blob']
+            
+            import concurrent.futures
+            
+            def fetch_file(element):
+                try:
+                    content_blob = repo.get_contents(element.path)
+                    decoded_content = base64.b64decode(content_blob.content).decode('utf-8')
+                    return element.path, decoded_content
+                except Exception as e:
+                    logging.error(f"Gagal mengambil file {element.path}: {e}")
+                    return element.path, None
+            
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+                results = executor.map(fetch_file, py_files)
+                for path, content in results:
+                    if content:
+                        files_content[path] = content
+
         except UnknownObjectException:
             logging.info(f"Branch default '{repo.default_branch}' tidak ditemukan atau repositori kosong.")
         except Exception as e:
