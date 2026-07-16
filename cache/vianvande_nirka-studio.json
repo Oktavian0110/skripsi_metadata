@@ -1,0 +1,276 @@
+{
+    "timestamp": "2026-05-25T05:16:50.079848+00:00",
+    "commits": [
+        {
+            "repo_name": "vianvande/nirka-studio",
+            "commit_sha": "f5063961f3cdbc258d23464e01064e4762e8e5f2",
+            "commit_message": "feat: implement invitation management editor interface and add new special invitation template theme",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-13 08:33:49+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "admin.html",
+                    "additions": 2762,
+                    "deletions": 1543,
+                    "changes": 4305,
+                    "status": "modified"
+                },
+                {
+                    "filename": "invitation-special-03/index.html",
+                    "additions": 158,
+                    "deletions": 39,
+                    "changes": 197,
+                    "status": "modified"
+                },
+                {
+                    "filename": "invitation-special-03/script.js",
+                    "additions": 285,
+                    "deletions": 37,
+                    "changes": 322,
+                    "status": "modified"
+                },
+                {
+                    "filename": "invitation-special-03/style.css",
+                    "additions": 161,
+                    "deletions": 43,
+                    "changes": 204,
+                    "status": "modified"
+                },
+                {
+                    "filename": "invoice.html",
+                    "additions": 1360,
+                    "deletions": 1101,
+                    "changes": 2461,
+                    "status": "modified"
+                },
+                {
+                    "filename": "scratch/editor_fixed.html",
+                    "additions": 227,
+                    "deletions": 0,
+                    "changes": 227,
+                    "status": "added"
+                }
+            ]
+        },
+        {
+            "repo_name": "vianvande/nirka-studio",
+            "commit_sha": "b188537cfc8ecffee82ad527a7b76ce26c86e627",
+            "commit_message": "docs: remove README.md file content and add footer placeholders",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-13 04:20:50+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "README.md",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "vianvande/nirka-studio",
+            "commit_sha": "fb5ab4ae3400bbf4d72b6887b443959ecf7be9e0",
+            "commit_message": "first commit",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-13 04:11:38+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "README.md",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "vianvande/nirka-studio",
+            "commit_sha": "a041c7ef958c7be1956647ad969023f1372e8938",
+            "commit_message": "first commit",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-13 04:10:36+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "README.md",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "vianvande/nirka-studio",
+            "commit_sha": "f21b3bf485ab5b2b86a917294e7b8e7437d08584",
+            "commit_message": "first commit",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-13 04:02:30+00:00",
+            "category": "Other",
+            "files_changed": [
+                {
+                    "filename": "README.md",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "modified"
+                }
+            ]
+        },
+        {
+            "repo_name": "vianvande/nirka-studio",
+            "commit_sha": "b99b8d3e0d134152ad0a3a0b955746ee690090aa",
+            "commit_message": "feat: add admin dashboard and base templates for invitation studio service",
+            "commit_author": "vian",
+            "commit_author_email": "2041720208@student.polinema.ac.id",
+            "commit_date": "2026-05-13 03:48:41+00:00",
+            "category": "Feature",
+            "files_changed": [
+                {
+                    "filename": "README.md",
+                    "additions": 133,
+                    "deletions": 0,
+                    "changes": 133,
+                    "status": "added"
+                },
+                {
+                    "filename": "admin.html",
+                    "additions": 1655,
+                    "deletions": 0,
+                    "changes": 1655,
+                    "status": "added"
+                },
+                {
+                    "filename": "index.html",
+                    "additions": 1314,
+                    "deletions": 0,
+                    "changes": 1314,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/assets/bg.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/assets/bird.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/assets/cover.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/assets/gallery.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/assets/rose.png",
+                    "additions": 0,
+                    "deletions": 0,
+                    "changes": 0,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/index.html",
+                    "additions": 271,
+                    "deletions": 0,
+                    "changes": 271,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/script.js",
+                    "additions": 220,
+                    "deletions": 0,
+                    "changes": 220,
+                    "status": "added"
+                },
+                {
+                    "filename": "invitation-special-03/style.css",
+                    "additions": 903,
+                    "deletions": 0,
+                    "changes": 903,
+                    "status": "added"
+                },
+                {
+                    "filename": "invoice.html",
+                    "additions": 1240,
+                    "deletions": 0,
+                    "changes": 1240,
+                    "status": "added"
+                },
+                {
+                    "filename": "netlify.toml",
+                    "additions": 4,
+                    "deletions": 0,
+                    "changes": 4,
+                    "status": "added"
+                },
+                {
+                    "filename": "order.html",
+                    "additions": 1576,
+                    "deletions": 0,
+                    "changes": 1576,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/bold/index.html",
+                    "additions": 1539,
+                    "deletions": 0,
+                    "changes": 1539,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/elegant-gold/index.html",
+                    "additions": 1281,
+                    "deletions": 0,
+                    "changes": 1281,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/floral/index.html",
+                    "additions": 1417,
+                    "deletions": 0,
+                    "changes": 1417,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/minimalist/index.html",
+                    "additions": 1445,
+                    "deletions": 0,
+                    "changes": 1445,
+                    "status": "added"
+                },
+                {
+                    "filename": "templates/nusantara/index.html",
+                    "additions": 1614,
+                    "deletions": 0,
+                    "changes": 1614,
+                    "status": "added"
+                }
+            ]
+        }
+    ],
+    "issues": [],
+    "pull_requests": []
+}

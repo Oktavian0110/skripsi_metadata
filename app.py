@@ -268,19 +268,25 @@ def dashboard():
             latest_pdf = cursor.fetchone()
             if latest_pdf:
                 pdf_stats = { 'analyzed_filename': latest_pdf.get('file_name'), 'author_counts': {latest_pdf.get('author'): 1}, 'avg_pages': latest_pdf.get('num_pages'), 'word_count': latest_pdf.get('word_count'), 'creation_date': latest_pdf.get('creation_date'), 'keywords': latest_pdf.get('keywords', '').split(',') if latest_pdf.get('keywords') else [] }
-            cursor.execute("SELECT repo_name FROM git_commits ORDER BY analysis_timestamp DESC LIMIT 1")
+            cursor.execute("SELECT repo_name FROM git_commits ORDER BY id DESC LIMIT 1")
             latest_git_repo = cursor.fetchone()
             if latest_git_repo:
                 repo_name = latest_git_repo['repo_name']
-                cursor.execute("SELECT commit_date, category, commit_author FROM git_commits WHERE repo_name = %s", (repo_name,))
-                commits_data = cursor.fetchall()
-                if commits_data:
-                    commits_df_from_db = pd.DataFrame(commits_data)
-                    git_stats = analyzer.analyze_git_data(commits_df_from_db)
-                    cursor.execute("SELECT COUNT(*) as count FROM git_issues WHERE repo_name = %s", (repo_name,))
-                    git_stats['total_issues'] = cursor.fetchone().get('count', 0)
-                    cursor.execute("SELECT COUNT(*) as count FROM git_pull_requests WHERE repo_name = %s", (repo_name,))
-                    git_stats['total_pull_requests'] = cursor.fetchone().get('count', 0)
+                git_stats = {}
+                cursor.execute("SELECT COUNT(*) as count FROM git_commits WHERE repo_name = %s", (repo_name,))
+                git_stats['total_commits'] = cursor.fetchone().get('count', 0)
+                
+                cursor.execute("SELECT category, COUNT(*) as count FROM git_commits WHERE repo_name = %s GROUP BY category", (repo_name,))
+                git_stats['commit_category_counts'] = {row['category']: row['count'] for row in cursor.fetchall()}
+                
+                cursor.execute("SELECT DATE(commit_date) as c_date, COUNT(*) as count FROM git_commits WHERE repo_name = %s GROUP BY DATE(commit_date) ORDER BY c_date", (repo_name,))
+                git_stats['commits_over_time'] = {str(row['c_date']): row['count'] for row in cursor.fetchall()}
+                
+                cursor.execute("SELECT COUNT(*) as count FROM git_issues WHERE repo_name = %s", (repo_name,))
+                git_stats['total_issues'] = cursor.fetchone().get('count', 0)
+                
+                cursor.execute("SELECT COUNT(*) as count FROM git_pull_requests WHERE repo_name = %s", (repo_name,))
+                git_stats['total_pull_requests'] = cursor.fetchone().get('count', 0)
         finally:
             if conn.is_connected():
                 cursor.close()
